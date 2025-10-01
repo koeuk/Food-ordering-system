@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 
 class ProductController extends Controller
 {
@@ -17,7 +18,7 @@ class ProductController extends Controller
         $query = Product::with(['category', 'inventory']);
 
         // Filter by category
-        if ($request->has('category_id')) {
+        if ($request->has('category_id') && $request->category_id) {
             $query->where('category_id', $request->category_id);
         }
 
@@ -27,13 +28,35 @@ class ProductController extends Controller
         }
 
         // Search by name
-        if ($request->has('search')) {
+        if ($request->has('search') && $request->search) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        $products = $query->paginate(12);
+        $products = $query->paginate(12)->through(fn($product) => [
+            'id' => $product->id,
+            'category_id' => $product->category_id,
+            'name' => $product->name,
+            'description' => $product->description,
+            'price' => $product->price,
+            'image' => $product->image,
+            'is_available' => (bool)$product->is_available,
+            'created_at' => $product->created_at,
+            'updated_at' => $product->updated_at,
+            'category' => $product->category,
+            'inventory' => $product->inventory,
+        ]);
 
-        return view('products.index', compact('products'));
+        $categories = Category::all();
+
+        return Inertia::render('Products/Index', [
+            'products' => $products,
+            'categories' => $categories,
+            'filters' => [
+                'search' => $request->search,
+                'category_id' => $request->category_id,
+                'available' => $request->available,
+            ],
+        ]);
     }
 
     /**
@@ -42,7 +65,9 @@ class ProductController extends Controller
     public function create()
     {
         $categories = Category::all();
-        return view('products.create', compact('categories'));
+        return Inertia::render('Products/Create', [
+            'categories' => $categories,
+        ]);
     }
 
     /**
@@ -85,7 +110,9 @@ class ProductController extends Controller
     public function show(Product $product)
     {
         $product->load(['category', 'inventory']);
-        return view('products.show', compact('product'));
+        return Inertia::render('Products/Show', [
+            'product' => $product,
+        ]);
     }
 
     /**
@@ -94,7 +121,10 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $categories = Category::all();
-        return view('products.edit', compact('product', 'categories'));
+        return Inertia::render('Products/Edit', [
+            'product' => $product,
+            'categories' => $categories,
+        ]);
     }
 
     /**

@@ -8,6 +8,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class InventoryOrderController extends Controller
 {
@@ -16,11 +17,13 @@ class InventoryOrderController extends Controller
      */
     public function index()
     {
-        $orders = InventoryOrder::with(['supplier', 'manager', 'items.product'])
+        $inventoryOrders = InventoryOrder::with(['supplier', 'manager', 'items.product'])
             ->latest()
             ->paginate(10);
 
-        return view('inventory-orders.index', compact('orders'));
+        return Inertia::render('InventoryOrders/Index', [
+            'inventoryOrders' => $inventoryOrders,
+        ]);
     }
 
     /**
@@ -31,7 +34,10 @@ class InventoryOrderController extends Controller
         $suppliers = Supplier::all();
         $products = Product::with('inventory')->get();
 
-        return view('inventory-orders.create', compact('suppliers', 'products'));
+        return Inertia::render('InventoryOrders/Create', [
+            'suppliers' => $suppliers,
+            'products' => $products,
+        ]);
     }
 
     /**
@@ -98,7 +104,9 @@ class InventoryOrderController extends Controller
     {
         $inventoryOrder->load(['supplier', 'manager', 'items.product']);
 
-        return view('inventory-orders.show', compact('inventoryOrder'));
+        return Inertia::render('InventoryOrders/Show', [
+            'inventoryOrder' => $inventoryOrder,
+        ]);
     }
 
     /**

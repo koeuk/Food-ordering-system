@@ -6,6 +6,7 @@ use App\Models\Bill;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class BillController extends Controller
 {
@@ -21,7 +22,9 @@ class BillController extends Controller
 
         $bill->load(['order.items.product', 'order.customer']);
 
-        return view('bills.show', compact('bill'));
+        return Inertia::render('Bills/Show', [
+            'bill' => $bill,
+        ]);
     }
 
     /**

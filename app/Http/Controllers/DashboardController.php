@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
@@ -33,7 +34,10 @@ class DashboardController extends Controller
             'total_spent' => $user->orders()->where('status', 'delivered')->sum('total'),
         ];
 
-        return view('dashboard.customer', compact('recentOrders', 'stats'));
+        return Inertia::render('Dashboard/Customer', [
+            'recentOrders' => $recentOrders,
+            'stats' => $stats,
+        ]);
     }
 
     /**
@@ -65,15 +69,15 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        return view('dashboard.manager', compact(
-            'todaySales',
-            'monthSales',
-            'totalOrders',
-            'pendingOrders',
-            'lowStockItems',
-            'recentOrders',
-            'topProducts'
-        ));
+        return Inertia::render('Dashboard/Manager', [
+            'todaySales' => $todaySales,
+            'monthSales' => $monthSales,
+            'totalOrders' => $totalOrders,
+            'pendingOrders' => $pendingOrders,
+            'lowStockItems' => $lowStockItems,
+            'recentOrders' => $recentOrders,
+            'topProducts' => $topProducts,
+        ]);
     }
 
     /**
@@ -81,22 +85,24 @@ class DashboardController extends Controller
      */
     public function kitchenDashboard()
     {
-        $pendingOrders = Order::with(['items.product', 'customer'])
-            ->where('status', 'confirmed')
+        $orders = Order::with(['items.product', 'customer'])
+            ->whereIn('status', ['confirmed', 'preparing', 'ready'])
             ->latest()
             ->get();
 
-        $preparingOrders = Order::with(['items.product', 'customer'])
-            ->where('status', 'preparing')
-            ->latest()
-            ->get();
+        $stats = [
+            'pending' => Order::where('status', 'confirmed')->count(),
+            'preparing' => Order::where('status', 'preparing')->count(),
+            'ready' => Order::where('status', 'ready')->count(),
+            'completed_today' => Order::whereDate('created_at', today())
+                ->where('status', 'delivered')
+                ->count(),
+        ];
 
-        $readyOrders = Order::with(['items.product', 'customer'])
-            ->where('status', 'ready')
-            ->latest()
-            ->get();
-
-        return view('dashboard.kitchen', compact('pendingOrders', 'preparingOrders', 'readyOrders'));
+        return Inertia::render('Dashboard/Kitchen', [
+            'orders' => $orders,
+            'stats' => $stats,
+        ]);
     }
 
     /**

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Inventory;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class InventoryController extends Controller
 {
@@ -32,7 +33,14 @@ class InventoryController extends Controller
         // Get low stock count for alert
         $lowStockCount = Inventory::whereRaw('quantity <= minimum_stock')->count();
 
-        return view('inventory.index', compact('inventory', 'lowStockCount'));
+        return Inertia::render('Inventory/Index', [
+            'inventory' => $inventory,
+            'lowStockCount' => $lowStockCount,
+            'filters' => [
+                'search' => $request->search,
+                'low_stock' => $request->low_stock,
+            ],
+        ]);
     }
 
     /**
@@ -81,11 +89,13 @@ class InventoryController extends Controller
      */
     public function alerts()
     {
-        $alerts = Inventory::with('product')
+        $lowStockItems = Inventory::with('product.category')
             ->whereRaw('quantity <= minimum_stock')
             ->orderBy('quantity', 'asc')
             ->get();
 
-        return view('inventory.alerts', compact('alerts'));
+        return Inertia::render('Inventory/Alerts', [
+            'lowStockItems' => $lowStockItems,
+        ]);
     }
 }

@@ -9,6 +9,7 @@ use App\Models\Bill;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class OrderController extends Controller
 {
@@ -22,7 +23,9 @@ class OrderController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view('orders.index', compact('orders'));
+        return Inertia::render('Orders/Index', [
+            'orders' => $orders,
+        ]);
     }
 
     /**
@@ -30,14 +33,19 @@ class OrderController extends Controller
      */
     public function create()
     {
-        $products = Product::with('inventory')
+        $products = Product::with(['inventory', 'category'])
             ->where('is_available', true)
             ->whereHas('inventory', function ($query) {
                 $query->where('quantity', '>', 0);
             })
             ->get();
 
-        return view('orders.create', compact('products'));
+        $categories = \App\Models\Category::all();
+
+        return Inertia::render('Orders/Create', [
+            'products' => $products,
+            'categories' => $categories,
+        ]);
     }
 
     /**
@@ -138,7 +146,9 @@ class OrderController extends Controller
 
         $order->load(['items.product', 'bill', 'customer']);
 
-        return view('orders.show', compact('order'));
+        return Inertia::render('Orders/Show', [
+            'order' => $order,
+        ]);
     }
 
     /**
@@ -213,6 +223,8 @@ class OrderController extends Controller
             ->latest()
             ->get();
 
-        return view('kitchen.orders', compact('orders'));
+        return Inertia::render('Kitchen/Orders', [
+            'orders' => $orders,
+        ]);
     }
 }
