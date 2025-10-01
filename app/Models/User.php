@@ -21,6 +21,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'phone',
+        'address',
     ];
 
     /**
@@ -44,5 +47,45 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // Relationships
+
+    /**
+     * Get orders placed by this customer
+     */
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'customer_id');
+    }
+
+    /**
+     * Get inventory orders created by this manager
+     */
+    public function inventoryOrders()
+    {
+        return $this->hasMany(InventoryOrder::class, 'manager_id');
+    }
+
+    // Helper methods
+
+    public function isCustomer()
+    {
+        return $this->role === 'customer';
+    }
+
+    public function isManager()
+    {
+        return $this->role === 'manager';
+    }
+
+    public function isKitchen()
+    {
+        return $this->role === 'kitchen';
+    }
+
+    public function isSupplier()
+    {
+        return $this->role === 'supplier';
     }
 }

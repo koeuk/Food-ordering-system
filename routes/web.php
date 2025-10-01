@@ -1,6 +1,12 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\BillController;
+use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\InventoryOrderController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -14,14 +20,82 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Role-based Dashboards
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', function () {
+        $user = auth()->user();
 
-Route::middleware('auth')->group(function () {
+        if ($user->isManager()) {
+            return redirect()->route('dashboard.manager');
+        } elseif ($user->isKitchen()) {
+            return redirect()->route('dashboard.kitchen');
+        } else {
+            return redirect()->route('dashboard.customer');
+        }
+    })->name('dashboard');
+
+    Route::get('/dashboard/customer', [DashboardController::class, 'customerDashboard'])->name('dashboard.customer');
+    Route::get('/dashboard/manager', [DashboardController::class, 'managerDashboard'])->name('dashboard.manager');
+    Route::get('/dashboard/kitchen', [DashboardController::class, 'kitchenDashboard'])->name('dashboard.kitchen');
+});
+
+// Public Routes
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
+
+// Authenticated Customer Routes
+Route::middleware(['auth'])->group(function () {
+    // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Orders
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/create', [OrderController::class, 'create'])->name('orders.create');
+    Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+
+    // Bills
+    Route::get('/bills/{bill}', [BillController::class, 'show'])->name('bills.show');
+    Route::post('/bills/{bill}/payment', [BillController::class, 'processPayment'])->name('bills.payment');
+    Route::get('/bills/{bill}/download', [BillController::class, 'download'])->name('bills.download');
+});
+
+// Manager Routes
+Route::middleware(['auth'])->prefix('manager')->group(function () {
+    // Products Management
+    Route::resource('products', ProductController::class)->except(['index', 'show']);
+
+    // Inventory Management
+    Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
+    Route::patch('/inventory/{inventory}', [InventoryController::class, 'update'])->name('inventory.update');
+    Route::post('/inventory/{inventory}/restock', [InventoryController::class, 'restock'])->name('inventory.restock');
+    Route::get('/inventory/alerts', [InventoryController::class, 'alerts'])->name('inventory.alerts');
+
+    // Inventory Orders
+    Route::resource('inventory-orders', InventoryOrderController::class);
+    Route::post('/inventory-orders/{inventoryOrder}/sent', [InventoryOrderController::class, 'markAsSent'])->name('inventory-orders.sent');
+    Route::post('/inventory-orders/{inventoryOrder}/received', [InventoryOrderController::class, 'markAsReceived'])->name('inventory-orders.received');
+    Route::post('/inventory-orders/{inventoryOrder}/cancel', [InventoryOrderController::class, 'cancel'])->name('inventory-orders.cancel');
+
+    // Order Management
+    Route::post('/orders/{order}/confirm', [OrderController::class, 'confirm'])->name('orders.confirm');
+    Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
+
+    // Reports
+    Route::get('/reports/sales', [DashboardController::class, 'salesReport'])->name('reports.sales');
+    Route::get('/reports/inventory', [DashboardController::class, 'inventoryReport'])->name('reports.inventory');
+
+    // Bill Management
+    Route::post('/bills/{bill}/refund', [BillController::class, 'refund'])->name('bills.refund');
+});
+
+// Kitchen Routes
+Route::middleware(['auth'])->prefix('kitchen')->group(function () {
+    Route::get('/orders', [OrderController::class, 'kitchenOrders'])->name('kitchen.orders');
+    Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('kitchen.update-status');
 });
 
 require __DIR__.'/auth.php';
