@@ -25,7 +25,7 @@
         <v-btn
           text
           dark
-          :to="{ name: 'products' }"
+          :to="{ name: 'products.index' }"
           class="mx-2"
         >
           <v-icon left>mdi-food</v-icon>
@@ -36,7 +36,7 @@
           <v-btn
             text
             dark
-            :to="{ name: 'orders' }"
+            :to="{ name: 'orders.index' }"
             class="mx-2"
           >
             <v-icon left>mdi-clipboard-list</v-icon>
@@ -48,7 +48,25 @@
             <v-btn
               text
               dark
-              :to="{ name: 'inventory' }"
+              :to="{ name: 'manager.products.index' }"
+              class="mx-2"
+            >
+              <v-icon left>mdi-food</v-icon>
+              Products
+            </v-btn>
+            <v-btn
+              text
+              dark
+              :to="{ name: 'categories.index' }"
+              class="mx-2"
+            >
+              <v-icon left>mdi-tag</v-icon>
+              Categories
+            </v-btn>
+            <v-btn
+              text
+              dark
+              :to="{ name: 'inventory.index' }"
               class="mx-2"
             >
               <v-icon left>mdi-package-variant</v-icon>
@@ -57,7 +75,7 @@
             <v-btn
               text
               dark
-              :to="{ name: 'manager.roles.index' }"
+              :to="{ name: 'roles.index' }"
               class="mx-2"
             >
               <v-icon left>mdi-shield-account</v-icon>
@@ -66,7 +84,7 @@
             <v-btn
               text
               dark
-              :to="{ name: 'manager.user-roles.index' }"
+              :to="{ name: 'user-roles.index' }"
               class="mx-2"
             >
               <v-icon left>mdi-account-cog</v-icon>
@@ -75,7 +93,7 @@
             <v-btn
               text
               dark
-              :to="{ name: 'reports.sales' }"
+              :to="{ name: 'manager.reports.sales' }"
               class="mx-2"
             >
               <v-icon left>mdi-chart-line</v-icon>
@@ -177,7 +195,7 @@
         </v-list-item>
         <v-divider />
         
-        <v-list-item :to="{ name: 'products' }">
+        <v-list-item :to="{ name: 'products.index' }">
           <template v-slot:prepend>
             <v-icon>mdi-food</v-icon>
           </template>
@@ -185,7 +203,7 @@
         </v-list-item>
 
         <template v-if="user">
-          <v-list-item :to="{ name: 'orders' }">
+          <v-list-item :to="{ name: 'orders.index' }">
             <template v-slot:prepend>
               <v-icon>mdi-clipboard-list</v-icon>
             </template>
@@ -194,25 +212,37 @@
 
           <!-- Manager Menu -->
           <template v-if="user.role === 'manager'">
-            <v-list-item :to="{ name: 'inventory' }">
+            <v-list-item :to="{ name: 'manager.products.index' }">
+              <template v-slot:prepend>
+                <v-icon>mdi-food</v-icon>
+              </template>
+              <v-list-item-title>Products</v-list-item-title>
+            </v-list-item>
+            <v-list-item :to="{ name: 'categories.index' }">
+              <template v-slot:prepend>
+                <v-icon>mdi-tag</v-icon>
+              </template>
+              <v-list-item-title>Categories</v-list-item-title>
+            </v-list-item>
+            <v-list-item :to="{ name: 'inventory.index' }">
               <template v-slot:prepend>
                 <v-icon>mdi-package-variant</v-icon>
               </template>
               <v-list-item-title>Inventory</v-list-item-title>
             </v-list-item>
-            <v-list-item :to="{ name: 'manager.roles.index' }">
+            <v-list-item :to="{ name: 'roles.index' }">
               <template v-slot:prepend>
                 <v-icon>mdi-shield-account</v-icon>
               </template>
               <v-list-item-title>Roles</v-list-item-title>
             </v-list-item>
-            <v-list-item :to="{ name: 'manager.user-roles.index' }">
+            <v-list-item :to="{ name: 'user-roles.index' }">
               <template v-slot:prepend>
                 <v-icon>mdi-account-cog</v-icon>
               </template>
               <v-list-item-title>User Roles</v-list-item-title>
             </v-list-item>
-            <v-list-item :to="{ name: 'reports.sales' }">
+            <v-list-item :to="{ name: 'manager.reports.sales' }">
               <template v-slot:prepend>
                 <v-icon>mdi-chart-line</v-icon>
               </template>

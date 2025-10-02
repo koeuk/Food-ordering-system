@@ -214,7 +214,7 @@
 
 <script setup>
 import { computed } from 'vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 
 const props = defineProps({
@@ -262,25 +262,25 @@ const quickActions = [
     title: 'Add Product',
     icon: 'mdi-plus',
     color: 'primary',
-    route: '/manager/products/create'
+    route: { name: 'manager.products.create' }
   },
   {
     title: 'Manage Inventory',
     icon: 'mdi-package-variant',
     color: 'info',
-    route: '/manager/inventory'
+    route: { name: 'inventory.index' }
   },
   {
     title: 'View Reports',
     icon: 'mdi-chart-bar',
     color: 'success',
-    route: '/manager/reports'
+    route: { name: 'manager.reports.sales' }
   },
   {
     title: 'Order Management',
     icon: 'mdi-clipboard-list',
     color: 'warning',
-    route: '/manager/orders'
+    route: { name: 'manager.orders.index' }
   }
 ];
 
@@ -332,7 +332,7 @@ const capitalizeStatus = (status) => {
 };
 
 const restockItem = (itemId) => {
-  // Implement restock functionality
-  console.log('Restocking item:', itemId);
+  // Navigate to inventory management page
+  router.visit('/manager/inventory');
 };
 </script>

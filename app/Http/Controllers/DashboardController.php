@@ -70,6 +70,13 @@ class DashboardController extends Controller
             ->get();
 
         return Inertia::render('Dashboard/Manager', [
+            'user' => Auth::user(),
+            'stats' => [
+                'total_revenue' => $todaySales,
+                'orders_today' => Order::whereDate('created_at', today())->count(),
+                'active_products' => Product::where('is_available', true)->count(),
+                'low_stock_count' => Inventory::whereRaw('quantity <= minimum_stock')->count(),
+            ],
             'todaySales' => $todaySales,
             'monthSales' => $monthSales,
             'totalOrders' => $totalOrders,
