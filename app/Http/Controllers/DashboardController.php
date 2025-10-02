@@ -106,6 +106,33 @@ class DashboardController extends Controller
     }
 
     /**
+     * Supplier Dashboard
+     */
+    public function supplierDashboard()
+    {
+        $user = Auth::user();
+        
+        // Get inventory orders for this supplier
+        $inventoryOrders = \App\Models\InventoryOrder::with(['manager', 'items.product'])
+            ->where('supplier_id', $user->id)
+            ->latest()
+            ->get();
+
+        $stats = [
+            'total_orders' => $inventoryOrders->count(),
+            'pending_orders' => $inventoryOrders->where('status', 'pending')->count(),
+            'sent_orders' => $inventoryOrders->where('status', 'sent')->count(),
+            'received_orders' => $inventoryOrders->where('status', 'received')->count(),
+            'total_value' => $inventoryOrders->sum('total_amount'),
+        ];
+
+        return Inertia::render('Dashboard/Supplier', [
+            'inventoryOrders' => $inventoryOrders,
+            'stats' => $stats,
+        ]);
+    }
+
+    /**
      * Generate sales report
      */
     public function salesReport(Request $request)

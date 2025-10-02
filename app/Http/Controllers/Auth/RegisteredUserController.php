@@ -34,13 +34,27 @@ class RegisteredUserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'role' => 'required|in:customer,manager,kitchen,supplier',
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string',
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => $request->role,
+            'phone' => $request->phone,
+            'address' => $request->address,
         ]);
+
+        // Assign role to user (if role exists in roles table)
+        try {
+            $user->assignRole($request->role);
+        } catch (\Exception $e) {
+            // Role assignment failed, but user is still created with the role field
+            // This is fine for backward compatibility
+        }
 
         event(new Registered($user));
 

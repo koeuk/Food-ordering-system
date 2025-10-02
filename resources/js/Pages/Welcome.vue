@@ -6,10 +6,10 @@
         Food Ordering System
       </v-toolbar-title>
       <v-spacer />
-      <v-btn variant="outlined" dark :to="{ name: 'login' }" class="mr-2">
+      <v-btn variant="outlined" dark href="/login" class="mr-2">
         Login
       </v-btn>
-      <v-btn dark :to="{ name: 'register' }">
+      <v-btn dark href="/register">
         Register
       </v-btn>
     </v-app-bar>
@@ -33,7 +33,7 @@
               size="large"
               color="white"
               variant="outlined"
-              :to="{ name: 'products' }"
+              href="/products"
               class="mt-4"
             >
               <v-icon left>mdi-food</v-icon>
@@ -90,7 +90,7 @@
               <v-btn
                 size="x-large"
                 color="primary"
-                :to="{ name: 'register' }"
+                href="/register"
                 class="mr-4"
               >
                 <v-icon left>mdi-account-plus</v-icon>
@@ -100,7 +100,7 @@
                 size="x-large"
                 variant="outlined"
                 color="primary"
-                :to="{ name: 'products' }"
+                href="/products"
               >
                 <v-icon left>mdi-food</v-icon>
                 View Menu

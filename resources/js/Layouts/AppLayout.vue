@@ -57,6 +57,24 @@
             <v-btn
               text
               dark
+              :to="{ name: 'manager.roles.index' }"
+              class="mx-2"
+            >
+              <v-icon left>mdi-shield-account</v-icon>
+              Roles
+            </v-btn>
+            <v-btn
+              text
+              dark
+              :to="{ name: 'manager.user-roles.index' }"
+              class="mx-2"
+            >
+              <v-icon left>mdi-account-cog</v-icon>
+              User Roles
+            </v-btn>
+            <v-btn
+              text
+              dark
               :to="{ name: 'reports.sales' }"
               class="mx-2"
             >
@@ -181,6 +199,18 @@
                 <v-icon>mdi-package-variant</v-icon>
               </template>
               <v-list-item-title>Inventory</v-list-item-title>
+            </v-list-item>
+            <v-list-item :to="{ name: 'manager.roles.index' }">
+              <template v-slot:prepend>
+                <v-icon>mdi-shield-account</v-icon>
+              </template>
+              <v-list-item-title>Roles</v-list-item-title>
+            </v-list-item>
+            <v-list-item :to="{ name: 'manager.user-roles.index' }">
+              <template v-slot:prepend>
+                <v-icon>mdi-account-cog</v-icon>
+              </template>
+              <v-list-item-title>User Roles</v-list-item-title>
             </v-list-item>
             <v-list-item :to="{ name: 'reports.sales' }">
               <template v-slot:prepend>

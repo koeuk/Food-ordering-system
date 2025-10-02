@@ -10,6 +10,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\RoleController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -27,11 +28,24 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
         $user = auth()->user();
+        
+        // Debug: Log user information
+        \Log::info('Dashboard access attempt', [
+            'user_id' => $user->id,
+            'user_name' => $user->name,
+            'user_role' => $user->role,
+            'isManager' => $user->isManager(),
+            'isCustomer' => $user->isCustomer(),
+            'isKitchen' => $user->isKitchen(),
+            'isSupplier' => $user->isSupplier(),
+        ]);
 
         if ($user->isManager()) {
             return redirect()->route('dashboard.manager');
         } elseif ($user->isKitchen()) {
             return redirect()->route('dashboard.kitchen');
+        } elseif ($user->isSupplier()) {
+            return redirect()->route('dashboard.supplier');
         } else {
             return redirect()->route('dashboard.customer');
         }
@@ -40,6 +54,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard/customer', [DashboardController::class, 'customerDashboard'])->name('dashboard.customer');
     Route::get('/dashboard/manager', [DashboardController::class, 'managerDashboard'])->name('dashboard.manager');
     Route::get('/dashboard/kitchen', [DashboardController::class, 'kitchenDashboard'])->name('dashboard.kitchen');
+    Route::get('/dashboard/supplier', [DashboardController::class, 'supplierDashboard'])->name('dashboard.supplier');
 });
 
 // Public Routes
@@ -67,7 +82,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Manager Routes
-Route::middleware(['auth'])->prefix('manager')->group(function () {
+Route::middleware(['auth', 'role:manager'])->prefix('manager')->group(function () {
     // Categories Management
     Route::resource('categories', CategoryController::class);
     
@@ -100,6 +115,13 @@ Route::middleware(['auth'])->prefix('manager')->group(function () {
     // Users Management
     Route::resource('users', UserController::class);
 
+    // Roles Management
+    Route::resource('roles', RoleController::class);
+    Route::get('/user-roles', [RoleController::class, 'userRoleManagement'])->name('user-roles.index');
+    Route::post('/roles/{role}/toggle-status', [RoleController::class, 'toggleStatus'])->name('roles.toggle-status');
+    Route::post('/roles/{role}/assign-user', [RoleController::class, 'assignToUser'])->name('roles.assign-user');
+    Route::post('/roles/{role}/remove-user', [RoleController::class, 'removeFromUser'])->name('roles.remove-user');
+
     // Reports
     Route::get('/reports/sales', [DashboardController::class, 'salesReport'])->name('reports.sales');
     Route::get('/reports/inventory', [DashboardController::class, 'inventoryReport'])->name('reports.inventory');
@@ -107,9 +129,16 @@ Route::middleware(['auth'])->prefix('manager')->group(function () {
 });
 
 // Kitchen Routes
-Route::middleware(['auth'])->prefix('kitchen')->group(function () {
+Route::middleware(['auth', 'role:kitchen'])->prefix('kitchen')->group(function () {
     Route::get('/orders', [OrderController::class, 'kitchenOrders'])->name('kitchen.orders');
     Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('kitchen.update-status');
+});
+
+// Supplier Routes
+Route::middleware(['auth', 'role:supplier'])->prefix('supplier')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'supplierDashboard'])->name('dashboard.supplier');
+    Route::get('/inventory-orders', [InventoryOrderController::class, 'supplierOrders'])->name('supplier.inventory-orders');
+    Route::patch('/inventory-orders/{inventoryOrder}/status', [InventoryOrderController::class, 'updateSupplierStatus'])->name('supplier.update-status');
 });
 
 require __DIR__.'/auth.php';

@@ -34,12 +34,13 @@
 
         <!-- Quick Actions -->
         <div class="mb-8">
-            <v-btn color="primary" size="large" class="mr-4 mb-2" :to="{ name: 'orders.create' }">
+            <v-btn color="primary" size="large" class="mr-4 mb-2" href="/products">
                 <v-icon left>mdi-plus</v-icon>
-                Place New Order
-            </v-btn>
-            <v-btn variant="outlined" size="large" class="mb-2" :to="{ name: 'products' }">
                 Browse Menu
+            </v-btn>
+            <v-btn variant="outlined" size="large" class="mb-2" href="/products">
+                <v-icon left>mdi-food</v-icon>
+                View Menu
             </v-btn>
         </div>
 
@@ -77,13 +78,13 @@
                                     </div>
                                     <div class="d-flex gap-2">
                                         <v-btn size="small" variant="outlined"
-                                            :to="{ name: 'orders.show', params: { order: order.id } }">
+                                            :href="`/orders/${order.id}`">
                                             <v-icon left size="small">mdi-eye</v-icon>
                                             View
                                         </v-btn>
                                         <v-btn v-if="order.bill && order.bill.payment_status !== 'paid'" size="small"
                                             color="primary"
-                                            :to="{ name: 'bills.show', params: { bill: order.bill.id } }">
+                                            :href="`/bills/${order.bill.id}`">
                                             Pay Now
                                         </v-btn>
                                     </div>
@@ -93,7 +94,7 @@
                     </v-list>
 
                     <div class="text-center mt-6">
-                        <v-btn variant="outlined" :to="{ name: 'orders' }">
+                        <v-btn variant="outlined" href="/orders">
                             View All Orders
                             <v-icon right>mdi-arrow-right</v-icon>
                         </v-btn>
@@ -101,13 +102,15 @@
                 </template>
 
                 <template v-else>
-                    <v-empty-state headline="No orders yet" title="Start your first order"
-                        text="Browse our menu and place your first order to get started!"
-                        :image="require('@/assets/images/empty-orders.svg')">
-                        <v-btn color="primary" :to="{ name: 'orders.create' }">
-                            Place Your First Order
+                    <div class="text-center py-12">
+                        <v-icon size="64" color="grey-lighten-2" class="mb-4">mdi-shopping-outline</v-icon>
+                        <h3 class="text-h5 font-weight-bold text-grey-darken-2 mb-2">No orders yet</h3>
+                        <p class="text-grey-darken-1 mb-6">Browse our menu and place your first order to get started!</p>
+                        <v-btn color="primary" size="large" href="/products">
+                            <v-icon left>mdi-food</v-icon>
+                            Browse Menu
                         </v-btn>
-                    </v-empty-state>
+                    </div>
                 </template>
             </v-card-text>
         </v-card>
