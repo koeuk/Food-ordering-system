@@ -11,116 +11,100 @@ use Inertia\Inertia;
 class ProductController extends Controller
 {
     /**
-     * Display a listing of products
+     * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $query = Product::with(['category', 'inventory']);
+        $products = Product::with(['category', 'inventory'])
+            ->when($request->search, function ($query, $search) {
+                $query->where('name', 'like', "%{$search}%")
+                      ->orWhere('description', 'like', "%{$search}%");
+            })
+            ->when($request->category_id, function ($query, $categoryId) {
+                $query->where('category_id', $categoryId);
+            })
+            ->when($request->availability, function ($query, $availability) {
+                if ($availability === 'available') {
+                    $query->where('is_available', true);
+                } elseif ($availability === 'unavailable') {
+                    $query->where('is_available', false);
+                }
+            })
+            ->orderBy('name')
+            ->paginate(15);
 
-        // Filter by category
-        if ($request->has('category_id') && $request->category_id) {
-            $query->where('category_id', $request->category_id);
-        }
-
-        // Filter by availability
-        if ($request->has('available')) {
-            $query->where('is_available', $request->available);
-        }
-
-        // Search by name
-        if ($request->has('search') && $request->search) {
-            $query->where('name', 'like', '%' . $request->search . '%');
-        }
-
-        $products = $query->paginate(12)->through(fn($product) => [
-            'id' => $product->id,
-            'category_id' => $product->category_id,
-            'name' => $product->name,
-            'description' => $product->description,
-            'price' => $product->price,
-            'image' => $product->image,
-            'is_available' => (bool)$product->is_available,
-            'created_at' => $product->created_at,
-            'updated_at' => $product->updated_at,
-            'category' => $product->category,
-            'inventory' => $product->inventory,
-        ]);
-
-        $categories = Category::all();
+        $categories = Category::orderBy('name')->get();
 
         return Inertia::render('Products/Index', [
             'products' => $products,
             'categories' => $categories,
-            'filters' => [
-                'search' => $request->search,
-                'category_id' => $request->category_id,
-                'available' => $request->available,
-            ],
+            'filters' => $request->only(['search', 'category_id', 'availability']),
         ]);
     }
 
     /**
-     * Show the form for creating a new product
+     * Show the form for creating a new resource.
      */
     public function create()
     {
-        $categories = Category::all();
+        $categories = Category::orderBy('name')->get();
+        
         return Inertia::render('Products/Create', [
             'categories' => $categories,
         ]);
     }
 
     /**
-     * Store a newly created product
+     * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'category_id' => 'required|exists:categories,id',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'price' => 'required|numeric|min:0.01',
+            'category_id' => 'required|exists:categories,id',
             'is_available' => 'boolean',
-            'initial_stock' => 'required|integer|min:0',
-            'minimum_stock' => 'required|integer|min:0',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // Handle image upload
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('products', 'public');
         }
 
-        // Create product
         $product = Product::create($validated);
 
         // Create inventory record
         $product->inventory()->create([
-            'quantity' => $request->initial_stock,
-            'minimum_stock' => $request->minimum_stock,
+            'quantity' => 0,
+            'minimum_stock' => 10,
         ]);
 
-        return redirect()->route('products.index')
-            ->with('success', 'Product created successfully!');
+        return redirect()->route('manager.products.index')
+            ->with('success', 'Product created successfully.');
     }
 
     /**
-     * Display the specified product
+     * Display the specified resource.
      */
     public function show(Product $product)
     {
-        $product->load(['category', 'inventory']);
+        $product->load(['category', 'inventory', 'orderItems' => function ($query) {
+            $query->with('order')->latest()->limit(10);
+        }]);
+
         return Inertia::render('Products/Show', [
             'product' => $product,
         ]);
     }
 
     /**
-     * Show the form for editing the specified product
+     * Show the form for editing the specified resource.
      */
     public function edit(Product $product)
     {
-        $categories = Category::all();
+        $categories = Category::orderBy('name')->get();
+        
         return Inertia::render('Products/Edit', [
             'product' => $product,
             'categories' => $categories,
@@ -128,20 +112,19 @@ class ProductController extends Controller
     }
 
     /**
-     * Update the specified product
+     * Update the specified resource in storage.
      */
     public function update(Request $request, Product $product)
     {
         $validated = $request->validate([
-            'category_id' => 'required|exists:categories,id',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'price' => 'required|numeric|min:0.01',
+            'category_id' => 'required|exists:categories,id',
             'is_available' => 'boolean',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // Handle image upload
         if ($request->hasFile('image')) {
             // Delete old image
             if ($product->image) {
@@ -152,15 +135,21 @@ class ProductController extends Controller
 
         $product->update($validated);
 
-        return redirect()->route('products.index')
-            ->with('success', 'Product updated successfully!');
+        return redirect()->route('manager.products.index')
+            ->with('success', 'Product updated successfully.');
     }
 
     /**
-     * Remove the specified product
+     * Remove the specified resource from storage.
      */
     public function destroy(Product $product)
     {
+        // Check if product has order items
+        if ($product->orderItems()->count() > 0) {
+            return redirect()->route('manager.products.index')
+                ->with('error', 'Cannot delete product with existing order items.');
+        }
+
         // Delete image
         if ($product->image) {
             Storage::disk('public')->delete($product->image);
@@ -168,22 +157,7 @@ class ProductController extends Controller
 
         $product->delete();
 
-        return redirect()->route('products.index')
-            ->with('success', 'Product deleted successfully!');
-    }
-
-    /**
-     * Get available products (API)
-     */
-    public function getAvailable()
-    {
-        $products = Product::with(['category', 'inventory'])
-            ->where('is_available', true)
-            ->whereHas('inventory', function ($query) {
-                $query->where('quantity', '>', 0);
-            })
-            ->get();
-
-        return response()->json($products);
+        return redirect()->route('manager.products.index')
+            ->with('success', 'Product deleted successfully.');
     }
 }
