@@ -7,6 +7,9 @@ use App\Http\Controllers\BillController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\InventoryOrderController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -65,14 +68,19 @@ Route::middleware(['auth'])->group(function () {
 
 // Manager Routes
 Route::middleware(['auth'])->prefix('manager')->group(function () {
+    // Categories Management
+    Route::resource('categories', CategoryController::class);
+    
     // Products Management
     Route::resource('products', ProductController::class)->except(['index', 'show']);
 
     // Inventory Management
-    Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
-    Route::patch('/inventory/{inventory}', [InventoryController::class, 'update'])->name('inventory.update');
+    Route::resource('inventory', InventoryController::class);
     Route::post('/inventory/{inventory}/restock', [InventoryController::class, 'restock'])->name('inventory.restock');
     Route::get('/inventory/alerts', [InventoryController::class, 'alerts'])->name('inventory.alerts');
+
+    // Suppliers Management
+    Route::resource('suppliers', SupplierController::class);
 
     // Inventory Orders
     Route::resource('inventory-orders', InventoryOrderController::class);
@@ -80,16 +88,22 @@ Route::middleware(['auth'])->prefix('manager')->group(function () {
     Route::post('/inventory-orders/{inventoryOrder}/received', [InventoryOrderController::class, 'markAsReceived'])->name('inventory-orders.received');
     Route::post('/inventory-orders/{inventoryOrder}/cancel', [InventoryOrderController::class, 'cancel'])->name('inventory-orders.cancel');
 
-    // Order Management
+    // Orders Management
+    Route::resource('orders', OrderController::class);
     Route::post('/orders/{order}/confirm', [OrderController::class, 'confirm'])->name('orders.confirm');
     Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
+
+    // Bills Management
+    Route::resource('bills', BillController::class);
+    Route::post('/bills/{bill}/refund', [BillController::class, 'refund'])->name('bills.refund');
+
+    // Users Management
+    Route::resource('users', UserController::class);
 
     // Reports
     Route::get('/reports/sales', [DashboardController::class, 'salesReport'])->name('reports.sales');
     Route::get('/reports/inventory', [DashboardController::class, 'inventoryReport'])->name('reports.inventory');
-
-    // Bill Management
-    Route::post('/bills/{bill}/refund', [BillController::class, 'refund'])->name('bills.refund');
+    Route::get('/reports/analytics', [DashboardController::class, 'analytics'])->name('reports.analytics');
 });
 
 // Kitchen Routes

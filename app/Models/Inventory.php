@@ -68,4 +68,58 @@ class Inventory extends Model
     {
         return $this->quantity >= $requiredQuantity;
     }
+
+    /**
+     * Check if out of stock
+     */
+    public function isOutOfStock()
+    {
+        return $this->quantity === 0;
+    }
+
+    /**
+     * Get stock status
+     */
+    public function getStockStatus()
+    {
+        if ($this->isOutOfStock()) {
+            return 'out_of_stock';
+        } elseif ($this->isLowStock()) {
+            return 'low_stock';
+        } else {
+            return 'in_stock';
+        }
+    }
+
+    /**
+     * Scope for low stock items
+     */
+    public function scopeLowStock($query)
+    {
+        return $query->whereRaw('quantity <= minimum_stock');
+    }
+
+    /**
+     * Scope for out of stock items
+     */
+    public function scopeOutOfStock($query)
+    {
+        return $query->where('quantity', 0);
+    }
+
+    /**
+     * Restock inventory
+     */
+    public function restock($amount, $notes = null)
+    {
+        $this->quantity += $amount;
+        $this->last_restocked_at = now();
+        
+        // Log the restock action if needed
+        if ($notes) {
+            // Could implement activity logging here
+        }
+        
+        return $this->save();
+    }
 }

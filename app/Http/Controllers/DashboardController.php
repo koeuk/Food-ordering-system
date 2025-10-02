@@ -151,4 +151,180 @@ class DashboardController extends Controller
 
         return view('reports.inventory', compact('inventory', 'stats'));
     }
+
+    /**
+     * Get comprehensive dashboard statistics
+     */
+    public function getDashboardStats(Request $request)
+    {
+        $period = $request->input('period', '30'); // days
+        
+        $stats = [
+            'sales' => [
+                'today' => Order::whereDate('created_at', today())->sum('total'),
+                'this_week' => Order::whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->sum('total'),
+                'this_month' => Order::whereMonth('created_at', now()->month)->sum('total'),
+                'last_30_days' => Order::where('created_at', '>=', now()->subDays(30))->sum('total'),
+            ],
+            'orders' => [
+                'total' => Order::count(),
+                'pending' => Order::where('status', 'pending')->count(),
+                'confirmed' => Order::where('status', 'confirmed')->count(),
+                'preparing' => Order::where('status', 'preparing')->count(),
+                'ready' => Order::where('status', 'ready')->count(),
+                'delivered' => Order::where('status', 'delivered')->count(),
+                'cancelled' => Order::where('status', 'cancelled')->count(),
+            ],
+            'customers' => [
+                'total' => User::where('role', 'customer')->count(),
+                'active_today' => User::where('role', 'customer')
+                    ->whereHas('orders', function ($query) {
+                        $query->whereDate('created_at', today());
+                    })->count(),
+                'new_this_month' => User::where('role', 'customer')
+                    ->whereMonth('created_at', now()->month)->count(),
+            ],
+            'inventory' => [
+                'total_products' => Inventory::count(),
+                'low_stock' => Inventory::lowStock()->count(),
+                'out_of_stock' => Inventory::outOfStock()->count(),
+                'total_value' => Inventory::with('product')->get()->sum(function ($item) {
+                    return $item->quantity * $item->product->price;
+                }),
+            ],
+            'payments' => [
+                'total_revenue' => Bill::paid()->sum('amount'),
+                'pending_payments' => Bill::unpaid()->sum('amount'),
+                'refunded_amount' => Bill::refunded()->sum('amount'),
+            ]
+        ];
+
+        return response()->json($stats);
+    }
+
+    /**
+     * Get sales analytics
+     */
+    public function getSalesAnalytics(Request $request)
+    {
+        $days = $request->input('days', 30);
+        $startDate = now()->subDays($days);
+
+        // Daily sales data
+        $dailySales = Order::where('created_at', '>=', $startDate)
+            ->where('status', 'delivered')
+            ->selectRaw('DATE(created_at) as date, SUM(total) as revenue, COUNT(*) as orders')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+
+        // Top selling products
+        $topProducts = Product::withCount(['orderItems as total_quantity' => function ($query) use ($startDate) {
+                $query->whereHas('order', function ($q) use ($startDate) {
+                    $q->where('created_at', '>=', $startDate)
+                      ->where('status', 'delivered');
+                });
+            }])
+            ->orderBy('total_quantity', 'desc')
+            ->take(10)
+            ->get();
+
+        // Sales by category
+        $salesByCategory = Product::with('category')
+            ->whereHas('orderItems.order', function ($query) use ($startDate) {
+                $query->where('created_at', '>=', $startDate)
+                      ->where('status', 'delivered');
+            })
+            ->withSum(['orderItems as total_revenue' => function ($query) use ($startDate) {
+                $query->whereHas('order', function ($q) use ($startDate) {
+                    $q->where('created_at', '>=', $startDate)
+                      ->where('status', 'delivered');
+                });
+            }], 'subtotal')
+            ->with('category')
+            ->get()
+            ->groupBy('category.name')
+            ->map(function ($products) {
+                return [
+                    'category' => $products->first()->category->name,
+                    'revenue' => $products->sum('total_revenue'),
+                    'products_count' => $products->count(),
+                ];
+            })
+            ->values();
+
+        return response()->json([
+            'daily_sales' => $dailySales,
+            'top_products' => $topProducts,
+            'sales_by_category' => $salesByCategory,
+        ]);
+    }
+
+    /**
+     * Get order status analytics
+     */
+    public function getOrderStatusAnalytics()
+    {
+        $analytics = [
+            'status_distribution' => Order::selectRaw('status, COUNT(*) as count')
+                ->groupBy('status')
+                ->get()
+                ->pluck('count', 'status'),
+            
+            'average_processing_time' => [
+                'pending_to_confirmed' => $this->getAverageProcessingTime('pending', 'confirmed'),
+                'confirmed_to_delivered' => $this->getAverageProcessingTime('confirmed', 'delivered'),
+                'total_processing_time' => $this->getAverageProcessingTime('pending', 'delivered'),
+            ],
+            
+            'hourly_distribution' => Order::selectRaw('HOUR(created_at) as hour, COUNT(*) as count')
+                ->groupBy('hour')
+                ->orderBy('hour')
+                ->get(),
+                
+            'daily_distribution' => Order::selectRaw('DAYOFWEEK(created_at) as day, COUNT(*) as count')
+                ->groupBy('day')
+                ->get(),
+        ];
+
+        return response()->json($analytics);
+    }
+
+    /**
+     * Calculate average processing time between statuses
+     */
+    private function getAverageProcessingTime($fromStatus, $toStatus)
+    {
+        $orders = Order::whereNotNull('confirmed_at')
+            ->whereNotNull('delivered_at')
+            ->get();
+
+        if ($orders->isEmpty()) {
+            return 0;
+        }
+
+        $totalMinutes = 0;
+        $count = 0;
+
+        foreach ($orders as $order) {
+            if ($fromStatus === 'pending' && $toStatus === 'confirmed') {
+                if ($order->confirmed_at) {
+                    $totalMinutes += $order->created_at->diffInMinutes($order->confirmed_at);
+                    $count++;
+                }
+            } elseif ($fromStatus === 'confirmed' && $toStatus === 'delivered') {
+                if ($order->delivered_at && $order->confirmed_at) {
+                    $totalMinutes += $order->confirmed_at->diffInMinutes($order->delivered_at);
+                    $count++;
+                }
+            } elseif ($fromStatus === 'pending' && $toStatus === 'delivered') {
+                if ($order->delivered_at) {
+                    $totalMinutes += $order->created_at->diffInMinutes($order->delivered_at);
+                    $count++;
+                }
+            }
+        }
+
+        return $count > 0 ? round($totalMinutes / $count, 2) : 0;
+    }
 }

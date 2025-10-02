@@ -98,4 +98,110 @@ class InventoryController extends Controller
             'lowStockItems' => $lowStockItems,
         ]);
     }
+
+    /**
+     * Bulk restock multiple items
+     */
+    public function bulkRestock(Request $request)
+    {
+        $validated = $request->validate([
+            'items' => 'required|array|min:1',
+            'items.*.inventory_id' => 'required|exists:inventory,id',
+            'items.*.quantity' => 'required|integer|min:1',
+        ]);
+
+        foreach ($validated['items'] as $item) {
+            $inventory = Inventory::find($item['inventory_id']);
+            $inventory->restock($item['quantity']);
+        }
+
+        return back()->with('success', 'Bulk restock completed successfully!');
+    }
+
+    /**
+     * Generate inventory report
+     */
+    public function report(Request $request)
+    {
+        $query = Inventory::with('product.category');
+
+        // Apply filters
+        if ($request->has('category_id')) {
+            $query->whereHas('product', function ($q) use ($request) {
+                $q->where('category_id', $request->category_id);
+            });
+        }
+
+        if ($request->has('stock_status')) {
+            switch ($request->stock_status) {
+                case 'low_stock':
+                    $query->lowStock();
+                    break;
+                case 'out_of_stock':
+                    $query->outOfStock();
+                    break;
+                case 'in_stock':
+                    $query->whereRaw('quantity > minimum_stock');
+                    break;
+            }
+        }
+
+        $inventory = $query->get();
+
+        // Generate summary statistics
+        $summary = [
+            'total_products' => $inventory->count(),
+            'in_stock' => $inventory->where('quantity', '>', 0)->count(),
+            'low_stock' => $inventory->filter(function ($item) {
+                return $item->isLowStock() && !$item->isOutOfStock();
+            })->count(),
+            'out_of_stock' => $inventory->where('quantity', 0)->count(),
+            'total_value' => $inventory->sum(function ($item) {
+                return $item->quantity * $item->product->price;
+            }),
+        ];
+
+        return Inertia::render('Inventory/Report', [
+            'inventory' => $inventory,
+            'summary' => $summary,
+            'filters' => $request->only(['category_id', 'stock_status']),
+        ]);
+    }
+
+    /**
+     * Set minimum stock levels
+     */
+    public function setMinimumStock(Request $request)
+    {
+        $validated = $request->validate([
+            'inventory_id' => 'required|exists:inventory,id',
+            'minimum_stock' => 'required|integer|min:0',
+        ]);
+
+        $inventory = Inventory::find($validated['inventory_id']);
+        $inventory->minimum_stock = $validated['minimum_stock'];
+        $inventory->save();
+
+        return back()->with('success', 'Minimum stock level updated successfully!');
+    }
+
+    /**
+     * Get inventory statistics for dashboard
+     */
+    public function getStats()
+    {
+        $stats = [
+            'total_products' => Inventory::count(),
+            'low_stock_count' => Inventory::lowStock()->count(),
+            'out_of_stock_count' => Inventory::outOfStock()->count(),
+            'total_inventory_value' => Inventory::with('product')
+                ->get()
+                ->sum(function ($item) {
+                    return $item->quantity * $item->product->price;
+                }),
+            'average_stock_level' => Inventory::avg('quantity'),
+        ];
+
+        return response()->json($stats);
+    }
 }
