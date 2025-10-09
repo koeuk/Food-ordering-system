@@ -35,7 +35,10 @@ class ProductController extends Controller
 
         $categories = Category::orderBy('name')->get();
 
-        return Inertia::render('Products/Index', [
+        // Check if this is an admin request (from admin routes)
+        $isAdminRoute = $request->route()->getPrefix() === 'admin';
+        
+        return Inertia::render($isAdminRoute ? 'Admin/Products/Index' : 'Products/Index', [
             'products' => $products,
             'categories' => $categories,
             'filters' => $request->only(['search', 'category_id', 'availability']),

@@ -70,7 +70,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('categories', CategoryController::class);
     
     // Products Management
-    Route::resource('products', ProductController::class)->except(['index', 'show']);
+    Route::resource('products', ProductController::class)->except(['show']);
 
     // Inventory Management
     Route::resource('inventory', InventoryController::class);

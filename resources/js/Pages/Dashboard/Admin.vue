@@ -1,5 +1,5 @@
 <template>
-  <AppLayout>
+  <DashboardLayout>
     <Head title="Admin Dashboard" />
 
     <v-container>
@@ -209,13 +209,13 @@
         </v-col>
       </v-row>
     </v-container>
-  </AppLayout>
+  </DashboardLayout>
 </template>
 
 <script setup>
 import { computed } from 'vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
-import AppLayout from '@/Layouts/AppLayout.vue';
+import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 
 const props = defineProps({
   user: Object,
