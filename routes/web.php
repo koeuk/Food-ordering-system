@@ -1,16 +1,18 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\BillController;
-use App\Http\Controllers\InventoryController;
-use App\Http\Controllers\InventoryOrderController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\SupplierController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\RoleController;
+use App\Http\Controllers\Web\ProfileController;
+use App\Http\Controllers\Web\ProductController as WebProductController;
+use App\Http\Controllers\Web\OrderController as WebOrderController;
+use App\Http\Controllers\Dashboard\ProductController as DashboardProductController;
+use App\Http\Controllers\Web\OrderController;
+use App\Http\Controllers\Web\BillController;
+use App\Http\Controllers\Dashboard\InventoryController;
+use App\Http\Controllers\Dashboard\InventoryOrderController;
+use App\Http\Controllers\Dashboard\DashboardController;
+use App\Http\Controllers\Dashboard\CategoryController;
+use App\Http\Controllers\Dashboard\SupplierController;
+use App\Http\Controllers\Dashboard\UserController;
+use App\Http\Controllers\Dashboard\RoleController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -24,25 +26,30 @@ Route::get('/', function () {
     ]);
 });
 
-// Role-based Dashboards
-Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', function () {
-        $user = auth()->user();
-        
-        if ($user->isAdmin()) {
-            return redirect()->route('dashboard.admin');
-        } else {
-            return redirect()->route('dashboard.user');
-        }
-    })->name('dashboard');
+// Auth Routes
+Route::get('/login', function () {
+    return Inertia::render('Web/Auth/Login');
+})->name('login');
 
-    Route::get('/dashboard/user', [DashboardController::class, 'userDashboard'])->name('dashboard.user');
-    Route::get('/dashboard/admin', [DashboardController::class, 'adminDashboard'])->name('dashboard.admin');
+Route::get('/register', function () {
+    return Inertia::render('Web/Auth/Register');
+})->name('register');
+
+// Public Web Routes (Web Interface)
+Route::prefix('web')->name('web.')->group(function () {
+    // Products (Public Menu)
+    Route::get('/products', [WebProductController::class, 'index'])->name('products.index');
+    Route::get('/products/{product}', [WebProductController::class, 'show'])->name('products.show');
+    
+    // Orders (User Orders)
+    Route::get('/orders', [WebOrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [WebOrderController::class, 'show'])->name('orders.show');
 });
 
-// Public Routes
-Route::get('/products', [ProductController::class, 'index'])->name('products.index');
-Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
+// Legacy public products route (redirect to web)
+Route::get('/products', function () {
+    return redirect()->route('web.products.index');
+});
 
 // Authenticated Customer Routes
 Route::middleware(['auth'])->group(function () {
@@ -64,13 +71,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/bills/{bill}/download', [BillController::class, 'download'])->name('bills.download');
 });
 
-// Admin Routes
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+// Dashboard Routes (Admin Interface)
+Route::middleware(['auth', 'role:admin'])->prefix('dashboard')->name('dashboard.')->group(function () {
     // Categories Management
     Route::resource('categories', CategoryController::class);
     
     // Products Management
-    Route::resource('products', ProductController::class)->except(['show']);
+    Route::resource('products', DashboardProductController::class)->except(['show']);
 
     // Inventory Management
     Route::resource('inventory', InventoryController::class);

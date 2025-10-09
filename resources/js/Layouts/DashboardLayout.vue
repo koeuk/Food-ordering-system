@@ -113,38 +113,38 @@
         </template>
       </v-list-item>
 
-      <!-- Admin Section -->
-      <v-list-item link title="Products" :to="{ name: 'products.index' }">
+      <!-- Dashboard Section -->
+      <v-list-item link title="Products" :to="{ name: 'dashboard.products.index' }">
         <template v-slot:prepend>
           <v-icon color="white">mdi-food</v-icon>
         </template>
       </v-list-item>
       
-      <v-list-item link title="Categories" :to="{ name: 'admin.categories.index' }">
+      <v-list-item link title="Categories" :to="{ name: 'dashboard.categories.index' }">
         <template v-slot:prepend>
           <v-icon color="white">mdi-tag</v-icon>
         </template>
       </v-list-item>
       
-      <v-list-item link title="Inventory" :to="{ name: 'admin.inventory.index' }">
+      <v-list-item link title="Inventory" :to="{ name: 'dashboard.inventory.index' }">
         <template v-slot:prepend>
           <v-icon color="white">mdi-package-variant</v-icon>
         </template>
       </v-list-item>
       
-      <v-list-item link title="Orders" :to="{ name: 'admin.orders.index' }">
+      <v-list-item link title="Orders" :to="{ name: 'dashboard.orders.index' }">
         <template v-slot:prepend>
           <v-icon color="white">mdi-clipboard-list</v-icon>
         </template>
       </v-list-item>
       
-      <v-list-item link title="Suppliers" :to="{ name: 'admin.suppliers.index' }">
+      <v-list-item link title="Suppliers" :to="{ name: 'dashboard.suppliers.index' }">
         <template v-slot:prepend>
           <v-icon color="white">mdi-truck-delivery</v-icon>
         </template>
       </v-list-item>
       
-      <v-list-item link title="Reports" :to="{ name: 'admin.reports.sales' }">
+      <v-list-item link title="Reports" :to="{ name: 'dashboard.reports.sales' }">
         <template v-slot:prepend>
           <v-icon color="white">mdi-chart-line</v-icon>
         </template>
