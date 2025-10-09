@@ -15,7 +15,7 @@ class InventoryOrderSeeder extends Seeder
     public function run(): void
     {
         $suppliers = Supplier::all();
-        $managers = User::where('role', 'manager')->get();
+        $managers = User::where('role', 'admin')->get();
         
         for ($i = 1; $i <= 10; $i++) {
             $supplier = $suppliers->random();

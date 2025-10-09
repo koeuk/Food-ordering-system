@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create('inventory', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->foreignId('product_id')->unique()->constrained()->onDelete('cascade');
             $table->integer('quantity')->default(0);
             $table->integer('minimum_stock')->default(10);

@@ -159,7 +159,7 @@
                 </v-btn>
 
                 <v-btn
-                  v-if="user.role === 'customer'"
+                  v-if="user.role === 'user'"
                   color="info"
                   variant="outlined"
                   block
@@ -170,11 +170,11 @@
                 </v-btn>
 
                 <v-btn
-                  v-if="user.role === 'manager'"
+                  v-if="user.role === 'admin'"
                   color="success"
                   variant="outlined"
                   block
-                  to="/manager/products"
+                  to="/admin/products"
                 >
                   <v-icon left>mdi-package-variant</v-icon>
                   Manage Products
@@ -325,10 +325,8 @@ const formatPrice = (price) => {
 
 const getDashboardRoute = () => {
   const routes = {
-    customer: '/dashboard/customer',
-    manager: '/dashboard/manager',
-    kitchen: '/dashboard/kitchen',
-    supplier: '/dashboard/supplier'
+    admin: '/dashboard/admin',
+    user: '/dashboard/user'
   };
   return routes[props.user.role] || '/dashboard';
 };

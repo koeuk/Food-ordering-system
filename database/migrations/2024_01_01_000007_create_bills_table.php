@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create('bills', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->foreignId('order_id')->unique()->constrained()->onDelete('cascade');
             $table->string('bill_number', 50)->unique();
             $table->decimal('amount', 10, 2);

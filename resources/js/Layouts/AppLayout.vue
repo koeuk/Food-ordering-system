@@ -43,12 +43,12 @@
             My Orders
           </v-btn>
 
-          <!-- Manager Menu -->
-          <template v-if="user.role === 'manager'">
+          <!-- Admin Menu -->
+          <template v-if="user.role === 'admin'">
             <v-btn
               text
               dark
-              :to="{ name: 'manager.products.index' }"
+              :to="{ name: 'admin.products.index' }"
               class="mx-2"
             >
               <v-icon left>mdi-food</v-icon>
@@ -93,24 +93,11 @@
             <v-btn
               text
               dark
-              :to="{ name: 'manager.reports.sales' }"
+              :to="{ name: 'admin.reports.sales' }"
               class="mx-2"
             >
               <v-icon left>mdi-chart-line</v-icon>
               Reports
-            </v-btn>
-          </template>
-
-          <!-- Kitchen Menu -->
-          <template v-if="user.role === 'kitchen'">
-            <v-btn
-              text
-              dark
-              :to="{ name: 'kitchen.orders' }"
-              class="mx-2"
-            >
-              <v-icon left>mdi-chef-hat</v-icon>
-              Kitchen Orders
             </v-btn>
           </template>
         </template>
@@ -210,9 +197,9 @@
             <v-list-item-title>My Orders</v-list-item-title>
           </v-list-item>
 
-          <!-- Manager Menu -->
-          <template v-if="user.role === 'manager'">
-            <v-list-item :to="{ name: 'manager.products.index' }">
+          <!-- Admin Menu -->
+          <template v-if="user.role === 'admin'">
+            <v-list-item :to="{ name: 'admin.products.index' }">
               <template v-slot:prepend>
                 <v-icon>mdi-food</v-icon>
               </template>
@@ -242,21 +229,11 @@
               </template>
               <v-list-item-title>User Roles</v-list-item-title>
             </v-list-item>
-            <v-list-item :to="{ name: 'manager.reports.sales' }">
+            <v-list-item :to="{ name: 'admin.reports.sales' }">
               <template v-slot:prepend>
                 <v-icon>mdi-chart-line</v-icon>
               </template>
               <v-list-item-title>Reports</v-list-item-title>
-            </v-list-item>
-          </template>
-
-          <!-- Kitchen Menu -->
-          <template v-if="user.role === 'kitchen'">
-            <v-list-item :to="{ name: 'kitchen.orders' }">
-              <template v-slot:prepend>
-                <v-icon>mdi-chef-hat</v-icon>
-              </template>
-              <v-list-item-title>Kitchen Orders</v-list-item-title>
             </v-list-item>
           </template>
 

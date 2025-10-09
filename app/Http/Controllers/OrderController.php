@@ -140,7 +140,7 @@ class OrderController extends Controller
     public function show(Order $order)
     {
         // Ensure user can only view their own orders
-        if ($order->customer_id !== Auth::id() && !Auth::user()->isManager()) {
+        if ($order->customer_id !== Auth::id() && !Auth::user()->isAdmin()) {
             abort(403);
         }
 

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Traits\HasUuidTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -10,7 +11,7 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasUuidTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -77,24 +78,14 @@ class User extends Authenticatable
 
     // Helper methods
 
-    public function isCustomer()
+    public function isAdmin()
     {
-        return $this->role === 'customer' || $this->hasRole('customer');
+        return $this->role === 'admin' || $this->hasRole('admin');
     }
 
-    public function isManager()
+    public function isUser()
     {
-        return $this->role === 'manager' || $this->hasRole('manager');
-    }
-
-    public function isKitchen()
-    {
-        return $this->role === 'kitchen' || $this->hasRole('kitchen');
-    }
-
-    public function isSupplier()
-    {
-        return $this->role === 'supplier' || $this->hasRole('supplier');
+        return $this->role === 'user' || $this->hasRole('user');
     }
 
     /**
@@ -166,6 +157,6 @@ class User extends Authenticatable
         }
         
         $primaryRole = $this->roles()->where('is_active', true)->orderBy('sort_order')->first();
-        return $primaryRole ? $primaryRole->name : 'customer';
+        return $primaryRole ? $primaryRole->name : 'user';
     }
 }

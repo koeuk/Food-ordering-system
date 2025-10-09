@@ -13,7 +13,7 @@ class OrderSeeder extends Seeder
      */
     public function run(): void
     {
-        $customers = User::where('role', 'customer')->get();
+        $customers = User::where('role', 'user')->get();
         
         for ($i = 1; $i <= 10; $i++) {
             $customer = $customers->random();

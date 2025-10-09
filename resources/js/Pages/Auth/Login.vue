@@ -105,17 +105,16 @@
                                 </v-card-title>
                                 <v-card-text class="pa-0">
                                     <div class="text-caption mb-2">
-                                        <strong>Customer:</strong> customer@test.com / password<br>
-                                        <strong>Manager:</strong> manager@test.com / password<br>
-                                        <strong>Kitchen:</strong> kitchen@test.com / password
+                                        <strong>User:</strong> user@test.com / password<br>
+                                        <strong>Admin:</strong> admin@test.com / password
                                     </div>
                                     <v-btn size="small" color="blue" variant="outlined"
-                                        @click="fillDemoCredentials('customer')">
-                                        Customer Demo
+                                        @click="fillDemoCredentials('user')">
+                                        User Demo
                                     </v-btn>
                                     <v-btn size="small" color="blue" variant="outlined"
-                                        @click="fillDemoCredentials('manager')" class="ml-2">
-                                        Manager Demo
+                                        @click="fillDemoCredentials('admin')" class="ml-2">
+                                        Admin Demo
                                     </v-btn>
                                 </v-card-text>
                             </v-card>
@@ -147,9 +146,8 @@ import { useForm, Link } from '@inertiajs/vue3';
 
     const fillDemoCredentials = (role) => {
         const credentials = {
-            customer: { email: 'customer@test.com', password: 'password' },
-            manager: { email: 'manager@test.com', password: 'password' },
-            kitchen: { email: 'kitchen@test.com', password: 'password' },
+            user: { email: 'user@test.com', password: 'password' },
+            admin: { email: 'admin@test.com', password: 'password' },
         };
 
         const creds = credentials[role];

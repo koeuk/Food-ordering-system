@@ -29,32 +29,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
         $user = auth()->user();
         
-        // Debug: Log user information
-        \Log::info('Dashboard access attempt', [
-            'user_id' => $user->id,
-            'user_name' => $user->name,
-            'user_role' => $user->role,
-            'isManager' => $user->isManager(),
-            'isCustomer' => $user->isCustomer(),
-            'isKitchen' => $user->isKitchen(),
-            'isSupplier' => $user->isSupplier(),
-        ]);
-
-        if ($user->isManager()) {
-            return redirect()->route('dashboard.manager');
-        } elseif ($user->isKitchen()) {
-            return redirect()->route('dashboard.kitchen');
-        } elseif ($user->isSupplier()) {
-            return redirect()->route('dashboard.supplier');
+        if ($user->isAdmin()) {
+            return redirect()->route('dashboard.admin');
         } else {
-            return redirect()->route('dashboard.customer');
+            return redirect()->route('dashboard.user');
         }
     })->name('dashboard');
 
-    Route::get('/dashboard/customer', [DashboardController::class, 'customerDashboard'])->name('dashboard.customer');
-    Route::get('/dashboard/manager', [DashboardController::class, 'managerDashboard'])->name('dashboard.manager');
-    Route::get('/dashboard/kitchen', [DashboardController::class, 'kitchenDashboard'])->name('dashboard.kitchen');
-    Route::get('/dashboard/supplier', [DashboardController::class, 'supplierDashboard'])->name('dashboard.supplier');
+    Route::get('/dashboard/user', [DashboardController::class, 'userDashboard'])->name('dashboard.user');
+    Route::get('/dashboard/admin', [DashboardController::class, 'adminDashboard'])->name('dashboard.admin');
 });
 
 // Public Routes
@@ -81,8 +64,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/bills/{bill}/download', [BillController::class, 'download'])->name('bills.download');
 });
 
-// Manager Routes
-Route::middleware(['auth', 'role:manager'])->prefix('manager')->group(function () {
+// Admin Routes
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     // Categories Management
     Route::resource('categories', CategoryController::class);
     
@@ -126,19 +109,6 @@ Route::middleware(['auth', 'role:manager'])->prefix('manager')->group(function (
     Route::get('/reports/sales', [DashboardController::class, 'salesReport'])->name('reports.sales');
     Route::get('/reports/inventory', [DashboardController::class, 'inventoryReport'])->name('reports.inventory');
     Route::get('/reports/analytics', [DashboardController::class, 'analytics'])->name('reports.analytics');
-});
-
-// Kitchen Routes
-Route::middleware(['auth', 'role:kitchen'])->prefix('kitchen')->group(function () {
-    Route::get('/orders', [OrderController::class, 'kitchenOrders'])->name('kitchen.orders');
-    Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('kitchen.update-status');
-});
-
-// Supplier Routes
-Route::middleware(['auth', 'role:supplier'])->prefix('supplier')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'supplierDashboard'])->name('dashboard.supplier');
-    Route::get('/inventory-orders', [InventoryOrderController::class, 'supplierOrders'])->name('supplier.inventory-orders');
-    Route::patch('/inventory-orders/{inventoryOrder}/status', [InventoryOrderController::class, 'updateSupplierStatus'])->name('supplier.update-status');
 });
 
 require __DIR__.'/auth.php';

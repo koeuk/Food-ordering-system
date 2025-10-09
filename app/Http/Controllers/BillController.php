@@ -16,7 +16,7 @@ class BillController extends Controller
     public function show(Bill $bill)
     {
         // Ensure user can only view their own bills
-        if ($bill->order->customer_id !== Auth::id() && !Auth::user()->isManager()) {
+        if ($bill->order->customer_id !== Auth::id() && !Auth::user()->isAdmin()) {
             abort(403);
         }
 
@@ -76,7 +76,7 @@ class BillController extends Controller
     public function download(Bill $bill)
     {
         // Ensure user can only download their own bills
-        if ($bill->order->customer_id !== Auth::id() && !Auth::user()->isManager()) {
+        if ($bill->order->customer_id !== Auth::id() && !Auth::user()->isAdmin()) {
             abort(403);
         }
 

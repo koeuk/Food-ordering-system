@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\HasUuidTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class InventoryOrderItem extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuidTrait;
 
     protected $fillable = [
         'inventory_order_id',

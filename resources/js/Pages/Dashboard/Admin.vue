@@ -1,12 +1,12 @@
 <template>
   <AppLayout>
-    <Head title="Manager Dashboard" />
+    <Head title="Admin Dashboard" />
 
     <v-container>
       <!-- Header -->
       <div class="mb-8">
         <h1 class="text-h4 font-weight-bold text-grey-darken-3 mb-2">
-          Manager Dashboard
+          Admin Dashboard
         </h1>
         <p class="text-subtitle-1 text-grey-darken-1">
           Welcome back, {{ user?.name }}! Here's your business overview.
@@ -262,25 +262,25 @@ const quickActions = [
     title: 'Add Product',
     icon: 'mdi-plus',
     color: 'primary',
-    route: { name: 'manager.products.create' }
+    route: { name: 'admin.products.create' }
   },
   {
     title: 'Manage Inventory',
     icon: 'mdi-package-variant',
     color: 'info',
-    route: { name: 'inventory.index' }
+    route: { name: 'admin.inventory.index' }
   },
   {
     title: 'View Reports',
     icon: 'mdi-chart-bar',
     color: 'success',
-    route: { name: 'manager.reports.sales' }
+    route: { name: 'admin.reports.sales' }
   },
   {
     title: 'Order Management',
     icon: 'mdi-clipboard-list',
     color: 'warning',
-    route: { name: 'manager.orders.index' }
+    route: { name: 'admin.orders.index' }
   }
 ];
 

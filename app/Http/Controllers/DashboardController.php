@@ -15,9 +15,9 @@ use Inertia\Inertia;
 class DashboardController extends Controller
 {
     /**
-     * Customer Dashboard
+     * User Dashboard
      */
-    public function customerDashboard()
+    public function userDashboard()
     {
         $user = Auth::user();
 
@@ -34,16 +34,16 @@ class DashboardController extends Controller
             'total_spent' => $user->orders()->where('status', 'delivered')->sum('total'),
         ];
 
-        return Inertia::render('Dashboard/Customer', [
+        return Inertia::render('Dashboard/User', [
             'recentOrders' => $recentOrders,
             'stats' => $stats,
         ]);
     }
 
     /**
-     * Manager Dashboard
+     * Admin Dashboard
      */
-    public function managerDashboard()
+    public function adminDashboard()
     {
         // Sales statistics
         $todaySales = Order::whereDate('created_at', today())->sum('total');
@@ -69,7 +69,7 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        return Inertia::render('Dashboard/Manager', [
+        return Inertia::render('Dashboard/Admin', [
             'user' => Auth::user(),
             'stats' => [
                 'total_revenue' => $todaySales,
@@ -84,58 +84,6 @@ class DashboardController extends Controller
             'lowStockItems' => $lowStockItems,
             'recentOrders' => $recentOrders,
             'topProducts' => $topProducts,
-        ]);
-    }
-
-    /**
-     * Kitchen Dashboard
-     */
-    public function kitchenDashboard()
-    {
-        $orders = Order::with(['items.product', 'customer'])
-            ->whereIn('status', ['confirmed', 'preparing', 'ready'])
-            ->latest()
-            ->get();
-
-        $stats = [
-            'pending' => Order::where('status', 'confirmed')->count(),
-            'preparing' => Order::where('status', 'preparing')->count(),
-            'ready' => Order::where('status', 'ready')->count(),
-            'completed_today' => Order::whereDate('created_at', today())
-                ->where('status', 'delivered')
-                ->count(),
-        ];
-
-        return Inertia::render('Dashboard/Kitchen', [
-            'orders' => $orders,
-            'stats' => $stats,
-        ]);
-    }
-
-    /**
-     * Supplier Dashboard
-     */
-    public function supplierDashboard()
-    {
-        $user = Auth::user();
-        
-        // Get inventory orders for this supplier
-        $inventoryOrders = \App\Models\InventoryOrder::with(['manager', 'items.product'])
-            ->where('supplier_id', $user->id)
-            ->latest()
-            ->get();
-
-        $stats = [
-            'total_orders' => $inventoryOrders->count(),
-            'pending_orders' => $inventoryOrders->where('status', 'pending')->count(),
-            'sent_orders' => $inventoryOrders->where('status', 'sent')->count(),
-            'received_orders' => $inventoryOrders->where('status', 'received')->count(),
-            'total_value' => $inventoryOrders->sum('total_amount'),
-        ];
-
-        return Inertia::render('Dashboard/Supplier', [
-            'inventoryOrders' => $inventoryOrders,
-            'stats' => $stats,
         ]);
     }
 
@@ -210,12 +158,12 @@ class DashboardController extends Controller
                 'cancelled' => Order::where('status', 'cancelled')->count(),
             ],
             'customers' => [
-                'total' => User::where('role', 'customer')->count(),
-                'active_today' => User::where('role', 'customer')
+                'total' => User::where('role', 'user')->count(),
+                'active_today' => User::where('role', 'user')
                     ->whereHas('orders', function ($query) {
                         $query->whereDate('created_at', today());
                     })->count(),
-                'new_this_month' => User::where('role', 'customer')
+                'new_this_month' => User::where('role', 'user')
                     ->whereMonth('created_at', now()->month)->count(),
             ],
             'inventory' => [

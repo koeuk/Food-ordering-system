@@ -13,7 +13,7 @@
                     Browse our delicious selection
                 </p>
             </div>
-            <v-btn v-if="auth?.user?.role === 'manager'" color="primary" :to="{ name: 'manager.products.create' }">
+            <v-btn v-if="auth?.user?.role === 'admin'" color="primary" :to="{ name: 'admin.products.create' }">
                 <v-icon left>mdi-plus</v-icon>
                 Add Product
             </v-btn>

@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\HasUuidTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Role extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuidTrait;
 
     protected $fillable = [
         'name',
@@ -133,7 +134,7 @@ class Role extends Model
             'orders.create' => 'Create Orders',
             'orders.edit' => 'Edit Orders',
             'orders.delete' => 'Delete Orders',
-            'orders.manage' => 'Manage Orders',
+            'orders.manage' => 'Manage All Orders',
             
             // Inventory Management
             'inventory.view' => 'View Inventory',
@@ -156,12 +157,6 @@ class Role extends Model
             'reports.view' => 'View Reports',
             'reports.sales' => 'Sales Reports',
             'reports.inventory' => 'Inventory Reports',
-            
-            // Dashboard Access
-            'dashboard.customer' => 'Customer Dashboard',
-            'dashboard.manager' => 'Manager Dashboard',
-            'dashboard.kitchen' => 'Kitchen Dashboard',
-            'dashboard.supplier' => 'Supplier Dashboard',
         ];
     }
 }

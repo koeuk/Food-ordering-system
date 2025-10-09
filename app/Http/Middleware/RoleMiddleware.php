@@ -28,17 +28,10 @@ class RoleMiddleware
         }
 
         // If user doesn't have any of the required roles, redirect based on their role
-        switch ($user->role) {
-            case 'customer':
-                return redirect()->route('dashboard.customer');
-            case 'manager':
-                return redirect()->route('dashboard.manager');
-            case 'kitchen':
-                return redirect()->route('dashboard.kitchen');
-            case 'supplier':
-                return redirect()->route('dashboard.supplier');
-            default:
-                return redirect()->route('dashboard');
+        if ($user->isAdmin()) {
+            return redirect()->route('dashboard.admin');
         }
+        
+        return redirect()->route('dashboard');
     }
 }

@@ -272,15 +272,13 @@
         address: '',
         password: '',
         password_confirmation: '',
-        role: 'customer',
-    });
+        role: 'user',
+        });
 
     // Role options
     const roleOptions = [
-        { title: 'Customer', value: 'customer' },
-        { title: 'Manager', value: 'manager' },
-        { title: 'Kitchen Staff', value: 'kitchen' },
-        { title: 'Supplier', value: 'supplier' },
+        { title: 'User', value: 'user' },
+        { title: 'Administrator', value: 'admin' },
     ];
 
     // Validation rules
@@ -350,30 +348,24 @@
     // Methods
     const getRoleColor = (role) => {
         const colors = {
-            customer: 'primary',
-            manager: 'success',
-            kitchen: 'warning',
-            supplier: 'info'
+            user: 'primary',
+            admin: 'success'
         };
         return colors[role] || 'grey';
     };
 
     const getRoleIcon = (role) => {
         const icons = {
-            customer: 'mdi-account',
-            manager: 'mdi-account-tie',
-            kitchen: 'mdi-chef-hat',
-            supplier: 'mdi-truck-delivery'
+            user: 'mdi-account',
+            admin: 'mdi-shield-account'
         };
         return icons[role] || 'mdi-account';
     };
 
     const getRoleDescription = (role) => {
         const descriptions = {
-            customer: 'Order food and manage your orders',
-            manager: 'Manage restaurant operations and inventory',
-            kitchen: 'Handle food preparation and order status',
-            supplier: 'Manage inventory orders and deliveries'
+            user: 'Order food and manage your orders',
+            admin: 'Manage restaurant operations and inventory'
         };
         return descriptions[role] || '';
     };
