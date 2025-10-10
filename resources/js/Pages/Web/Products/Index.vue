@@ -177,6 +177,16 @@ const handleFilter = () => {
   });
 };
 
+const handlePageChange = (page) => {
+  router.get(route('web.products.index'), {
+    page: page,
+    search: search.value,
+    category_id: categoryId.value
+  }, {
+    preserveState: true
+  });
+};
+
 const addToCart = (product) => {
   // Add to cart functionality
   console.log('Adding to cart:', product.name);
