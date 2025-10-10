@@ -90,3 +90,19 @@ createInertiaApp({
     },
 });
 
+// Configure Inertia.js to include CSRF token
+import { router } from '@inertiajs/vue3';
+
+// Get CSRF token from meta tag
+const token = document.head.querySelector('meta[name="csrf-token"]');
+
+if (token) {
+    // Configure global headers for all Inertia requests
+    router.on('before', (event) => {
+        event.detail.visit.headers = {
+            ...event.detail.visit.headers,
+            'X-CSRF-TOKEN': token.content,
+        };
+    });
+}
+
