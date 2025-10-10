@@ -1,317 +1,235 @@
 <template>
-    <Head :title="__('Add Inventory Item')" />
+  <DashboardLayout>
+    <Head title="Add Inventory Item" />
 
-    <vee-form
-        :validation-schema="schema"
-        @submit="submit"
-        v-slot="{ meta, setErrors }"
-    >
-        <div class="tw-space-y-6">
-            <!-- Header -->
-            <div class="tw-flex tw-items-center tw-justify-between">
-                <div>
-                    <h2 class="tw-text-2xl tw-font-bold tw-tracking-tight">
-                        {{ __("Add Inventory Item") }}
-                    </h2>
-                    <p class="tw-text-muted-foreground">
-                        {{ __("Create new inventory record for a product") }}
-                    </p>
-                </div>
-                <Button
-                    variant="outline"
-                    @click="goBack"
-                >
-                    <ArrowLeft class="tw-w-4 tw-h-4 tw-mr-2" />
-                    {{ __("Back") }}
-                </Button>
-            </div>
-
-            <!-- Form -->
-            <div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-3 tw-gap-6">
-                <!-- Main Form -->
-                <div class="tw-lg:col-span-2 tw-space-y-6">
-                    <!-- Product Selection -->
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>{{ __("Select Product") }}</CardTitle>
-                            <CardDescription>
-                                {{ __("Choose a product to add inventory tracking") }}
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent class="tw-space-y-4">
-                            <vee-field
-                                name="product_id"
-                                v-slot="{ field, errors }"
-                            >
-                                <div class="tw-space-y-2">
-                                    <Label for="product_id">
-                                        {{ __("Product") }}
-                                        <span class="tw-text-destructive">*</span>
-                                    </Label>
-                                    <Select
-                                        v-model="form.product_id"
-                                        @update:model-value="(val) => form.product_id = val"
-                                    >
-                                        <SelectTrigger id="product_id">
-                                            <SelectValue :placeholder="__('Select a product')" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem 
-                                                v-for="product in products" 
-                                                :key="product.id" 
-                                                :value="product.id"
-                                            >
-                                                {{ product.name }} - {{ product.category?.name }}
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <p v-if="errors.length" class="tw-text-sm tw-text-destructive">
-                                        {{ errors[0] }}
-                                    </p>
-                                </div>
-                            </vee-field>
-
-                            <!-- Selected Product Preview -->
-                            <div v-if="selectedProduct" class="tw-p-4 tw-rounded-lg tw-border tw-bg-muted/50">
-                                <div class="tw-flex tw-items-center tw-gap-4">
-                                    <div class="tw-w-16 tw-h-16 tw-rounded-lg tw-bg-muted tw-flex tw-items-center tw-justify-center tw-overflow-hidden">
-                                        <img
-                                            v-if="selectedProduct.image"
-                                            :src="`/storage/${selectedProduct.image}`"
-                                            :alt="selectedProduct.name"
-                                            class="tw-w-full tw-h-full tw-object-cover"
-                                        />
-                                        <Package v-else class="tw-w-8 tw-h-8 tw-text-muted-foreground" />
-                                    </div>
-                                    <div class="tw-flex-1">
-                                        <p class="tw-font-semibold">{{ selectedProduct.name }}</p>
-                                        <p class="tw-text-sm tw-text-muted-foreground">
-                                            {{ selectedProduct.category?.name }} • ${{ selectedProduct.price }}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <!-- Stock Information -->
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>{{ __("Stock Information") }}</CardTitle>
-                            <CardDescription>
-                                {{ __("Set initial stock levels") }}
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent class="tw-space-y-4">
-                            <vee-field
-                                name="quantity"
-                                v-slot="{ field, errors }"
-                            >
-                                <div class="tw-space-y-2">
-                                    <Label for="quantity">
-                                        {{ __("Initial Quantity") }}
-                                        <span class="tw-text-destructive">*</span>
-                                    </Label>
-                                    <Input
-                                        id="quantity"
-                                        type="number"
-                                        min="0"
-                                        v-bind="field"
-                                        :model-value="form.quantity"
-                                        @update:model-value="(val) => form.quantity = parseInt(val)"
-                                        :class="{ 'tw-border-destructive': errors.length }"
-                                        :placeholder="__('Enter initial stock quantity')"
-                                    />
-                                    <p v-if="errors.length" class="tw-text-sm tw-text-destructive">
-                                        {{ errors[0] }}
-                                    </p>
-                                </div>
-                            </vee-field>
-
-                            <vee-field
-                                name="minimum_stock"
-                                v-slot="{ field, errors }"
-                            >
-                                <div class="tw-space-y-2">
-                                    <Label for="minimum_stock">
-                                        {{ __("Minimum Stock Threshold") }}
-                                        <span class="tw-text-destructive">*</span>
-                                    </Label>
-                                    <Input
-                                        id="minimum_stock"
-                                        type="number"
-                                        min="0"
-                                        v-bind="field"
-                                        :model-value="form.minimum_stock"
-                                        @update:model-value="(val) => form.minimum_stock = parseInt(val)"
-                                        :class="{ 'tw-border-destructive': errors.length }"
-                                        :placeholder="__('Enter minimum stock level')"
-                                    />
-                                    <p v-if="errors.length" class="tw-text-sm tw-text-destructive">
-                                        {{ errors[0] }}
-                                    </p>
-                                    <p class="tw-text-sm tw-text-muted-foreground">
-                                        {{ __("Alert will trigger when stock reaches this level") }}
-                                    </p>
-                                </div>
-                            </vee-field>
-
-                            <!-- Stock Status Preview -->
-                            <div v-if="form.quantity !== null && form.minimum_stock !== null" class="tw-p-4 tw-rounded-lg tw-bg-muted/50 tw-mt-6">
-                                <Label class="tw-text-muted-foreground tw-text-sm">{{ __("Stock Status Preview") }}</Label>
-                                <div class="tw-flex tw-items-center tw-gap-4 tw-mt-2">
-                                    <div>
-                                        <p class="tw-text-2xl tw-font-bold">{{ form.quantity || 0 }}</p>
-                                        <p class="tw-text-xs tw-text-muted-foreground">{{ __("Initial") }}</p>
-                                    </div>
-                                    <div class="tw-text-muted-foreground">/</div>
-                                    <div>
-                                        <p class="tw-text-2xl tw-font-bold">{{ form.minimum_stock || 0 }}</p>
-                                        <p class="tw-text-xs tw-text-muted-foreground">{{ __("Minimum") }}</p>
-                                    </div>
-                                    <div class="tw-ml-auto">
-                                        <Badge :variant="getStatusVariant()">
-                                            {{ getStatusText() }}
-                                        </Badge>
-                                    </div>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                <!-- Sidebar -->
-                <div class="tw-space-y-6">
-                    <!-- Actions -->
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>{{ __("Actions") }}</CardTitle>
-                        </CardHeader>
-                        <CardContent class="tw-space-y-2">
-                            <Button
-                                type="submit"
-                                class="tw-w-full"
-                                :disabled="!meta.valid || form.processing"
-                            >
-                                <Loader2
-                                    v-if="form.processing"
-                                    class="tw-h-4 tw-w-4 tw-mr-2 tw-animate-spin"
-                                />
-                                <Plus v-else class="tw-h-4 tw-w-4 tw-mr-2" />
-                                {{ __("Create Inventory") }}
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                class="tw-w-full"
-                                @click="goBack"
-                            >
-                                {{ __("Cancel") }}
-                            </Button>
-                        </CardContent>
-                    </Card>
-
-                    <!-- Tips -->
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>{{ __("Tips") }}</CardTitle>
-                        </CardHeader>
-                        <CardContent class="tw-text-sm tw-text-muted-foreground tw-space-y-2">
-                            <p>• {{ __("Select a product without inventory") }}</p>
-                            <p>• {{ __("Set minimum stock for alerts") }}</p>
-                            <p>• {{ __("You can adjust quantities later") }}</p>
-                        </CardContent>
-                    </Card>
-                </div>
-            </div>
+    <v-container>
+      <!-- Header -->
+      <div class="d-flex justify-space-between align-center mb-6">
+        <div>
+          <h1 class="text-h3 font-weight-bold text-grey-darken-3 mb-2">
+            Add Inventory Item
+          </h1>
+          <p class="text-grey-darken-1">
+            Track a new product in your inventory
+          </p>
         </div>
-    </vee-form>
+        <v-btn
+          color="grey"
+          variant="outlined"
+          href="/dashboard/inventory"
+        >
+          <v-icon left>mdi-arrow-left</v-icon>
+          Back to Inventory
+        </v-btn>
+      </div>
+
+      <!-- Create Form -->
+      <v-card elevation="2">
+        <v-card-title class="text-h6 font-weight-bold text-grey-darken-3">
+          <v-icon left color="primary">mdi-plus</v-icon>
+          Inventory Information
+        </v-card-title>
+        <v-card-text>
+          <v-form ref="form" v-model="valid">
+            <v-row>
+              <!-- Product Selection -->
+              <v-col cols="12" md="6">
+                <v-select
+                  v-model="form.product_id"
+                  :items="products"
+                  item-title="name"
+                  item-value="id"
+                  label="Product"
+                  variant="outlined"
+                  :rules="[rules.required]"
+                  required
+                >
+                  <template v-slot:item="{ props, item }">
+                    <v-list-item v-bind="props">
+                      <template v-slot:prepend>
+                        <v-avatar size="40" class="mr-3">
+                          <v-img v-if="item.raw.image_url" :src="item.raw.image_url" />
+                          <v-icon v-else>mdi-food</v-icon>
+                        </v-avatar>
+                      </template>
+                      <v-list-item-title>{{ item.raw.name }}</v-list-item-title>
+                      <v-list-item-subtitle>{{ item.raw.category?.name }}</v-list-item-subtitle>
+                    </v-list-item>
+                  </template>
+                </v-select>
+              </v-col>
+
+              <!-- Current Quantity -->
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="form.quantity"
+                  label="Current Quantity"
+                  type="number"
+                  min="0"
+                  variant="outlined"
+                  :rules="[rules.required, rules.quantity]"
+                  required
+                />
+              </v-col>
+
+              <!-- Minimum Stock -->
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="form.minimum_stock"
+                  label="Minimum Stock Level"
+                  type="number"
+                  min="1"
+                  variant="outlined"
+                  :rules="[rules.required, rules.minimum]"
+                  required
+                  hint="Alert when stock falls below this level"
+                  persistent-hint
+                />
+              </v-col>
+
+              <!-- Unit -->
+              <v-col cols="12" md="6">
+                <v-select
+                  v-model="form.unit"
+                  :items="units"
+                  label="Unit"
+                  variant="outlined"
+                  :rules="[rules.required]"
+                  required
+                />
+              </v-col>
+
+              <!-- Location -->
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="form.location"
+                  label="Storage Location"
+                  variant="outlined"
+                  hint="e.g., Kitchen, Freezer, Pantry"
+                  persistent-hint
+                />
+              </v-col>
+
+              <!-- Expiry Date -->
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="form.expiry_date"
+                  label="Expiry Date (Optional)"
+                  type="date"
+                  variant="outlined"
+                />
+              </v-col>
+
+              <!-- Notes -->
+              <v-col cols="12">
+                <v-textarea
+                  v-model="form.notes"
+                  label="Notes"
+                  variant="outlined"
+                  rows="3"
+                  hint="Additional notes about this inventory item"
+                  persistent-hint
+                />
+              </v-col>
+            </v-row>
+
+            <!-- Form Actions -->
+            <v-row>
+              <v-col cols="12">
+                <div class="d-flex gap-4">
+                  <v-btn
+                    color="primary"
+                    size="large"
+                    :disabled="!valid"
+                    @click="submitForm"
+                    :loading="loading"
+                  >
+                    <v-icon left>mdi-check</v-icon>
+                    Add Inventory Item
+                  </v-btn>
+                  <v-btn
+                    color="grey"
+                    variant="outlined"
+                    size="large"
+                    href="/dashboard/inventory"
+                  >
+                    Cancel
+                  </v-btn>
+                </div>
+              </v-col>
+            </v-row>
+          </v-form>
+        </v-card-text>
+      </v-card>
+    </v-container>
+  </DashboardLayout>
 </template>
 
 <script setup>
-import { computed } from "vue";
-import { useForm } from "@inertiajs/vue3";
-import { router, Head } from "@inertiajs/vue3";
-import { Button } from "@/Components/ui/button";
-import { Input } from "@/Components/ui/input";
-import { Label } from "@/Components/ui/label";
-import { Badge } from "@/Components/ui/badge";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/Components/ui/card";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/Components/ui/select";
-import { Loader2, Plus, ArrowLeft, Package } from "lucide-vue-next";
-import { useToast } from "@/Components/ui/toast/use-toast";
-import * as yup from "yup";
-
-const { toast } = useToast();
+import { ref } from 'vue';
+import { Head, router } from '@inertiajs/vue3';
+import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 
 const props = defineProps({
-    products: {
-        type: Array,
-        default: () => [],
-    },
+  products: {
+    type: Array,
+    default: () => []
+  }
 });
 
-const schema = yup.object({
-    product_id: yup.string().required(__("Product is required")),
-    quantity: yup.number().required(__("Quantity is required")).min(0, __("Quantity must be positive")),
-    minimum_stock: yup.number().required(__("Minimum stock is required")).min(0, __("Minimum stock must be positive")),
+const form = ref({
+  product_id: null,
+  quantity: '',
+  minimum_stock: '',
+  unit: 'pieces',
+  location: '',
+  expiry_date: '',
+  notes: ''
 });
 
-const form = useForm({
-    product_id: "",
-    quantity: 0,
-    minimum_stock: 0,
-});
+const valid = ref(false);
+const loading = ref(false);
 
-const selectedProduct = computed(() => {
-    return props.products.find(p => p.id === form.product_id);
-});
+const units = [
+  'pieces',
+  'kg',
+  'grams',
+  'liters',
+  'ml',
+  'boxes',
+  'packs',
+  'bottles',
+  'cans'
+];
 
-const getStatusVariant = () => {
-    if ((form.quantity || 0) === 0) return 'destructive';
-    if ((form.quantity || 0) <= (form.minimum_stock || 0)) return 'warning';
-    return 'success';
+const rules = {
+  required: (value) => !!value || 'This field is required',
+  quantity: (value) => {
+    const num = parseInt(value);
+    return (num >= 0) || 'Quantity must be 0 or greater';
+  },
+  minimum: (value) => {
+    const num = parseInt(value);
+    return (num > 0) || 'Minimum stock must be greater than 0';
+  }
 };
 
-const getStatusText = () => {
-    if ((form.quantity || 0) === 0) return __("Out of Stock");
-    if ((form.quantity || 0) <= (form.minimum_stock || 0)) return __("Low Stock");
-    return __("In Stock");
-};
-
-const submit = (setErrors) => {
-    form.post(route("dashboard.inventory.store"), {
-        onSuccess: () => {
-            toast({
-                title: __("Success"),
-                description: __("Inventory created successfully"),
-            });
-        },
-        onError: (errors) => {
-            setErrors(errors);
-            toast({
-                title: __("Error"),
-                description: __("Failed to create inventory"),
-                variant: "destructive",
-            });
-        },
+const submitForm = () => {
+  if (valid.value) {
+    loading.value = true;
+    
+    router.post(route('dashboard.inventory.store'), form.value, {
+      onSuccess: () => {
+        // Inventory item created successfully
+      },
+      onError: () => {
+        loading.value = false;
+      },
+      onFinish: () => {
+        loading.value = false;
+      }
     });
-};
-
-const goBack = () => {
-    router.visit(route("dashboard.inventory.index"));
+  }
 };
 </script>
 

@@ -1,292 +1,325 @@
 <template>
-    <Head :title="`${supplier.name} - Supplier Details`" />
+  <DashboardLayout>
+    <Head :title="`Supplier: ${supplier.company_name}`" />
 
-    <div class="tw-space-y-6">
-        <!-- Header -->
-        <div class="tw-flex tw-items-center tw-justify-between">
-            <div>
-                <h2 class="tw-text-2xl tw-font-bold tw-tracking-tight">
-                    {{ supplier.name }}
-                </h2>
-                <p class="tw-text-muted-foreground">
-                    {{ __("Supplier details and orders") }}
-                </p>
-            </div>
-            <div class="tw-flex tw-gap-2">
-                <Button
-                    variant="outline"
-                    @click="editSupplier"
-                >
-                    <Edit class="tw-w-4 tw-h-4 tw-mr-2" />
-                    {{ __("Edit") }}
-                </Button>
-                <Button
-                    variant="outline"
-                    @click="goBack"
-                >
-                    <ArrowLeft class="tw-w-4 tw-h-4 tw-mr-2" />
-                    {{ __("Back") }}
-                </Button>
-            </div>
+    <v-container>
+      <!-- Header -->
+      <div class="d-flex justify-space-between align-center mb-6">
+        <div>
+          <h1 class="text-h3 font-weight-bold text-grey-darken-3 mb-2">
+            {{ supplier.company_name }}
+          </h1>
+          <p class="text-grey-darken-1">
+            Supplier Details
+          </p>
         </div>
-
-        <!-- Supplier Information -->
-        <div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-3 tw-gap-6">
-            <!-- Main Content -->
-            <div class="tw-lg:col-span-2 tw-space-y-6">
-                <!-- Details Card -->
-                <Card>
-                    <CardHeader>
-                        <CardTitle>{{ __("Supplier Information") }}</CardTitle>
-                    </CardHeader>
-                    <CardContent class="tw-space-y-4">
-                        <div class="tw-grid tw-grid-cols-2 tw-gap-4">
-                            <div>
-                                <Label class="tw-text-muted-foreground">{{ __("Company Name") }}</Label>
-                                <p class="tw-text-lg tw-font-semibold">{{ supplier.name }}</p>
-                            </div>
-                            <div>
-                                <Label class="tw-text-muted-foreground">{{ __("Contact Person") }}</Label>
-                                <p class="tw-text-lg">{{ supplier.contact_person || __("Not specified") }}</p>
-                            </div>
-                        </div>
-
-                        <div class="tw-grid tw-grid-cols-2 tw-gap-4">
-                            <div>
-                                <Label class="tw-text-muted-foreground">{{ __("Email") }}</Label>
-                                <p class="tw-flex tw-items-center tw-gap-2">
-                                    <Mail class="tw-w-4 tw-h-4" />
-                                    <a :href="`mailto:${supplier.email}`" class="tw-text-primary hover:tw-underline">
-                                        {{ supplier.email }}
-                                    </a>
-                                </p>
-                            </div>
-                            <div>
-                                <Label class="tw-text-muted-foreground">{{ __("Phone") }}</Label>
-                                <p class="tw-flex tw-items-center tw-gap-2">
-                                    <Phone class="tw-w-4 tw-h-4" />
-                                    <a :href="`tel:${supplier.phone}`" class="tw-text-primary hover:tw-underline">
-                                        {{ supplier.phone }}
-                                    </a>
-                                </p>
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <Label class="tw-text-muted-foreground">{{ __("Address") }}</Label>
-                            <p class="tw-flex tw-items-start tw-gap-2 tw-mt-1">
-                                <MapPin class="tw-w-4 tw-h-4 tw-mt-0.5" />
-                                <span>{{ supplier.address }}</span>
-                            </p>
-                        </div>
-
-                        <div class="tw-grid tw-grid-cols-2 tw-gap-4 tw-text-sm tw-pt-4 tw-border-t">
-                            <div>
-                                <Label class="tw-text-muted-foreground">{{ __("Created At") }}</Label>
-                                <p>{{ new Date(supplier.created_at).toLocaleString() }}</p>
-                            </div>
-                            <div>
-                                <Label class="tw-text-muted-foreground">{{ __("Last Updated") }}</Label>
-                                <p>{{ new Date(supplier.updated_at).toLocaleString() }}</p>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <!-- Inventory Orders -->
-                <Card>
-                    <CardHeader>
-                        <div class="tw-flex tw-items-center tw-justify-between">
-                            <CardTitle>{{ __("Recent Inventory Orders") }}</CardTitle>
-                            <Button
-                                size="sm"
-                                @click="createInventoryOrder"
-                            >
-                                <Plus class="tw-w-4 tw-h-4 tw-mr-2" />
-                                {{ __("New Order") }}
-                            </Button>
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        <div v-if="supplier.inventory_orders && supplier.inventory_orders.length > 0" class="tw-space-y-2">
-                            <div
-                                v-for="order in supplier.inventory_orders"
-                                :key="order.id"
-                                class="tw-flex tw-items-center tw-justify-between tw-p-3 tw-rounded-lg tw-border hover:tw-bg-muted/50 tw-cursor-pointer"
-                                @click="viewInventoryOrder(order)"
-                            >
-                                <div class="tw-flex tw-items-center tw-gap-3">
-                                    <div class="tw-w-10 tw-h-10 tw-rounded-full tw-bg-primary/10 tw-flex tw-items-center tw-justify-center">
-                                        <Package class="tw-w-5 tw-h-5 tw-text-primary" />
-                                    </div>
-                                    <div>
-                                        <p class="tw-font-medium">{{ order.order_number }}</p>
-                                        <p class="tw-text-sm tw-text-muted-foreground">
-                                            {{ new Date(order.order_date).toLocaleDateString() }}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="tw-flex tw-items-center tw-gap-2">
-                                    <Badge :variant="getStatusVariant(order.status)">
-                                        {{ order.status }}
-                                    </Badge>
-                                    <ChevronRight class="tw-w-4 tw-h-4 tw-text-muted-foreground" />
-                                </div>
-                            </div>
-                        </div>
-                        <div v-else class="tw-text-center tw-py-8">
-                            <Package class="tw-mx-auto tw-h-12 tw-w-12 tw-text-muted-foreground" />
-                            <p class="tw-mt-2 tw-text-sm tw-text-muted-foreground">
-                                {{ __("No inventory orders yet") }}
-                            </p>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-
-            <!-- Sidebar -->
-            <div class="tw-space-y-6">
-                <!-- Quick Actions -->
-                <Card>
-                    <CardHeader>
-                        <CardTitle>{{ __("Quick Actions") }}</CardTitle>
-                    </CardHeader>
-                    <CardContent class="tw-space-y-2">
-                        <Button
-                            variant="outline"
-                            class="tw-w-full tw-justify-start"
-                            @click="editSupplier"
-                        >
-                            <Edit class="tw-w-4 tw-h-4 tw-mr-2" />
-                            {{ __("Edit Supplier") }}
-                        </Button>
-                        <Button
-                            variant="outline"
-                            class="tw-w-full tw-justify-start"
-                            @click="createInventoryOrder"
-                        >
-                            <Plus class="tw-w-4 tw-h-4 tw-mr-2" />
-                            {{ __("New Order") }}
-                        </Button>
-                        <Button
-                            variant="outline"
-                            class="tw-w-full tw-justify-start"
-                            as="a"
-                            :href="`mailto:${supplier.email}`"
-                        >
-                            <Mail class="tw-w-4 tw-h-4 tw-mr-2" />
-                            {{ __("Send Email") }}
-                        </Button>
-                        <Button
-                            variant="outline"
-                            class="tw-w-full tw-justify-start tw-text-destructive hover:tw-text-destructive"
-                            @click="deleteSupplier"
-                        >
-                            <Trash2 class="tw-w-4 tw-h-4 tw-mr-2" />
-                            {{ __("Delete Supplier") }}
-                        </Button>
-                    </CardContent>
-                </Card>
-
-                <!-- Statistics -->
-                <Card>
-                    <CardHeader>
-                        <CardTitle>{{ __("Statistics") }}</CardTitle>
-                    </CardHeader>
-                    <CardContent class="tw-space-y-3">
-                        <div class="tw-flex tw-items-center tw-justify-between">
-                            <span class="tw-text-sm tw-text-muted-foreground">{{ __("Total Orders") }}</span>
-                            <span class="tw-font-semibold">{{ supplier.inventory_orders?.length || 0 }}</span>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
+        <div class="d-flex gap-2">
+          <v-btn
+            color="primary"
+            :to="{ name: 'dashboard.suppliers.edit', params: { supplier: supplier.id } }"
+          >
+            <v-icon left>mdi-pencil</v-icon>
+            Edit Supplier
+          </v-btn>
+          <v-btn
+            color="grey"
+            variant="outlined"
+            :to="{ name: 'dashboard.suppliers.index' }"
+          >
+            <v-icon left>mdi-arrow-left</v-icon>
+            Back to Suppliers
+          </v-btn>
         </div>
-    </div>
+      </div>
+
+      <v-row>
+        <!-- Supplier Details -->
+        <v-col cols="12" lg="8">
+          <!-- Company Information -->
+          <v-card elevation="2" class="mb-6">
+            <v-card-title class="text-h6 font-weight-bold text-grey-darken-3">
+              <v-icon left color="primary">mdi-office-building</v-icon>
+              Company Information
+            </v-card-title>
+            <v-card-text>
+              <v-row>
+                <v-col cols="12" md="6">
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey-darken-1 mb-1">Company Name</div>
+                    <div class="text-h6">{{ supplier.company_name }}</div>
+                  </div>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey-darken-1 mb-1">Status</div>
+                    <v-chip
+                      :color="supplier.is_active ? 'success' : 'error'"
+                      size="small"
+                      variant="flat"
+                    >
+                      {{ supplier.is_active ? 'Active' : 'Inactive' }}
+                    </v-chip>
+                  </div>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey-darken-1 mb-1">Contact Person</div>
+                    <div class="text-body-1">{{ supplier.contact_person }}</div>
+                  </div>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey-darken-1 mb-1">Email</div>
+                    <div class="text-body-1">
+                      <a :href="`mailto:${supplier.email}`" class="text-decoration-none">
+                        {{ supplier.email }}
+                      </a>
+                    </div>
+                  </div>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey-darken-1 mb-1">Phone</div>
+                    <div class="text-body-1">
+                      <a :href="`tel:${supplier.phone}`" class="text-decoration-none">
+                        {{ supplier.phone }}
+                      </a>
+                    </div>
+                  </div>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey-darken-1 mb-1">Website</div>
+                    <div class="text-body-1">
+                      <a 
+                        v-if="supplier.website" 
+                        :href="supplier.website" 
+                        target="_blank" 
+                        class="text-decoration-none"
+                      >
+                        {{ supplier.website }}
+                      </a>
+                      <span v-else class="text-grey">No website</span>
+                    </div>
+                  </div>
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+
+          <!-- Address Information -->
+          <v-card elevation="2" class="mb-6">
+            <v-card-title class="text-h6 font-weight-bold text-grey-darken-3">
+              <v-icon left color="info">mdi-map-marker</v-icon>
+              Address Information
+            </v-card-title>
+            <v-card-text>
+              <v-row>
+                <v-col cols="12">
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey-darken-1 mb-1">Full Address</div>
+                    <div class="text-body-1">{{ supplier.address }}</div>
+                  </div>
+                </v-col>
+                <v-col cols="12" md="4">
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey-darken-1 mb-1">City</div>
+                    <div class="text-body-1">{{ supplier.city }}</div>
+                  </div>
+                </v-col>
+                <v-col cols="12" md="4">
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey-darken-1 mb-1">State</div>
+                    <div class="text-body-1">{{ supplier.state }}</div>
+                  </div>
+                </v-col>
+                <v-col cols="12" md="4">
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey-darken-1 mb-1">Postal Code</div>
+                    <div class="text-body-1">{{ supplier.postal_code }}</div>
+                  </div>
+                </v-col>
+                <v-col cols="12">
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey-darken-1 mb-1">Country</div>
+                    <div class="text-body-1">{{ supplier.country }}</div>
+                  </div>
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+
+          <!-- Business Information -->
+          <v-card elevation="2" class="mb-6">
+            <v-card-title class="text-h6 font-weight-bold text-grey-darken-3">
+              <v-icon left color="success">mdi-currency-usd</v-icon>
+              Business Information
+            </v-card-title>
+            <v-card-text>
+              <v-row>
+                <v-col cols="12" md="6">
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey-darken-1 mb-1">Payment Terms</div>
+                    <v-chip color="primary" size="small">
+                      {{ formatPaymentTerms(supplier.payment_terms) }}
+                    </v-chip>
+                  </div>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey-darken-1 mb-1">Credit Limit</div>
+                    <div class="text-body-1">
+                      {{ supplier.credit_limit ? `$${formatPrice(supplier.credit_limit)}` : 'No limit set' }}
+                    </div>
+                  </div>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey-darken-1 mb-1">Total Orders</div>
+                    <div class="text-h6 font-weight-bold text-primary">{{ stats.total_orders || 0 }}</div>
+                  </div>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey-darken-1 mb-1">Total Value</div>
+                    <div class="text-h6 font-weight-bold text-success">${{ formatPrice(stats.total_value || 0) }}</div>
+                  </div>
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+
+          <!-- Notes -->
+          <v-card v-if="supplier.notes" elevation="2">
+            <v-card-title class="text-h6 font-weight-bold text-grey-darken-3">
+              <v-icon left color="warning">mdi-note-text</v-icon>
+              Notes
+            </v-card-title>
+            <v-card-text>
+              <div class="text-body-1">{{ supplier.notes }}</div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <!-- Quick Actions -->
+        <v-col cols="12" lg="4">
+          <v-card elevation="2" class="mb-4">
+            <v-card-title class="text-h6 font-weight-bold text-grey-darken-3">
+              <v-icon left color="primary">mdi-lightning-bolt</v-icon>
+              Quick Actions
+            </v-card-title>
+            <v-card-text>
+              <v-btn
+                color="success"
+                variant="outlined"
+                block
+                class="mb-2"
+                :to="{ name: 'dashboard.inventory-orders.create', query: { supplier_id: supplier.id } }"
+              >
+                <v-icon left>mdi-plus</v-icon>
+                Create Order
+              </v-btn>
+              <v-btn
+                color="primary"
+                variant="outlined"
+                block
+                class="mb-2"
+                :to="{ name: 'dashboard.suppliers.edit', params: { supplier: supplier.id } }"
+              >
+                <v-icon left>mdi-pencil</v-icon>
+                Edit Supplier
+              </v-btn>
+              <v-btn
+                color="info"
+                variant="outlined"
+                block
+                class="mb-2"
+                :to="{ name: 'dashboard.inventory-orders.index', query: { supplier: supplier.id } }"
+              >
+                <v-icon left>mdi-history</v-icon>
+                View Orders
+              </v-btn>
+            </v-card-text>
+          </v-card>
+
+          <!-- Recent Orders -->
+          <v-card elevation="2">
+            <v-card-title class="text-h6 font-weight-bold text-grey-darken-3">
+              <v-icon left color="info">mdi-history</v-icon>
+              Recent Orders
+            </v-card-title>
+            <v-card-text>
+              <div v-if="recentOrders.length > 0">
+                <v-list>
+                  <v-list-item
+                    v-for="order in recentOrders"
+                    :key="order.id"
+                    :to="{ name: 'dashboard.inventory-orders.show', params: { order: order.id } }"
+                  >
+                    <template v-slot:prepend>
+                      <v-icon>mdi-package-variant</v-icon>
+                    </template>
+                    <v-list-item-title>Order #{{ order.order_number }}</v-list-item-title>
+                    <v-list-item-subtitle>
+                      {{ formatDate(order.created_at) }} - ${{ formatPrice(order.total_amount) }}
+                    </v-list-item-subtitle>
+                  </v-list-item>
+                </v-list>
+              </div>
+              <div v-else class="text-center py-4 text-grey-darken-1">
+                <v-icon size="48" color="grey-lighten-2">mdi-package-variant-closed</v-icon>
+                <p class="mt-2">No orders yet</p>
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-container>
+  </DashboardLayout>
 </template>
 
 <script setup>
-import { router } from "@inertiajs/vue3";
-import { Head } from "@inertiajs/vue3";
-import { Button } from "@/Components/ui/button";
-import { Label } from "@/Components/ui/label";
-import { Badge } from "@/Components/ui/badge";
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from "@/Components/ui/card";
-import {
-    Edit,
-    ArrowLeft,
-    Plus,
-    Trash2,
-    Package,
-    ChevronRight,
-    Mail,
-    Phone,
-    MapPin,
-} from "lucide-vue-next";
-import { useToast } from "@/Components/ui/toast/use-toast";
-
-const { toast } = useToast();
+import { Head } from '@inertiajs/vue3';
+import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 
 const props = defineProps({
-    supplier: {
-        type: Object,
-        required: true,
-    },
+  supplier: {
+    type: Object,
+    required: true
+  },
+  stats: {
+    type: Object,
+    default: () => ({})
+  },
+  recentOrders: {
+    type: Array,
+    default: () => []
+  }
 });
 
-const getStatusVariant = (status) => {
-    const variants = {
-        pending: 'secondary',
-        sent: 'default',
-        received: 'success',
-        cancelled: 'destructive'
-    };
-    return variants[status] || 'secondary';
+const formatPrice = (price) => {
+  const numPrice = typeof price === 'number' ? price : parseFloat(price);
+  return numPrice.toFixed(2);
 };
 
-const goBack = () => {
-    router.visit(route("dashboard.suppliers.index"));
+const formatDate = (dateString) => {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  });
 };
 
-const editSupplier = () => {
-    router.visit(route("dashboard.suppliers.edit", props.supplier.id));
-};
-
-const createInventoryOrder = () => {
-    router.visit(route("dashboard.inventory-orders.create"), {
-        data: { supplier_id: props.supplier.id }
-    });
-};
-
-const viewInventoryOrder = (order) => {
-    router.visit(route("dashboard.inventory-orders.show", order.id));
-};
-
-const deleteSupplier = () => {
-    if (!confirm(__("Are you sure you want to delete this supplier? This action cannot be undone."))) {
-        return;
-    }
-
-    router.delete(route("dashboard.suppliers.destroy", props.supplier.id), {
-        onSuccess: () => {
-            toast({
-                title: __("Success"),
-                description: __("Supplier deleted successfully"),
-            });
-        },
-        onError: () => {
-            toast({
-                title: __("Error"),
-                description: __("Failed to delete supplier"),
-                variant: "destructive",
-            });
-        },
-    });
+const formatPaymentTerms = (terms) => {
+  const termsMap = {
+    net_15: 'Net 15',
+    net_30: 'Net 30',
+    net_45: 'Net 45',
+    net_60: 'Net 60',
+    cod: 'Cash on Delivery',
+    prepaid: 'Prepaid'
+  };
+  return termsMap[terms] || terms;
 };
 </script>
 

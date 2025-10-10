@@ -28,6 +28,14 @@ class Role extends Model
     ];
 
     /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
+
+    /**
      * Get users that have this role
      */
     public function users(): BelongsToMany

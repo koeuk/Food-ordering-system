@@ -19,13 +19,25 @@ class OrderController extends Controller
      */
     public function index()
     {
-        $orders = Auth::user()->orders()
+        $user = Auth::user();
+        
+        // Get orders with relationships
+        $orders = $user->orders()
             ->with(['items.product', 'bill'])
             ->latest()
-            ->paginate(10);
+            ->get();
+
+        // Calculate statistics
+        $stats = [
+            'total_orders' => $orders->count(),
+            'pending_orders' => $orders->where('status', 'pending')->count(),
+            'completed_orders' => $orders->where('status', 'delivered')->count(),
+            'total_spent' => $orders->sum('total'),
+        ];
 
         return Inertia::render('Web/Orders/Index', [
             'orders' => $orders,
+            'stats' => $stats,
         ]);
     }
 

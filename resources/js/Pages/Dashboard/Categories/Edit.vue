@@ -1,313 +1,162 @@
 <template>
-    <Head :title="__('Edit Category')" />
+  <DashboardLayout>
+    <Head title="Edit Category" />
 
-    <vee-form
-        :validation-schema="schema"
-        @submit="submit"
-        v-slot="{ meta, setErrors }"
-        :initial-values="form"
-    >
-        <div class="tw-space-y-6">
-            <!-- Header -->
-            <div class="tw-flex tw-items-center tw-justify-between">
-                <div>
-                    <h2 class="tw-text-2xl tw-font-bold tw-tracking-tight">
-                        {{ __("Edit Category") }}
-                    </h2>
-                    <p class="tw-text-muted-foreground">
-                        {{ __("Update category information") }}
-                    </p>
-                </div>
-                <Button
-                    variant="outline"
-                    @click="goBack"
-                >
-                    <ArrowLeft class="tw-w-4 tw-h-4 tw-mr-2" />
-                    {{ __("Back") }}
-                </Button>
+    <v-container>
+      <div class="mb-6">
+        <h1 class="text-h4 font-weight-bold text-grey-darken-3 mb-2">
+          Edit Category
+        </h1>
+        <p class="text-subtitle-1 text-grey-darken-1">
+          Update category information
+        </p>
+      </div>
+
+      <v-card elevation="2">
+        <v-card-title class="text-h6 font-weight-bold text-grey-darken-3">
+          Category Details
+        </v-card-title>
+        <v-card-text>
+          <v-form ref="form" v-model="valid" @submit.prevent="submit">
+            <v-row>
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="form.name"
+                  label="Category Name"
+                  :rules="nameRules"
+                  required
+                  variant="outlined"
+                />
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="form.slug"
+                  label="Slug"
+                  :rules="slugRules"
+                  required
+                  variant="outlined"
+                />
+              </v-col>
+              <v-col cols="12">
+                <v-textarea
+                  v-model="form.description"
+                  label="Description"
+                  variant="outlined"
+                  rows="3"
+                />
+              </v-col>
+              <v-col cols="12">
+                <v-switch
+                  v-model="form.is_active"
+                  label="Active"
+                  color="primary"
+                />
+              </v-col>
+            </v-row>
+
+            <div class="d-flex gap-2 mt-4">
+              <v-btn
+                type="submit"
+                color="primary"
+                :loading="processing"
+                :disabled="!valid"
+              >
+                <v-icon left>mdi-content-save</v-icon>
+                Update Category
+              </v-btn>
+              <v-btn
+                variant="outlined"
+                color="error"
+                @click="deleteCategory"
+                :disabled="category.products_count > 0"
+              >
+                <v-icon left>mdi-delete</v-icon>
+                Delete
+              </v-btn>
+              <v-btn
+                variant="outlined"
+                href="/dashboard/categories"
+              >
+                <v-icon left>mdi-arrow-left</v-icon>
+                Back
+              </v-btn>
             </div>
+          </v-form>
+        </v-card-text>
+      </v-card>
 
-            <!-- Form -->
-            <div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-3 tw-gap-6">
-                <!-- Main Form -->
-                <div class="tw-lg:col-span-2 tw-space-y-6">
-                    <!-- Basic Information -->
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>{{ __("Category Information") }}</CardTitle>
-                            <CardDescription>
-                                {{ __("Update the basic details of the category") }}
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent class="tw-space-y-4">
-                            <vee-field
-                                name="name"
-                                v-slot="{ field, errors }"
-                            >
-                                <div class="tw-space-y-2">
-                                    <Label for="name">
-                                        {{ __("Category Name") }}
-                                        <span class="tw-text-destructive">*</span>
-                                    </Label>
-                                    <Input
-                                        id="name"
-                                        v-bind="field"
-                                        :model-value="form.name"
-                                        @update:model-value="(val) => form.name = val"
-                                        :class="{ 'tw-border-destructive': errors.length }"
-                                        :placeholder="__('Enter category name')"
-                                    />
-                                    <p v-if="errors.length" class="tw-text-sm tw-text-destructive">
-                                        {{ errors[0] }}
-                                    </p>
-                                </div>
-                            </vee-field>
-
-                            <vee-field
-                                name="description"
-                                v-slot="{ field, errors }"
-                            >
-                                <div class="tw-space-y-2">
-                                    <Label for="description">{{ __("Description") }}</Label>
-                                    <Textarea
-                                        id="description"
-                                        v-bind="field"
-                                        :model-value="form.description"
-                                        @update:model-value="(val) => form.description = val"
-                                        rows="4"
-                                        :class="{ 'tw-border-destructive': errors.length }"
-                                        :placeholder="__('Enter category description')"
-                                    />
-                                    <p v-if="errors.length" class="tw-text-sm tw-text-destructive">
-                                        {{ errors[0] }}
-                                    </p>
-                                </div>
-                            </vee-field>
-                        </CardContent>
-                    </Card>
-
-                    <!-- Products in Category -->
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>{{ __("Products in Category") }}</CardTitle>
-                            <CardDescription>
-                                {{ __("Products currently assigned to this category") }}
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div v-if="category.products && category.products.length > 0" class="tw-space-y-2">
-                                <div
-                                    v-for="product in category.products"
-                                    :key="product.id"
-                                    class="tw-flex tw-items-center tw-justify-between tw-py-2 tw-px-3 tw-rounded-md tw-bg-muted/50"
-                                >
-                                    <div class="tw-flex tw-items-center tw-gap-3">
-                                        <img
-                                            v-if="product.image"
-                                            :src="product.image_url"
-                                            :alt="product.name"
-                                            class="tw-w-8 tw-h-8 tw-rounded-md tw-object-cover"
-                                        />
-                                        <div>
-                                            <p class="tw-text-sm tw-font-medium">{{ product.name }}</p>
-                                            <p class="tw-text-xs tw-text-muted-foreground">
-                                                ${{ product.price }}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <Badge :variant="product.is_available ? 'default' : 'secondary'">
-                                        {{ product.is_available ? __("Available") : __("Unavailable") }}
-                                    </Badge>
-                                </div>
-                            </div>
-                            <div v-else class="tw-text-center tw-py-6">
-                                <Package class="tw-mx-auto tw-h-8 tw-w-8 tw-text-muted-foreground" />
-                                <p class="tw-text-sm tw-text-muted-foreground tw-mt-2">
-                                    {{ __("No products in this category") }}
-                                </p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                <!-- Sidebar -->
-                <div class="tw-space-y-6">
-                    <!-- Actions -->
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>{{ __("Actions") }}</CardTitle>
-                        </CardHeader>
-                        <CardContent class="tw-space-y-2">
-                            <Button
-                                type="submit"
-                                class="tw-w-full"
-                                :disabled="!meta.valid || form.processing"
-                            >
-                                <Loader2
-                                    v-if="form.processing"
-                                    class="tw-h-4 tw-w-4 tw-mr-2 tw-animate-spin"
-                                />
-                                <Save v-else class="tw-h-4 tw-w-4 tw-mr-2" />
-                                {{ __("Update Category") }}
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                class="tw-w-full"
-                                @click="goBack"
-                            >
-                                {{ __("Cancel") }}
-                            </Button>
-                        </CardContent>
-                    </Card>
-
-                    <!-- Category Info -->
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>{{ __("Category Information") }}</CardTitle>
-                        </CardHeader>
-                        <CardContent class="tw-space-y-2 tw-text-sm">
-                            <div class="tw-flex tw-justify-between">
-                                <span class="tw-text-muted-foreground">{{ __("Products Count") }}:</span>
-                                <span>{{ category.products?.length || 0 }}</span>
-                            </div>
-                            <div class="tw-flex tw-justify-between">
-                                <span class="tw-text-muted-foreground">{{ __("Created") }}:</span>
-                                <span>{{ new Date(category.created_at).toLocaleDateString() }}</span>
-                            </div>
-                            <div class="tw-flex tw-justify-between">
-                                <span class="tw-text-muted-foreground">{{ __("Last Updated") }}:</span>
-                                <span>{{ new Date(category.updated_at).toLocaleDateString() }}</span>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <!-- Danger Zone -->
-                    <Card v-if="!category.products || category.products.length === 0" class="tw-border-destructive">
-                        <CardHeader>
-                            <CardTitle class="tw-text-destructive">{{ __("Danger Zone") }}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <Button
-                                variant="destructive"
-                                class="tw-w-full"
-                                @click="deleteCategory"
-                                :disabled="form.processing || (category.products && category.products.length > 0)"
-                            >
-                                <Trash2 class="tw-w-4 tw-h-4 tw-mr-2" />
-                                {{ __("Delete Category") }}
-                            </Button>
-                            <p class="tw-text-xs tw-text-muted-foreground tw-mt-2">
-                                {{ __("This action cannot be undone") }}
-                            </p>
-                        </CardContent>
-                    </Card>
-
-                    <!-- Warning -->
-                    <Card v-else class="tw-border-yellow-200 tw-bg-yellow-50">
-                        <CardHeader>
-                            <CardTitle class="tw-text-yellow-800">{{ __("Cannot Delete") }}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p class="tw-text-sm tw-text-yellow-700">
-                                {{ __("This category has associated products and cannot be deleted") }}
-                            </p>
-                        </CardContent>
-                    </Card>
-                </div>
-            </div>
-        </div>
-    </vee-form>
+      <!-- Products Count -->
+      <v-card v-if="category.products_count > 0" class="mt-4" elevation="2">
+        <v-card-title class="text-h6 font-weight-bold text-grey-darken-3">
+          <v-icon left color="info">mdi-package</v-icon>
+          Associated Products
+        </v-card-title>
+        <v-card-text>
+          <v-alert type="info" variant="tonal">
+            This category has {{ category.products_count }} associated products. 
+            You cannot delete this category until all products are moved to another category.
+          </v-alert>
+        </v-card-text>
+      </v-card>
+    </v-container>
+  </DashboardLayout>
 </template>
 
 <script setup>
-import { useForm } from "@inertiajs/vue3";
-import { Head } from "@inertiajs/vue3";
-import { Button } from "@/Components/ui/button";
-import { Input } from "@/Components/ui/input";
-import { Label } from "@/Components/ui/label";
-import { Textarea } from "@/Components/ui/textarea";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/Components/ui/card";
-import { Badge } from "@/Components/ui/badge";
-import { Loader2, Save, ArrowLeft, Trash2, Package } from "lucide-vue-next";
-import { useToast } from "@/Components/ui/toast/use-toast";
-import * as yup from "yup";
-
-const { toast } = useToast();
+import { ref, reactive } from 'vue';
+import { Head, useForm, router } from '@inertiajs/vue3';
+import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 
 const props = defineProps({
-    category: {
-        type: Object,
-        required: true,
-    },
+  category: {
+    type: Object,
+    required: true,
+  },
 });
 
-const schema = yup.object({
-    name: yup.string().required(__("Category name is required")),
-    description: yup.string(),
-});
+const valid = ref(false);
+const processing = ref(false);
 
 const form = useForm({
-    name: props.category.name,
-    description: props.category.description,
+  name: props.category.name,
+  slug: props.category.slug,
+  description: props.category.description || '',
+  is_active: props.category.is_active ?? true,
 });
 
-const submit = (setErrors) => {
-    form.put(route("dashboard.categories.update", props.category.id), {
-        onSuccess: () => {
-            toast({
-                title: __("Success"),
-                description: __("Category updated successfully"),
-            });
-        },
-        onError: (errors) => {
-            setErrors(errors);
-            toast({
-                title: __("Error"),
-                description: __("Failed to update category"),
-                variant: "destructive",
-            });
-        },
-    });
+const nameRules = [
+  v => !!v || 'Name is required',
+  v => (v && v.length >= 2) || 'Name must be at least 2 characters',
+];
+
+const slugRules = [
+  v => !!v || 'Slug is required',
+  v => (v && /^[a-z0-9-]+$/.test(v)) || 'Slug must contain only lowercase letters, numbers, and hyphens',
+];
+
+const submit = () => {
+  if (!valid.value) return;
+  
+  processing.value = true;
+  form.put(route('dashboard.categories.update', props.category.id), {
+    onSuccess: () => {
+      processing.value = false;
+    },
+    onError: () => {
+      processing.value = false;
+    },
+  });
 };
 
 const deleteCategory = () => {
-    if (props.category.products && props.category.products.length > 0) {
-        toast({
-            title: __("Cannot Delete"),
-            description: __("Category has associated products and cannot be deleted"),
-            variant: "destructive",
-        });
-        return;
-    }
+  if (props.category.products_count > 0) {
+    return;
+  }
 
-    if (!confirm(__("Are you sure you want to delete this category? This action cannot be undone."))) return;
+  if (!confirm('Are you sure you want to delete this category? This action cannot be undone.')) {
+    return;
+  }
 
-    router.delete(route("dashboard.categories.destroy", props.category.id), {
-        onSuccess: () => {
-            toast({
-                title: __("Success"),
-                description: __("Category deleted successfully"),
-            });
-        },
-        onError: () => {
-            toast({
-                title: __("Error"),
-                description: __("Failed to delete category"),
-                variant: "destructive",
-            });
-        },
-    });
-};
-
-const goBack = () => {
-    router.visit(route("dashboard.categories.index"));
+  router.delete(route('dashboard.categories.destroy', props.category.id));
 };
 </script>
-

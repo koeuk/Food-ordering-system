@@ -1,211 +1,120 @@
 <template>
-    <Head :title="__('Create Category')" />
+  <DashboardLayout>
+    <Head title="Create Category" />
 
-    <vee-form
-        :validation-schema="schema"
-        @submit="submit"
-        v-slot="{ meta, setErrors }"
-    >
-        <div class="tw-space-y-6">
-            <!-- Header -->
-            <div class="tw-flex tw-items-center tw-justify-between">
-                <div>
-                    <h2 class="tw-text-2xl tw-font-bold tw-tracking-tight">
-                        {{ __("Create Category") }}
-                    </h2>
-                    <p class="tw-text-muted-foreground">
-                        {{ __("Add a new product category") }}
-                    </p>
-                </div>
-                <Button
-                    variant="outline"
-                    @click="goBack"
-                >
-                    <ArrowLeft class="tw-w-4 tw-h-4 tw-mr-2" />
-                    {{ __("Back") }}
-                </Button>
+    <v-container>
+      <div class="mb-6">
+        <h1 class="text-h4 font-weight-bold text-grey-darken-3 mb-2">
+          Create Category
+        </h1>
+        <p class="text-subtitle-1 text-grey-darken-1">
+          Add a new product category
+        </p>
+      </div>
+
+      <v-card elevation="2">
+        <v-card-title class="text-h6 font-weight-bold text-grey-darken-3">
+          Category Information
+        </v-card-title>
+        <v-card-text>
+          <v-form ref="form" v-model="valid" @submit.prevent="submit">
+            <v-row>
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="form.name"
+                  label="Category Name"
+                  :rules="nameRules"
+                  required
+                  variant="outlined"
+                />
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="form.slug"
+                  label="Slug"
+                  :rules="slugRules"
+                  required
+                  variant="outlined"
+                />
+              </v-col>
+              <v-col cols="12">
+                <v-textarea
+                  v-model="form.description"
+                  label="Description"
+                  variant="outlined"
+                  rows="3"
+                />
+              </v-col>
+              <v-col cols="12">
+                <v-switch
+                  v-model="form.is_active"
+                  label="Active"
+                  color="primary"
+                />
+              </v-col>
+            </v-row>
+
+            <div class="d-flex gap-2 mt-4">
+              <v-btn
+                type="submit"
+                color="primary"
+                :loading="processing"
+                :disabled="!valid"
+              >
+                <v-icon left>mdi-plus</v-icon>
+                Create Category
+              </v-btn>
+              <v-btn
+                variant="outlined"
+                href="/dashboard/categories"
+              >
+                <v-icon left>mdi-arrow-left</v-icon>
+                Back
+              </v-btn>
             </div>
-
-            <!-- Form -->
-            <div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-3 tw-gap-6">
-                <!-- Main Form -->
-                <div class="tw-lg:col-span-2 tw-space-y-6">
-                    <!-- Basic Information -->
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>{{ __("Category Information") }}</CardTitle>
-                            <CardDescription>
-                                {{ __("Enter the basic details of the category") }}
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent class="tw-space-y-4">
-                            <vee-field
-                                name="name"
-                                v-slot="{ field, errors }"
-                            >
-                                <div class="tw-space-y-2">
-                                    <Label for="name">
-                                        {{ __("Category Name") }}
-                                        <span class="tw-text-destructive">*</span>
-                                    </Label>
-                                    <Input
-                                        id="name"
-                                        v-bind="field"
-                                        :model-value="form.name"
-                                        @update:model-value="(val) => form.name = val"
-                                        :class="{ 'tw-border-destructive': errors.length }"
-                                        :placeholder="__('Enter category name')"
-                                    />
-                                    <p v-if="errors.length" class="tw-text-sm tw-text-destructive">
-                                        {{ errors[0] }}
-                                    </p>
-                                </div>
-                            </vee-field>
-
-                            <vee-field
-                                name="description"
-                                v-slot="{ field, errors }"
-                            >
-                                <div class="tw-space-y-2">
-                                    <Label for="description">{{ __("Description") }}</Label>
-                                    <Textarea
-                                        id="description"
-                                        v-bind="field"
-                                        :model-value="form.description"
-                                        @update:model-value="(val) => form.description = val"
-                                        rows="4"
-                                        :class="{ 'tw-border-destructive': errors.length }"
-                                        :placeholder="__('Enter category description')"
-                                    />
-                                    <p v-if="errors.length" class="tw-text-sm tw-text-destructive">
-                                        {{ errors[0] }}
-                                    </p>
-                                </div>
-                            </vee-field>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                <!-- Sidebar -->
-                <div class="tw-space-y-6">
-                    <!-- Actions -->
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>{{ __("Actions") }}</CardTitle>
-                        </CardHeader>
-                        <CardContent class="tw-space-y-2">
-                            <Button
-                                type="submit"
-                                class="tw-w-full"
-                                :disabled="!meta.valid || form.processing"
-                            >
-                                <Loader2
-                                    v-if="form.processing"
-                                    class="tw-h-4 tw-w-4 tw-mr-2 tw-animate-spin"
-                                />
-                                <Plus v-else class="tw-h-4 tw-w-4 tw-mr-2" />
-                                {{ __("Create Category") }}
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                class="tw-w-full"
-                                @click="goBack"
-                            >
-                                {{ __("Cancel") }}
-                            </Button>
-                        </CardContent>
-                    </Card>
-
-                    <!-- Category Info -->
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>{{ __("Category Preview") }}</CardTitle>
-                        </CardHeader>
-                        <CardContent class="tw-space-y-2 tw-text-sm">
-                            <div class="tw-flex tw-items-center tw-gap-3 tw-p-3 tw-rounded-md tw-bg-muted/50">
-                                <div class="tw-w-8 tw-h-8 tw-rounded-full tw-bg-primary/10 tw-flex tw-items-center tw-justify-center">
-                                    <Folder class="tw-w-4 tw-h-4 tw-text-primary" />
-                                </div>
-                                <div>
-                                    <div class="tw-font-medium">
-                                        {{ form.name || __("Category Name") }}
-                                    </div>
-                                    <div class="tw-text-xs tw-text-muted-foreground">
-                                        {{ form.description || __("No description") }}
-                                    </div>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <!-- Tips -->
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>{{ __("Tips") }}</CardTitle>
-                        </CardHeader>
-                        <CardContent class="tw-text-sm tw-text-muted-foreground tw-space-y-2">
-                            <p>• {{ __("Use clear, descriptive category names") }}</p>
-                            <p>• {{ __("Categories help organize your products") }}</p>
-                            <p>• {{ __("You can edit categories later") }}</p>
-                        </CardContent>
-                    </Card>
-                </div>
-            </div>
-        </div>
-    </vee-form>
+          </v-form>
+        </v-card-text>
+      </v-card>
+    </v-container>
+  </DashboardLayout>
 </template>
 
 <script setup>
-import { useForm } from "@inertiajs/vue3";
-import { Head } from "@inertiajs/vue3";
-import { Button } from "@/Components/ui/button";
-import { Input } from "@/Components/ui/input";
-import { Label } from "@/Components/ui/label";
-import { Textarea } from "@/Components/ui/textarea";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/Components/ui/card";
-import { Loader2, Plus, ArrowLeft, Folder } from "lucide-vue-next";
-import { useToast } from "@/Components/ui/toast/use-toast";
-import * as yup from "yup";
+import { ref } from 'vue';
+import { Head, useForm } from '@inertiajs/vue3';
+import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 
-const { toast } = useToast();
-
-const schema = yup.object({
-    name: yup.string().required(__("Category name is required")),
-    description: yup.string(),
-});
+const valid = ref(false);
+const processing = ref(false);
 
 const form = useForm({
-    name: "",
-    description: "",
+  name: '',
+  slug: '',
+  description: '',
+  is_active: true,
 });
 
-const submit = (setErrors) => {
-    form.post(route("dashboard.categories.store"), {
-        onSuccess: () => {
-            toast({
-                title: __("Success"),
-                description: __("Category created successfully"),
-            });
-        },
-        onError: (errors) => {
-            setErrors(errors);
-            toast({
-                title: __("Error"),
-                description: __("Failed to create category"),
-                variant: "destructive",
-            });
-        },
-    });
-};
+const nameRules = [
+  v => !!v || 'Name is required',
+  v => (v && v.length >= 2) || 'Name must be at least 2 characters',
+];
 
-const goBack = () => {
-    router.visit(route("dashboard.categories.index"));
+const slugRules = [
+  v => !!v || 'Slug is required',
+  v => (v && /^[a-z0-9-]+$/.test(v)) || 'Slug must contain only lowercase letters, numbers, and hyphens',
+];
+
+const submit = () => {
+  if (!valid.value) return;
+  
+  processing.value = true;
+  form.post(route('dashboard.categories.store'), {
+    onSuccess: () => {
+      processing.value = false;
+    },
+    onError: () => {
+      processing.value = false;
+    },
+  });
 };
 </script>

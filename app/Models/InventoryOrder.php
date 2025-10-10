@@ -26,6 +26,14 @@ class InventoryOrder extends Model
         'received_at' => 'datetime',
     ];
 
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
+
     // Relationships
 
     /**

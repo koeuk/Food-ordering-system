@@ -18,6 +18,14 @@ class Supplier extends Model
         'contact_person',
     ];
 
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
+
     // Relationships
 
     /**

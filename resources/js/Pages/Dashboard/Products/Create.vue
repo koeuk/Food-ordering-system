@@ -1,343 +1,202 @@
 <template>
-    <Head :title="__('Create Product')" />
+  <DashboardLayout>
+    <Head title="Create Product" />
 
-    <vee-form
-        :validation-schema="schema"
-        @submit="submit"
-        v-slot="{ meta, setErrors }"
-    >
-        <div class="tw-space-y-6">
-            <!-- Header -->
-            <div class="tw-flex tw-items-center tw-justify-between">
-                <div>
-                    <h2 class="tw-text-2xl tw-font-bold tw-tracking-tight">
-                        {{ __("Create Product") }}
-                    </h2>
-                    <p class="tw-text-muted-foreground">
-                        {{ __("Add a new product to your menu") }}
-                    </p>
-                </div>
-                <Button
-                    variant="outline"
-                    @click="goBack"
-                >
-                    <ArrowLeft class="tw-w-4 tw-h-4 tw-mr-2" />
-                    {{ __("Back") }}
-                </Button>
-            </div>
-
-            <!-- Form -->
-            <div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-3 tw-gap-6">
-                <!-- Main Form -->
-                <div class="tw-lg:col-span-2 tw-space-y-6">
-                    <!-- Basic Information -->
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>{{ __("Basic Information") }}</CardTitle>
-                            <CardDescription>
-                                {{ __("Enter the basic details of the product") }}
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent class="tw-space-y-4">
-                            <vee-field
-                                name="name"
-                                v-slot="{ field, errors }"
-                            >
-                                <div class="tw-space-y-2">
-                                    <Label for="name">
-                                        {{ __("Product Name") }}
-                                        <span class="tw-text-destructive">*</span>
-                                    </Label>
-                                    <Input
-                                        id="name"
-                                        v-bind="field"
-                                        :model-value="form.name"
-                                        @update:model-value="(val) => form.name = val"
-                                        :class="{ 'tw-border-destructive': errors.length }"
-                                        :placeholder="__('Enter product name')"
-                                    />
-                                    <p v-if="errors.length" class="tw-text-sm tw-text-destructive">
-                                        {{ errors[0] }}
-                                    </p>
-                                </div>
-                            </vee-field>
-
-                            <vee-field
-                                name="description"
-                                v-slot="{ field, errors }"
-                            >
-                                <div class="tw-space-y-2">
-                                    <Label for="description">{{ __("Description") }}</Label>
-                                    <Textarea
-                                        id="description"
-                                        v-bind="field"
-                                        :model-value="form.description"
-                                        @update:model-value="(val) => form.description = val"
-                                        rows="3"
-                                        :class="{ 'tw-border-destructive': errors.length }"
-                                        :placeholder="__('Enter product description')"
-                                    />
-                                    <p v-if="errors.length" class="tw-text-sm tw-text-destructive">
-                                        {{ errors[0] }}
-                                    </p>
-                                </div>
-                            </vee-field>
-
-                            <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4">
-                                <vee-field
-                                    name="price"
-                                    v-slot="{ field, errors }"
-                                >
-                                    <div class="tw-space-y-2">
-                                        <Label for="price">
-                                            {{ __("Price") }}
-                                            <span class="tw-text-destructive">*</span>
-                                        </Label>
-                                        <Input
-                                            id="price"
-                                            type="number"
-                                            step="0.01"
-                                            min="0"
-                                            v-bind="field"
-                                            :model-value="form.price"
-                                            @update:model-value="(val) => form.price = val"
-                                            :class="{ 'tw-border-destructive': errors.length }"
-                                            :placeholder="__('0.00')"
-                                        />
-                                        <p v-if="errors.length" class="tw-text-sm tw-text-destructive">
-                                            {{ errors[0] }}
-                                        </p>
-                                    </div>
-                                </vee-field>
-
-                                <vee-field
-                                    name="category_id"
-                                    v-slot="{ field, errors }"
-                                >
-                                    <div class="tw-space-y-2">
-                                        <Label for="category_id">
-                                            {{ __("Category") }}
-                                            <span class="tw-text-destructive">*</span>
-                                        </Label>
-                                        <Select
-                                            v-bind="field"
-                                            :model-value="form.category_id"
-                                            @update:model-value="(val) => form.category_id = val"
-                                        >
-                                            <SelectTrigger
-                                                id="category_id"
-                                                :class="{ 'tw-border-destructive': errors.length }"
-                                            >
-                                                <SelectValue :placeholder="__('Select category')" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem
-                                                    v-for="category in categories"
-                                                    :key="category.id"
-                                                    :value="category.id.toString()"
-                                                >
-                                                    {{ category.name }}
-                                                </SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <p v-if="errors.length" class="tw-text-sm tw-text-destructive">
-                                            {{ errors[0] }}
-                                        </p>
-                                    </div>
-                                </vee-field>
-                            </div>
-
-                            <div class="tw-flex tw-items-center tw-space-x-2">
-                                <Switch
-                                    id="is_available"
-                                    :model-value="form.is_available"
-                                    @update:model-value="(val) => form.is_available = val"
-                                />
-                                <Label for="is_available">{{ __("Available for sale") }}</Label>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <!-- Image Upload -->
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>{{ __("Product Image") }}</CardTitle>
-                            <CardDescription>
-                                {{ __("Upload an image for the product") }}
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div class="tw-space-y-4">
-                                <div class="tw-flex tw-items-center tw-gap-4">
-                                    <div v-if="imagePreview" class="tw-w-20 tw-h-20 tw-rounded-lg tw-overflow-hidden">
-                                        <img
-                                            :src="imagePreview"
-                                            :alt="form.name"
-                                            class="tw-w-full tw-h-full tw-object-cover"
-                                        />
-                                    </div>
-                                    <div class="tw-flex-1">
-                                        <Input
-                                            type="file"
-                                            accept="image/*"
-                                            @change="handleImageUpload"
-                                            class="tw-file:tw-mr-4 tw-file:tw-py-2 tw-file:tw-px-4 tw-file:tw-rounded-full tw-file:tw-border-0 tw-file:tw-text-sm tw-file:tw-font-semibold tw-file:tw-bg-primary tw-file:tw-text-primary-foreground tw-hover:tw-file:tw-bg-primary/90"
-                                        />
-                                        <p class="tw-text-sm tw-text-muted-foreground tw-mt-1">
-                                            {{ __("Recommended size: 400x400px, max 2MB") }}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                <!-- Sidebar -->
-                <div class="tw-space-y-6">
-                    <!-- Actions -->
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>{{ __("Actions") }}</CardTitle>
-                        </CardHeader>
-                        <CardContent class="tw-space-y-2">
-                            <Button
-                                type="submit"
-                                class="tw-w-full"
-                                :disabled="!meta.valid || form.processing"
-                            >
-                                <Loader2
-                                    v-if="form.processing"
-                                    class="tw-h-4 tw-w-4 tw-mr-2 tw-animate-spin"
-                                />
-                                <Plus v-else class="tw-h-4 tw-w-4 tw-mr-2" />
-                                {{ __("Create Product") }}
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                class="tw-w-full"
-                                @click="goBack"
-                            >
-                                {{ __("Cancel") }}
-                            </Button>
-                        </CardContent>
-                    </Card>
-
-                    <!-- Product Info -->
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>{{ __("Product Information") }}</CardTitle>
-                        </CardHeader>
-                        <CardContent class="tw-space-y-2 tw-text-sm">
-                            <div class="tw-flex tw-justify-between">
-                                <span class="tw-text-muted-foreground">{{ __("Status") }}:</span>
-                                <Badge :variant="form.is_available ? 'default' : 'secondary'">
-                                    {{ form.is_available ? __("Available") : __("Unavailable") }}
-                                </Badge>
-                            </div>
-                            <div v-if="form.price" class="tw-flex tw-justify-between">
-                                <span class="tw-text-muted-foreground">{{ __("Price") }}:</span>
-                                <span class="tw-font-medium">${{ form.price }}</span>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-            </div>
+    <v-container>
+      <!-- Header -->
+      <div class="d-flex justify-space-between align-center mb-6">
+        <div>
+          <h1 class="text-h3 font-weight-bold text-grey-darken-3 mb-2">
+            Create Product
+          </h1>
+          <p class="text-grey-darken-1">
+            Add a new product to your menu
+          </p>
         </div>
-    </vee-form>
+        <v-btn
+          color="grey"
+          variant="outlined"
+          href="/dashboard/products"
+        >
+          <v-icon left>mdi-arrow-left</v-icon>
+          Back to Products
+        </v-btn>
+      </div>
+
+      <!-- Create Form -->
+      <v-card elevation="2">
+        <v-card-title class="text-h6 font-weight-bold text-grey-darken-3">
+          <v-icon left color="primary">mdi-plus</v-icon>
+          Product Information
+        </v-card-title>
+        <v-card-text>
+          <v-form ref="formRef" v-model="valid">
+            <v-row>
+              <!-- Product Name -->
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="form.name"
+                  label="Product Name"
+                  variant="outlined"
+                  :rules="[rules.required]"
+                  :error-messages="form.errors.name"
+                  required
+                />
+              </v-col>
+
+              <!-- Category -->
+              <v-col cols="12" md="6">
+                <v-select
+                  v-model="form.category_id"
+                  :items="categories"
+                  item-title="name"
+                  item-value="id"
+                  label="Category"
+                  variant="outlined"
+                  :rules="[rules.required]"
+                  :error-messages="form.errors.category_id"
+                  required
+                />
+              </v-col>
+
+              <!-- Price -->
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="form.price"
+                  label="Price"
+                  type="number"
+                  step="0.01"
+                  prefix="$"
+                  variant="outlined"
+                  :rules="[rules.required, rules.price]"
+                  :error-messages="form.errors.price"
+                  required
+                />
+              </v-col>
+
+              <!-- Availability -->
+              <v-col cols="12" md="6">
+                <v-switch
+                  v-model="form.is_available"
+                  label="Available for Order"
+                  color="primary"
+                />
+              </v-col>
+
+              <!-- Description -->
+              <v-col cols="12">
+                <v-textarea
+                  v-model="form.description"
+                  label="Description"
+                  variant="outlined"
+                  rows="3"
+                  :error-messages="form.errors.description"
+                />
+              </v-col>
+
+              <!-- Image Upload -->
+              <v-col cols="12">
+                <v-file-input
+                  v-model="form.image"
+                  label="Product Image"
+                  accept="image/*"
+                  variant="outlined"
+                  prepend-icon="mdi-camera"
+                  show-size
+                  :error-messages="form.errors.image"
+                />
+              </v-col>
+
+              <!-- Image Preview -->
+              <v-col v-if="imagePreview" cols="12">
+                <v-img
+                  :src="imagePreview"
+                  max-height="200"
+                  max-width="300"
+                  class="rounded"
+                />
+              </v-col>
+            </v-row>
+
+            <!-- Form Actions -->
+            <v-row>
+              <v-col cols="12">
+                <div class="d-flex gap-4">
+                  <v-btn
+                    color="primary"
+                    size="large"
+                    :disabled="!valid"
+                    @click="submitForm"
+                    :loading="form.processing"
+                  >
+                    <v-icon left>mdi-check</v-icon>
+                    Create Product
+                  </v-btn>
+                  <v-btn
+                    color="grey"
+                    variant="outlined"
+                    size="large"
+                    href="/dashboard/products"
+                  >
+                    Cancel
+                  </v-btn>
+                </div>
+              </v-col>
+            </v-row>
+          </v-form>
+        </v-card-text>
+      </v-card>
+    </v-container>
+  </DashboardLayout>
 </template>
 
 <script setup>
-import { useForm } from "@inertiajs/vue3";
-import { Head } from "@inertiajs/vue3";
-import { Button } from "@/Components/ui/button";
-import { Input } from "@/Components/ui/input";
-import { Label } from "@/Components/ui/label";
-import { Textarea } from "@/Components/ui/textarea";
-import { Switch } from "@/Components/ui/switch";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/Components/ui/select";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/Components/ui/card";
-import { Badge } from "@/Components/ui/badge";
-import { Loader2, Plus, ArrowLeft } from "lucide-vue-next";
-import { useToast } from "@/Components/ui/toast/use-toast";
-import * as yup from "yup";
-
-const { toast } = useToast();
+import { ref, computed } from 'vue';
+import { Head, useForm } from '@inertiajs/vue3';
+import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 
 const props = defineProps({
-    categories: {
-        type: Array,
-        default: () => [],
-    },
-});
-
-const schema = yup.object({
-    name: yup.string().required(__("Product name is required")),
-    description: yup.string(),
-    price: yup.number().min(0.01).required(__("Price is required")),
-    category_id: yup.number().required(__("Category is required")),
-    is_available: yup.boolean(),
+  categories: {
+    type: Array,
+    default: () => []
+  }
 });
 
 const form = useForm({
-    name: "",
-    description: "",
-    price: "",
-    category_id: null,
-    is_available: true,
-    image: null,
+  name: '',
+  category_id: null,
+  price: '',
+  description: '',
+  is_available: true,
+  image: null
 });
 
-const imagePreview = ref(null);
+const formRef = ref(null);
+const valid = ref(false);
 
-const handleImageUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-        form.image = file;
-        
-        // Create preview
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            imagePreview.value = e.target.result;
-        };
-        reader.readAsDataURL(file);
-    }
+const rules = {
+  required: (value) => !!value || 'This field is required',
+  price: (value) => {
+    const num = parseFloat(value);
+    return (num && num > 0) || 'Price must be greater than 0';
+  }
 };
 
-const submit = (setErrors) => {
-    form.post(route("dashboard.products.store"), {
-        forceFormData: true,
-        onSuccess: () => {
-            toast({
-                title: __("Success"),
-                description: __("Product created successfully"),
-            });
-        },
-        onError: (errors) => {
-            setErrors(errors);
-            toast({
-                title: __("Error"),
-                description: __("Failed to create product"),
-                variant: "destructive",
-            });
-        },
+const imagePreview = computed(() => {
+  if (form.image && form.image.length > 0) {
+    return URL.createObjectURL(form.image[0]);
+  }
+  return null;
+});
+
+const submitForm = () => {
+  if (valid.value) {
+    form.post('/dashboard/products', {
+      onSuccess: () => {
+        form.reset();
+      }
     });
-};
-
-const goBack = () => {
-    router.visit(route("dashboard.products.index"));
+  }
 };
 </script>
+

@@ -13,7 +13,7 @@
       />
 
       <v-toolbar-title class="text-h6 font-weight-bold">
-        <Link href="/dashboard" class="text-decoration-none text-white">
+        <Link href="/" class="text-decoration-none text-white">
           Food Ordering System
         </Link>
       </v-toolbar-title>
@@ -25,7 +25,7 @@
         <v-btn
           text
           dark
-          :to="{ name: 'products.index' }"
+          href="/web/products"
           class="mx-2"
         >
           <v-icon left>mdi-food</v-icon>
@@ -36,7 +36,7 @@
           <v-btn
             text
             dark
-            :to="{ name: 'orders.index' }"
+            href="/orders"
             class="mx-2"
           >
             <v-icon left>mdi-clipboard-list</v-icon>
@@ -131,7 +131,7 @@
                 <v-list-item-title>My Account</v-list-item-title>
               </v-list-item>
               <v-divider />
-              <v-list-item :to="{ name: 'dashboard' }">
+              <v-list-item href="/dashboard">
                 <template v-slot:prepend>
                   <v-icon>mdi-home</v-icon>
                 </template>
@@ -182,7 +182,7 @@
         </v-list-item>
         <v-divider />
         
-        <v-list-item :to="{ name: 'products.index' }">
+        <v-list-item href="/web/products">
           <template v-slot:prepend>
             <v-icon>mdi-food</v-icon>
           </template>
@@ -190,7 +190,7 @@
         </v-list-item>
 
         <template v-if="user">
-          <v-list-item :to="{ name: 'orders.index' }">
+          <v-list-item href="/orders">
             <template v-slot:prepend>
               <v-icon>mdi-clipboard-list</v-icon>
             </template>
@@ -238,7 +238,7 @@
           </template>
 
           <v-divider />
-          <v-list-item :to="{ name: 'dashboard' }">
+          <v-list-item href="/dashboard">
             <template v-slot:prepend>
               <v-icon>mdi-home</v-icon>
             </template>

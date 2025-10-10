@@ -24,6 +24,16 @@ class Product extends Model
         'is_available' => 'boolean',
     ];
 
+    protected $appends = ['image_url'];
+
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
+
     // Relationships
 
     /**
@@ -56,6 +66,19 @@ class Product extends Model
     public function inventoryOrderItems()
     {
         return $this->hasMany(InventoryOrderItem::class);
+    }
+
+    // Accessors
+
+    /**
+     * Get the full URL for the product image
+     */
+    public function getImageUrlAttribute()
+    {
+        if ($this->image) {
+            return asset('storage/' . $this->image);
+        }
+        return null;
     }
 
     // Helper methods

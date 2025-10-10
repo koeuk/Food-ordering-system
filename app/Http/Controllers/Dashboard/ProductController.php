@@ -94,7 +94,7 @@ class ProductController extends Controller
             $query->with('order')->latest()->limit(10);
         }]);
 
-        return Inertia::render('Products/Show', [
+        return Inertia::render('Dashboard/Products/Show', [
             'product' => $product,
         ]);
     }

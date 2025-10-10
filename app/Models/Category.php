@@ -15,6 +15,14 @@ class Category extends Model
         'description',
     ];
 
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
+
     // Relationships
 
     /**

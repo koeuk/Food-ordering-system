@@ -1,22 +1,9 @@
 <template>
-  <v-app>
-    <!-- Navigation -->
-    <v-app-bar app color="primary" dark elevation="1">
-      <v-toolbar-title class="text-h6 font-weight-bold">
-        Food Ordering System
-      </v-toolbar-title>
-      <v-spacer />
-      <v-btn variant="outlined" dark href="/login" class="mr-2">
-        Login
-      </v-btn>
-      <v-btn dark href="/register">
-        Register
-      </v-btn>
-    </v-app-bar>
+  <AppLayout>
+    <Head title="Welcome" />
 
     <!-- Hero Section -->
-    <v-main>
-      <v-container fluid class="pa-0">
+    <v-container fluid class="pa-0">
         <!-- Hero Banner -->
         <v-parallax
           height="500"
@@ -33,7 +20,7 @@
               size="large"
               color="white"
               variant="outlined"
-              href="/products"
+              href="/web/products"
               class="mt-4"
             >
               <v-icon left>mdi-food</v-icon>
@@ -100,7 +87,7 @@
                 size="x-large"
                 variant="outlined"
                 color="primary"
-                href="/products"
+                href="/web/products"
               >
                 <v-icon left>mdi-food</v-icon>
                 View Menu
@@ -109,23 +96,13 @@
           </v-row>
         </v-container>
       </v-container>
-    </v-main>
-
-    <!-- Footer -->
-    <v-footer
-      app
-      color="grey-darken-4"
-      class="white--text justify-center"
-    >
-      <div class="text-center">
-        &copy; {{ new Date().getFullYear() }} Food Ordering System. All rights reserved.
-      </div>
-    </v-footer>
-  </v-app>
+  </AppLayout>
 </template>
 
 <script setup>
 import { ref } from 'vue';
+import { Head } from '@inertiajs/vue3';
+import AppLayout from '@/Layouts/AppLayout.vue';
 
 const features = ref([
   {

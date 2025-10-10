@@ -4,8 +4,8 @@ use App\Http\Controllers\Web\ProfileController;
 use App\Http\Controllers\Web\ProductController as WebProductController;
 use App\Http\Controllers\Web\OrderController as WebOrderController;
 use App\Http\Controllers\Dashboard\ProductController as DashboardProductController;
-use App\Http\Controllers\Web\OrderController;
 use App\Http\Controllers\Web\BillController;
+use App\Http\Controllers\Dashboard\BillController as DashboardBillController;
 use App\Http\Controllers\Dashboard\InventoryController;
 use App\Http\Controllers\Dashboard\InventoryOrderController;
 use App\Http\Controllers\Dashboard\DashboardController;
@@ -13,11 +13,18 @@ use App\Http\Controllers\Dashboard\CategoryController;
 use App\Http\Controllers\Dashboard\SupplierController;
 use App\Http\Controllers\Dashboard\UserController;
 use App\Http\Controllers\Dashboard\RoleController;
+use App\Http\Controllers\Dashboard\OrderController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
+    // If user is authenticated, show the home page with navigation
+    if (\Illuminate\Support\Facades\Auth::check()) {
+        return Inertia::render('Welcome');
+    }
+    
+    // If not authenticated, show the welcome page
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
@@ -26,10 +33,17 @@ Route::get('/', function () {
     ]);
 });
 
+// Home page for authenticated users
+Route::middleware(['auth'])->group(function () {
+    Route::get('/home', function () {
+        return Inertia::render('Welcome');
+    })->name('home');
+});
+
 // Role-based Dashboards
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
-        $user = auth()->user();
+        $user = \Illuminate\Support\Facades\Auth::user();
         
         if ($user->isAdmin()) {
             return redirect()->route('dashboard.admin');
@@ -81,39 +95,57 @@ Route::middleware(['auth'])->group(function () {
 // Dashboard Routes (Admin Interface)
 Route::middleware(['auth', 'role:admin'])->prefix('dashboard')->name('dashboard.')->group(function () {
     // Categories Management
-    Route::resource('categories', CategoryController::class);
+    Route::resource('categories', CategoryController::class)->parameters([
+        'categories' => 'category:uuid'
+    ]);
     
     // Products Management
-    Route::resource('products', DashboardProductController::class)->except(['show']);
+    Route::resource('products', DashboardProductController::class)->parameters([
+        'products' => 'product:uuid'
+    ]);
 
     // Inventory Management
-    Route::resource('inventory', InventoryController::class);
+    Route::resource('inventory', InventoryController::class)->parameters([
+        'inventory' => 'inventory:uuid'
+    ]);
     Route::post('/inventory/{inventory}/restock', [InventoryController::class, 'restock'])->name('inventory.restock');
     Route::get('/inventory/alerts', [InventoryController::class, 'alerts'])->name('inventory.alerts');
 
     // Suppliers Management
-    Route::resource('suppliers', SupplierController::class);
+    Route::resource('suppliers', SupplierController::class)->parameters([
+        'suppliers' => 'supplier:uuid'
+    ]);
 
     // Inventory Orders
-    Route::resource('inventory-orders', InventoryOrderController::class);
+    Route::resource('inventory-orders', InventoryOrderController::class)->parameters([
+        'inventory-orders' => 'inventoryOrder:uuid'
+    ]);
     Route::post('/inventory-orders/{inventoryOrder}/sent', [InventoryOrderController::class, 'markAsSent'])->name('inventory-orders.sent');
     Route::post('/inventory-orders/{inventoryOrder}/received', [InventoryOrderController::class, 'markAsReceived'])->name('inventory-orders.received');
     Route::post('/inventory-orders/{inventoryOrder}/cancel', [InventoryOrderController::class, 'cancel'])->name('inventory-orders.cancel');
 
     // Orders Management
-    Route::resource('orders', OrderController::class);
+    Route::resource('orders', OrderController::class)->parameters([
+        'orders' => 'order:uuid'
+    ]);
     Route::post('/orders/{order}/confirm', [OrderController::class, 'confirm'])->name('orders.confirm');
     Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
 
     // Bills Management
-    Route::resource('bills', BillController::class);
-    Route::post('/bills/{bill}/refund', [BillController::class, 'refund'])->name('bills.refund');
+    Route::resource('bills', DashboardBillController::class)->parameters([
+        'bills' => 'bill:uuid'
+    ]);
+    Route::post('/bills/{bill}/refund', [DashboardBillController::class, 'refund'])->name('bills.refund');
 
     // Users Management
-    Route::resource('users', UserController::class);
+    Route::resource('users', UserController::class)->parameters([
+        'users' => 'user:uuid'
+    ]);
 
     // Roles Management
-    Route::resource('roles', RoleController::class);
+    Route::resource('roles', RoleController::class)->parameters([
+        'roles' => 'role:uuid'
+    ]);
     Route::get('/user-roles', [RoleController::class, 'userRoleManagement'])->name('user-roles.index');
     Route::post('/roles/{role}/toggle-status', [RoleController::class, 'toggleStatus'])->name('roles.toggle-status');
     Route::post('/roles/{role}/assign-user', [RoleController::class, 'assignToUser'])->name('roles.assign-user');

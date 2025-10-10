@@ -1,149 +1,351 @@
 <template>
-    <Head :title="__('Create Order')" />
+  <DashboardLayout>
+    <Head title="Create Order" />
 
-    <div class="tw-max-w-4xl tw-mx-auto tw-py-8">
-        <Card>
-            <CardHeader>
-                <CardTitle class="tw-flex tw-items-center tw-gap-2">
-                    <Info class="tw-w-6 tw-h-6 tw-text-primary" />
-                    {{ __("Admin Order Creation") }}
-                </CardTitle>
-                <CardDescription>
-                    {{ __("Orders are typically created by customers through the web interface") }}
-                </CardDescription>
-            </CardHeader>
-            <CardContent class="tw-space-y-6">
-                <!-- Info Message -->
-                <div class="tw-p-4 tw-rounded-lg tw-border tw-border-primary tw-bg-primary/10">
-                    <p class="tw-text-sm tw-font-semibold tw-mb-2">
-                        {{ __("Information:") }}
-                    </p>
-                    <ul class="tw-text-sm tw-space-y-1 tw-list-disc tw-list-inside">
-                        <li>{{ __("Customers create orders through the web interface") }}</li>
-                        <li>{{ __("Admins can view and manage existing orders") }}</li>
-                        <li>{{ __("Use the web interface to place orders as a customer") }}</li>
-                    </ul>
-                </div>
+    <v-container>
+      <!-- Header -->
+      <div class="d-flex justify-space-between align-center mb-6">
+        <div>
+          <h1 class="text-h3 font-weight-bold text-grey-darken-3 mb-2">
+            Create Order
+          </h1>
+          <p class="text-grey-darken-1">
+            Create a new customer order
+          </p>
+        </div>
+        <v-btn
+          color="grey"
+          variant="outlined"
+          :to="{ name: 'dashboard.orders.index' }"
+        >
+          <v-icon left>mdi-arrow-left</v-icon>
+          Back to Orders
+        </v-btn>
+      </div>
 
-                <!-- Alternative Actions -->
-                <div class="tw-space-y-4">
-                    <h3 class="tw-font-semibold tw-text-lg">{{ __("What you can do:") }}</h3>
-                    
-                    <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4">
-                        <!-- View Orders -->
-                        <Card class="tw-cursor-pointer hover:tw-bg-muted/50" @click="viewOrders">
-                            <CardContent class="tw-p-4">
-                                <div class="tw-flex tw-items-center tw-gap-3">
-                                    <div class="tw-w-12 tw-h-12 tw-rounded-full tw-bg-primary/10 tw-flex tw-items-center tw-justify-center">
-                                        <Eye class="tw-w-6 tw-h-6 tw-text-primary" />
-                                    </div>
-                                    <div>
-                                        <p class="tw-font-semibold">{{ __("View All Orders") }}</p>
-                                        <p class="tw-text-sm tw-text-muted-foreground">{{ __("Manage existing orders") }}</p>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        <!-- Go to Web Interface -->
-                        <Card class="tw-cursor-pointer hover:tw-bg-muted/50" @click="goToWeb">
-                            <CardContent class="tw-p-4">
-                                <div class="tw-flex tw-items-center tw-gap-3">
-                                    <div class="tw-w-12 tw-h-12 tw-rounded-full tw-bg-success/10 tw-flex tw-items-center tw-justify-center">
-                                        <ShoppingCart class="tw-w-6 tw-h-6 tw-text-success" />
-                                    </div>
-                                    <div>
-                                        <p class="tw-font-semibold">{{ __("Web Interface") }}</p>
-                                        <p class="tw-text-sm tw-text-muted-foreground">{{ __("Place order as customer") }}</p>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        <!-- View Products -->
-                        <Card class="tw-cursor-pointer hover:tw-bg-muted/50" @click="viewProducts">
-                            <CardContent class="tw-p-4">
-                                <div class="tw-flex tw-items-center tw-gap-3">
-                                    <div class="tw-w-12 tw-h-12 tw-rounded-full tw-bg-warning/10 tw-flex tw-items-center tw-justify-center">
-                                        <Package class="tw-w-6 tw-h-6 tw-text-warning" />
-                                    </div>
-                                    <div>
-                                        <p class="tw-font-semibold">{{ __("Manage Products") }}</p>
-                                        <p class="tw-text-sm tw-text-muted-foreground">{{ __("View menu items") }}</p>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        <!-- View Customers -->
-                        <Card class="tw-cursor-pointer hover:tw-bg-muted/50" @click="viewCustomers">
-                            <CardContent class="tw-p-4">
-                                <div class="tw-flex tw-items-center tw-gap-3">
-                                    <div class="tw-w-12 tw-h-12 tw-rounded-full tw-bg-info/10 tw-flex tw-items-center tw-justify-center">
-                                        <Users class="tw-w-6 tw-h-6 tw-text-info" />
-                                    </div>
-                                    <div>
-                                        <p class="tw-font-semibold">{{ __("View Customers") }}</p>
-                                        <p class="tw-text-sm tw-text-muted-foreground">{{ __("Customer management") }}</p>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </div>
-            </CardContent>
-            <CardFooter>
-                <Button
-                    variant="outline"
-                    @click="goBack"
-                    class="tw-w-full"
+      <!-- Create Form -->
+      <v-card elevation="2">
+        <v-card-title class="text-h6 font-weight-bold text-grey-darken-3">
+          <v-icon left color="primary">mdi-plus</v-icon>
+          Order Information
+        </v-card-title>
+        <v-card-text>
+          <v-form ref="form" v-model="valid">
+            <v-row>
+              <!-- Customer Selection -->
+              <v-col cols="12" md="6">
+                <v-select
+                  v-model="form.customer_id"
+                  :items="customers"
+                  item-title="name"
+                  item-value="id"
+                  label="Customer"
+                  variant="outlined"
+                  :rules="[rules.required]"
+                  required
                 >
-                    <ArrowLeft class="tw-w-4 tw-h-4 tw-mr-2" />
-                    {{ __("Back to Orders") }}
-                </Button>
-            </CardFooter>
-        </Card>
-    </div>
+                  <template v-slot:item="{ props, item }">
+                    <v-list-item v-bind="props">
+                      <v-list-item-title>{{ item.raw.name }}</v-list-item-title>
+                      <v-list-item-subtitle>{{ item.raw.email }}</v-list-item-subtitle>
+                    </v-list-item>
+                  </template>
+                </v-select>
+              </v-col>
+
+              <!-- Order Number -->
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="form.order_number"
+                  label="Order Number"
+                  variant="outlined"
+                  :rules="[rules.required]"
+                  required
+                  hint="Auto-generated if left empty"
+                  persistent-hint
+                />
+              </v-col>
+
+              <!-- Order Status -->
+              <v-col cols="12" md="6">
+                <v-select
+                  v-model="form.status"
+                  :items="statusOptions"
+                  item-title="text"
+                  item-value="value"
+                  label="Status"
+                  variant="outlined"
+                  :rules="[rules.required]"
+                  required
+                />
+              </v-col>
+
+              <!-- Order Date -->
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="form.order_date"
+                  label="Order Date"
+                  type="datetime-local"
+                  variant="outlined"
+                  :rules="[rules.required]"
+                  required
+                />
+              </v-col>
+
+              <!-- Delivery Address -->
+              <v-col cols="12">
+                <v-textarea
+                  v-model="form.delivery_address"
+                  label="Delivery Address"
+                  variant="outlined"
+                  rows="3"
+                  :rules="[rules.required]"
+                  required
+                />
+              </v-col>
+
+              <!-- Special Instructions -->
+              <v-col cols="12">
+                <v-textarea
+                  v-model="form.special_instructions"
+                  label="Special Instructions"
+                  variant="outlined"
+                  rows="2"
+                  hint="Any special notes for this order"
+                  persistent-hint
+                />
+              </v-col>
+            </v-row>
+
+            <!-- Order Items Section -->
+            <v-divider class="my-6" />
+            
+            <div class="d-flex justify-space-between align-center mb-4">
+              <h3 class="text-h6 font-weight-bold">Order Items</h3>
+              <v-btn color="primary" @click="addOrderItem">
+                <v-icon left>mdi-plus</v-icon>
+                Add Item
+              </v-btn>
+            </div>
+
+            <v-card
+              v-for="(item, index) in form.order_items"
+              :key="index"
+              elevation="1"
+              class="mb-4"
+            >
+              <v-card-text>
+                <v-row>
+                  <v-col cols="12" md="5">
+                    <v-select
+                      v-model="item.product_id"
+                      :items="products"
+                      item-title="name"
+                      item-value="id"
+                      label="Product"
+                      variant="outlined"
+                      @update:model-value="updateItemPrice(index)"
+                    />
+                  </v-col>
+                  <v-col cols="12" md="2">
+                    <v-text-field
+                      v-model="item.quantity"
+                      label="Quantity"
+                      type="number"
+                      min="1"
+                      variant="outlined"
+                      @input="updateItemTotal(index)"
+                    />
+                  </v-col>
+                  <v-col cols="12" md="2">
+                    <v-text-field
+                      :model-value="getProductPrice(item.product_id)"
+                      label="Price"
+                      prefix="$"
+                      variant="outlined"
+                      readonly
+                    />
+                  </v-col>
+                  <v-col cols="12" md="2">
+                    <v-text-field
+                      v-model="item.total"
+                      label="Total"
+                      prefix="$"
+                      variant="outlined"
+                      readonly
+                    />
+                  </v-col>
+                  <v-col cols="12" md="1">
+                    <v-btn
+                      color="error"
+                      variant="text"
+                      @click="removeOrderItem(index)"
+                      :disabled="form.order_items.length === 1"
+                    >
+                      <v-icon>mdi-delete</v-icon>
+                    </v-btn>
+                  </v-col>
+                </v-row>
+              </v-card-text>
+            </v-card>
+
+            <!-- Order Total -->
+            <v-card elevation="2" color="primary" variant="tonal">
+              <v-card-text>
+                <div class="d-flex justify-space-between align-center">
+                  <span class="text-h6 font-weight-bold">Order Total:</span>
+                  <span class="text-h5 font-weight-bold">${{ formatPrice(orderTotal) }}</span>
+                </div>
+              </v-card-text>
+            </v-card>
+
+            <!-- Form Actions -->
+            <v-row class="mt-6">
+              <v-col cols="12">
+                <div class="d-flex gap-4">
+                  <v-btn
+                    color="primary"
+                    size="large"
+                    :disabled="!valid || form.order_items.length === 0"
+                    @click="submitForm"
+                    :loading="loading"
+                  >
+                    <v-icon left>mdi-check</v-icon>
+                    Create Order
+                  </v-btn>
+                  <v-btn
+                    color="grey"
+                    variant="outlined"
+                    size="large"
+                    :to="{ name: 'dashboard.orders.index' }"
+                  >
+                    Cancel
+                  </v-btn>
+                </div>
+              </v-col>
+            </v-row>
+          </v-form>
+        </v-card-text>
+      </v-card>
+    </v-container>
+  </DashboardLayout>
 </template>
 
 <script setup>
-import { router, Head } from "@inertiajs/vue3";
-import { Button } from "@/Components/ui/button";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/Components/ui/card";
-import {
-    Info,
-    Eye,
-    ShoppingCart,
-    Package,
-    Users,
-    ArrowLeft,
-} from "lucide-vue-next";
+import { ref, computed, onMounted } from 'vue';
+import { Head, router } from '@inertiajs/vue3';
+import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 
-const goBack = () => {
-    router.visit(route("dashboard.orders.index"));
+const props = defineProps({
+  customers: {
+    type: Array,
+    default: () => []
+  },
+  products: {
+    type: Array,
+    default: () => []
+  }
+});
+
+const form = ref({
+  customer_id: null,
+  order_number: '',
+  status: 'pending',
+  order_date: '',
+  delivery_address: '',
+  special_instructions: '',
+  order_items: [{
+    product_id: null,
+    quantity: 1,
+    total: 0
+  }]
+});
+
+const valid = ref(false);
+const loading = ref(false);
+
+const statusOptions = [
+  { text: 'Pending', value: 'pending' },
+  { text: 'Confirmed', value: 'confirmed' },
+  { text: 'Preparing', value: 'preparing' },
+  { text: 'Ready', value: 'ready' },
+  { text: 'Delivered', value: 'delivered' },
+  { text: 'Cancelled', value: 'cancelled' }
+];
+
+const rules = {
+  required: (value) => !!value || 'This field is required'
 };
 
-const viewOrders = () => {
-    router.visit(route("dashboard.orders.index"));
+const orderTotal = computed(() => {
+  return form.value.order_items.reduce((sum, item) => {
+    return sum + (parseFloat(item.total) || 0);
+  }, 0);
+});
+
+const formatPrice = (price) => {
+  const numPrice = typeof price === 'number' ? price : parseFloat(price);
+  return numPrice.toFixed(2);
 };
 
-const goToWeb = () => {
-    router.visit(route("web.products.index"));
+const getProductPrice = (productId) => {
+  const product = props.products.find(p => p.id === productId);
+  return product ? formatPrice(product.price) : '0.00';
 };
 
-const viewProducts = () => {
-    router.visit(route("dashboard.products.index"));
+const updateItemPrice = (index) => {
+  const item = form.value.order_items[index];
+  const price = getProductPrice(item.product_id);
+  item.total = formatPrice(parseFloat(price) * item.quantity);
 };
 
-const viewCustomers = () => {
-    router.visit(route("dashboard.users.index"));
+const updateItemTotal = (index) => {
+  const item = form.value.order_items[index];
+  const price = getProductPrice(item.product_id);
+  item.total = formatPrice(parseFloat(price) * item.quantity);
+};
+
+const addOrderItem = () => {
+  form.value.order_items.push({
+    product_id: null,
+    quantity: 1,
+    total: 0
+  });
+};
+
+const removeOrderItem = (index) => {
+  if (form.value.order_items.length > 1) {
+    form.value.order_items.splice(index, 1);
+  }
+};
+
+onMounted(() => {
+  // Set default order date to now
+  const now = new Date();
+  form.value.order_date = now.toISOString().slice(0, 16);
+});
+
+const submitForm = () => {
+  if (valid.value && form.value.order_items.length > 0) {
+    loading.value = true;
+    
+    const orderData = {
+      ...form.value,
+      total: orderTotal.value
+    };
+
+    router.post(route('dashboard.orders.store'), orderData, {
+      onSuccess: () => {
+        // Order created successfully
+      },
+      onError: () => {
+        loading.value = false;
+      },
+      onFinish: () => {
+        loading.value = false;
+      }
+    });
+  }
 };
 </script>
 

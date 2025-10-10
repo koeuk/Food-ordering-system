@@ -1,279 +1,286 @@
 <template>
-    <Head :title="__('Create Supplier')" />
+  <DashboardLayout>
+    <Head title="Add Supplier" />
 
-    <vee-form
-        :validation-schema="schema"
-        @submit="submit"
-        v-slot="{ meta, setErrors }"
-    >
-        <div class="tw-space-y-6">
-            <!-- Header -->
-            <div class="tw-flex tw-items-center tw-justify-between">
-                <div>
-                    <h2 class="tw-text-2xl tw-font-bold tw-tracking-tight">
-                        {{ __("Create Supplier") }}
-                    </h2>
-                    <p class="tw-text-muted-foreground">
-                        {{ __("Add a new supplier to your system") }}
-                    </p>
-                </div>
-                <Button
-                    variant="outline"
-                    @click="goBack"
-                >
-                    <ArrowLeft class="tw-w-4 tw-h-4 tw-mr-2" />
-                    {{ __("Back") }}
-                </Button>
-            </div>
-
-            <!-- Form -->
-            <div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-3 tw-gap-6">
-                <!-- Main Form -->
-                <div class="tw-lg:col-span-2 tw-space-y-6">
-                    <!-- Basic Information -->
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>{{ __("Supplier Information") }}</CardTitle>
-                            <CardDescription>
-                                {{ __("Enter the supplier's basic details") }}
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent class="tw-space-y-4">
-                            <vee-field
-                                name="name"
-                                v-slot="{ field, errors }"
-                            >
-                                <div class="tw-space-y-2">
-                                    <Label for="name">
-                                        {{ __("Supplier Name") }}
-                                        <span class="tw-text-destructive">*</span>
-                                    </Label>
-                                    <Input
-                                        id="name"
-                                        v-bind="field"
-                                        :model-value="form.name"
-                                        @update:model-value="(val) => form.name = val"
-                                        :class="{ 'tw-border-destructive': errors.length }"
-                                        :placeholder="__('Enter supplier name')"
-                                    />
-                                    <p v-if="errors.length" class="tw-text-sm tw-text-destructive">
-                                        {{ errors[0] }}
-                                    </p>
-                                </div>
-                            </vee-field>
-
-                            <vee-field
-                                name="contact_person"
-                                v-slot="{ field, errors }"
-                            >
-                                <div class="tw-space-y-2">
-                                    <Label for="contact_person">{{ __("Contact Person") }}</Label>
-                                    <Input
-                                        id="contact_person"
-                                        v-bind="field"
-                                        :model-value="form.contact_person"
-                                        @update:model-value="(val) => form.contact_person = val"
-                                        :class="{ 'tw-border-destructive': errors.length }"
-                                        :placeholder="__('Enter contact person name')"
-                                    />
-                                    <p v-if="errors.length" class="tw-text-sm tw-text-destructive">
-                                        {{ errors[0] }}
-                                    </p>
-                                </div>
-                            </vee-field>
-                        </CardContent>
-                    </Card>
-
-                    <!-- Contact Information -->
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>{{ __("Contact Information") }}</CardTitle>
-                            <CardDescription>
-                                {{ __("Supplier's contact details") }}
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent class="tw-space-y-4">
-                            <div class="tw-grid tw-grid-cols-2 tw-gap-4">
-                                <vee-field
-                                    name="email"
-                                    v-slot="{ field, errors }"
-                                >
-                                    <div class="tw-space-y-2">
-                                        <Label for="email">
-                                            {{ __("Email") }}
-                                            <span class="tw-text-destructive">*</span>
-                                        </Label>
-                                        <Input
-                                            id="email"
-                                            type="email"
-                                            v-bind="field"
-                                            :model-value="form.email"
-                                            @update:model-value="(val) => form.email = val"
-                                            :class="{ 'tw-border-destructive': errors.length }"
-                                            :placeholder="__('supplier@example.com')"
-                                        />
-                                        <p v-if="errors.length" class="tw-text-sm tw-text-destructive">
-                                            {{ errors[0] }}
-                                        </p>
-                                    </div>
-                                </vee-field>
-
-                                <vee-field
-                                    name="phone"
-                                    v-slot="{ field, errors }"
-                                >
-                                    <div class="tw-space-y-2">
-                                        <Label for="phone">
-                                            {{ __("Phone") }}
-                                            <span class="tw-text-destructive">*</span>
-                                        </Label>
-                                        <Input
-                                            id="phone"
-                                            v-bind="field"
-                                            :model-value="form.phone"
-                                            @update:model-value="(val) => form.phone = val"
-                                            :class="{ 'tw-border-destructive': errors.length }"
-                                            :placeholder="__('+1 234 567 8900')"
-                                        />
-                                        <p v-if="errors.length" class="tw-text-sm tw-text-destructive">
-                                            {{ errors[0] }}
-                                        </p>
-                                    </div>
-                                </vee-field>
-                            </div>
-
-                            <vee-field
-                                name="address"
-                                v-slot="{ field, errors }"
-                            >
-                                <div class="tw-space-y-2">
-                                    <Label for="address">
-                                        {{ __("Address") }}
-                                        <span class="tw-text-destructive">*</span>
-                                    </Label>
-                                    <Textarea
-                                        id="address"
-                                        v-bind="field"
-                                        :model-value="form.address"
-                                        @update:model-value="(val) => form.address = val"
-                                        rows="3"
-                                        :class="{ 'tw-border-destructive': errors.length }"
-                                        :placeholder="__('Enter supplier address')"
-                                    />
-                                    <p v-if="errors.length" class="tw-text-sm tw-text-destructive">
-                                        {{ errors[0] }}
-                                    </p>
-                                </div>
-                            </vee-field>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                <!-- Sidebar -->
-                <div class="tw-space-y-6">
-                    <!-- Actions -->
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>{{ __("Actions") }}</CardTitle>
-                        </CardHeader>
-                        <CardContent class="tw-space-y-2">
-                            <Button
-                                type="submit"
-                                class="tw-w-full"
-                                :disabled="!meta.valid || form.processing"
-                            >
-                                <Loader2
-                                    v-if="form.processing"
-                                    class="tw-h-4 tw-w-4 tw-mr-2 tw-animate-spin"
-                                />
-                                <Plus v-else class="tw-h-4 tw-w-4 tw-mr-2" />
-                                {{ __("Create Supplier") }}
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                class="tw-w-full"
-                                @click="goBack"
-                            >
-                                {{ __("Cancel") }}
-                            </Button>
-                        </CardContent>
-                    </Card>
-
-                    <!-- Tips -->
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>{{ __("Tips") }}</CardTitle>
-                        </CardHeader>
-                        <CardContent class="tw-text-sm tw-text-muted-foreground tw-space-y-2">
-                            <p>• {{ __("Ensure email is unique and valid") }}</p>
-                            <p>• {{ __("Add accurate contact information") }}</p>
-                            <p>• {{ __("Keep supplier details up to date") }}</p>
-                        </CardContent>
-                    </Card>
-                </div>
-            </div>
+    <v-container>
+      <!-- Header -->
+      <div class="d-flex justify-space-between align-center mb-6">
+        <div>
+          <h1 class="text-h3 font-weight-bold text-grey-darken-3 mb-2">
+            Add Supplier
+          </h1>
+          <p class="text-grey-darken-1">
+            Add a new supplier to your system
+          </p>
         </div>
-    </vee-form>
+        <v-btn
+          color="grey"
+          variant="outlined"
+          :to="{ name: 'dashboard.suppliers.index' }"
+        >
+          <v-icon left>mdi-arrow-left</v-icon>
+          Back to Suppliers
+        </v-btn>
+      </div>
+
+      <!-- Create Form -->
+      <v-card elevation="2">
+        <v-card-title class="text-h6 font-weight-bold text-grey-darken-3">
+          <v-icon left color="primary">mdi-plus</v-icon>
+          Supplier Information
+        </v-card-title>
+        <v-card-text>
+          <v-form ref="form" v-model="valid">
+            <v-row>
+              <!-- Company Name -->
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="form.company_name"
+                  label="Company Name"
+                  variant="outlined"
+                  :rules="[rules.required]"
+                  required
+                />
+              </v-col>
+
+              <!-- Contact Person -->
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="form.contact_person"
+                  label="Contact Person"
+                  variant="outlined"
+                  :rules="[rules.required]"
+                  required
+                />
+              </v-col>
+
+              <!-- Email -->
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="form.email"
+                  label="Email"
+                  type="email"
+                  variant="outlined"
+                  :rules="[rules.required, rules.email]"
+                  required
+                />
+              </v-col>
+
+              <!-- Phone -->
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="form.phone"
+                  label="Phone"
+                  variant="outlined"
+                  :rules="[rules.required]"
+                  required
+                />
+              </v-col>
+
+              <!-- Address -->
+              <v-col cols="12">
+                <v-textarea
+                  v-model="form.address"
+                  label="Address"
+                  variant="outlined"
+                  rows="3"
+                  :rules="[rules.required]"
+                  required
+                />
+              </v-col>
+
+              <!-- City -->
+              <v-col cols="12" md="4">
+                <v-text-field
+                  v-model="form.city"
+                  label="City"
+                  variant="outlined"
+                  :rules="[rules.required]"
+                  required
+                />
+              </v-col>
+
+              <!-- State -->
+              <v-col cols="12" md="4">
+                <v-text-field
+                  v-model="form.state"
+                  label="State"
+                  variant="outlined"
+                  :rules="[rules.required]"
+                  required
+                />
+              </v-col>
+
+              <!-- Postal Code -->
+              <v-col cols="12" md="4">
+                <v-text-field
+                  v-model="form.postal_code"
+                  label="Postal Code"
+                  variant="outlined"
+                  :rules="[rules.required]"
+                  required
+                />
+              </v-col>
+
+              <!-- Country -->
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="form.country"
+                  label="Country"
+                  variant="outlined"
+                  :rules="[rules.required]"
+                  required
+                />
+              </v-col>
+
+              <!-- Website -->
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="form.website"
+                  label="Website"
+                  variant="outlined"
+                  prepend-inner-icon="mdi-web"
+                />
+              </v-col>
+
+              <!-- Payment Terms -->
+              <v-col cols="12" md="6">
+                <v-select
+                  v-model="form.payment_terms"
+                  :items="paymentTermsOptions"
+                  label="Payment Terms"
+                  variant="outlined"
+                  :rules="[rules.required]"
+                  required
+                />
+              </v-col>
+
+              <!-- Credit Limit -->
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="form.credit_limit"
+                  label="Credit Limit"
+                  type="number"
+                  step="0.01"
+                  prefix="$"
+                  variant="outlined"
+                />
+              </v-col>
+
+              <!-- Notes -->
+              <v-col cols="12">
+                <v-textarea
+                  v-model="form.notes"
+                  label="Notes"
+                  variant="outlined"
+                  rows="3"
+                  hint="Additional notes about this supplier"
+                  persistent-hint
+                />
+              </v-col>
+
+              <!-- Status -->
+              <v-col cols="12">
+                <v-switch
+                  v-model="form.is_active"
+                  label="Active Supplier"
+                  color="primary"
+                  hint="Inactive suppliers won't appear in new orders"
+                  persistent-hint
+                />
+              </v-col>
+            </v-row>
+
+            <!-- Form Actions -->
+            <v-row>
+              <v-col cols="12">
+                <div class="d-flex gap-4">
+                  <v-btn
+                    color="primary"
+                    size="large"
+                    :disabled="!valid"
+                    @click="submitForm"
+                    :loading="loading"
+                  >
+                    <v-icon left>mdi-check</v-icon>
+                    Add Supplier
+                  </v-btn>
+                  <v-btn
+                    color="grey"
+                    variant="outlined"
+                    size="large"
+                    :to="{ name: 'dashboard.suppliers.index' }"
+                  >
+                    Cancel
+                  </v-btn>
+                </div>
+              </v-col>
+            </v-row>
+          </v-form>
+        </v-card-text>
+      </v-card>
+    </v-container>
+  </DashboardLayout>
 </template>
 
 <script setup>
-import { useForm } from "@inertiajs/vue3";
-import { router, Head } from "@inertiajs/vue3";
-import { Button } from "@/Components/ui/button";
-import { Input } from "@/Components/ui/input";
-import { Label } from "@/Components/ui/label";
-import { Textarea } from "@/Components/ui/textarea";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/Components/ui/card";
-import { Loader2, Plus, ArrowLeft } from "lucide-vue-next";
-import { useToast } from "@/Components/ui/toast/use-toast";
-import * as yup from "yup";
+import { ref } from 'vue';
+import { Head, router } from '@inertiajs/vue3';
+import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 
-const { toast } = useToast();
-
-const schema = yup.object({
-    name: yup.string().required(__("Supplier name is required")),
-    contact_person: yup.string(),
-    email: yup.string().email(__("Invalid email")).required(__("Email is required")),
-    phone: yup.string().required(__("Phone is required")),
-    address: yup.string().required(__("Address is required")),
+const form = ref({
+  company_name: '',
+  contact_person: '',
+  email: '',
+  phone: '',
+  address: '',
+  city: '',
+  state: '',
+  postal_code: '',
+  country: '',
+  website: '',
+  payment_terms: 'net_30',
+  credit_limit: '',
+  notes: '',
+  is_active: true
 });
 
-const form = useForm({
-    name: "",
-    contact_person: "",
-    email: "",
-    phone: "",
-    address: "",
-});
+const valid = ref(false);
+const loading = ref(false);
 
-const submit = (setErrors) => {
-    form.post(route("dashboard.suppliers.store"), {
-        onSuccess: () => {
-            toast({
-                title: __("Success"),
-                description: __("Supplier created successfully"),
-            });
-        },
-        onError: (errors) => {
-            setErrors(errors);
-            toast({
-                title: __("Error"),
-                description: __("Failed to create supplier"),
-                variant: "destructive",
-            });
-        },
-    });
+const paymentTermsOptions = [
+  { title: 'Net 15', value: 'net_15' },
+  { title: 'Net 30', value: 'net_30' },
+  { title: 'Net 45', value: 'net_45' },
+  { title: 'Net 60', value: 'net_60' },
+  { title: 'Cash on Delivery', value: 'cod' },
+  { title: 'Prepaid', value: 'prepaid' }
+];
+
+const rules = {
+  required: (value) => !!value || 'This field is required',
+  email: (value) => {
+    const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return pattern.test(value) || 'Enter a valid email address';
+  }
 };
 
-const goBack = () => {
-    router.visit(route("dashboard.suppliers.index"));
+const submitForm = () => {
+  if (valid.value) {
+    loading.value = true;
+    
+    router.post(route('dashboard.suppliers.store'), form.value, {
+      onSuccess: () => {
+        // Supplier created successfully
+      },
+      onError: () => {
+        loading.value = false;
+      },
+      onFinish: () => {
+        loading.value = false;
+      }
+    });
+  }
 };
 </script>
 

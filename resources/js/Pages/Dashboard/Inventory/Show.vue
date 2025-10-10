@@ -1,319 +1,310 @@
 <template>
-    <Head :title="`${inventory.product?.name} - Inventory Details`" />
+  <DashboardLayout>
+    <Head :title="`Inventory: ${inventory.product?.name}`" />
 
-    <div class="tw-space-y-6">
-        <!-- Header -->
-        <div class="tw-flex tw-items-center tw-justify-between">
-            <div>
-                <h2 class="tw-text-2xl tw-font-bold tw-tracking-tight">
-                    {{ inventory.product?.name }}
-                </h2>
-                <p class="tw-text-muted-foreground">
-                    {{ __("Inventory details and stock management") }}
-                </p>
-            </div>
-            <div class="tw-flex tw-gap-2">
-                <Button
-                    variant="outline"
-                    @click="editInventory"
-                >
-                    <Edit class="tw-w-4 tw-h-4 tw-mr-2" />
-                    {{ __("Edit") }}
-                </Button>
-                <Button
-                    variant="outline"
-                    @click="goBack"
-                >
-                    <ArrowLeft class="tw-w-4 tw-h-4 tw-mr-2" />
-                    {{ __("Back") }}
-                </Button>
-            </div>
+    <v-container>
+      <!-- Header -->
+      <div class="d-flex justify-space-between align-center mb-6">
+        <div>
+          <h1 class="text-h3 font-weight-bold text-grey-darken-3 mb-2">
+            {{ inventory.product?.name }}
+          </h1>
+          <p class="text-grey-darken-1">
+            Inventory Details
+          </p>
         </div>
-
-        <!-- Inventory Information -->
-        <div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-3 tw-gap-6">
-            <!-- Main Content -->
-            <div class="tw-lg:col-span-2 tw-space-y-6">
-                <!-- Stock Details Card -->
-                <Card>
-                    <CardHeader>
-                        <CardTitle>{{ __("Stock Information") }}</CardTitle>
-                    </CardHeader>
-                    <CardContent class="tw-space-y-4">
-                        <div class="tw-grid tw-grid-cols-3 tw-gap-4">
-                            <div class="tw-text-center tw-p-4 tw-rounded-lg tw-bg-muted/50">
-                                <Label class="tw-text-muted-foreground tw-text-sm">{{ __("Current Stock") }}</Label>
-                                <p class="tw-text-3xl tw-font-bold tw-mt-2" :class="{
-                                    'tw-text-destructive': inventory.quantity === 0,
-                                    'tw-text-warning': inventory.quantity > 0 && inventory.quantity <= inventory.minimum_stock,
-                                    'tw-text-success': inventory.quantity > inventory.minimum_stock
-                                }">
-                                    {{ inventory.quantity }}
-                                </p>
-                                <p class="tw-text-xs tw-text-muted-foreground tw-mt-1">{{ inventory.product?.category?.name }}</p>
-                            </div>
-                            <div class="tw-text-center tw-p-4 tw-rounded-lg tw-bg-muted/50">
-                                <Label class="tw-text-muted-foreground tw-text-sm">{{ __("Minimum Stock") }}</Label>
-                                <p class="tw-text-3xl tw-font-bold tw-mt-2">{{ inventory.minimum_stock }}</p>
-                                <p class="tw-text-xs tw-text-muted-foreground tw-mt-1">{{ __("Alert threshold") }}</p>
-                            </div>
-                            <div class="tw-text-center tw-p-4 tw-rounded-lg tw-bg-muted/50">
-                                <Label class="tw-text-muted-foreground tw-text-sm">{{ __("Stock Status") }}</Label>
-                                <Badge 
-                                    class="tw-mt-3 tw-text-base tw-px-4 tw-py-1"
-                                    :variant="getStockStatusVariant(inventory)"
-                                >
-                                    {{ getStockStatusText(inventory) }}
-                                </Badge>
-                            </div>
-                        </div>
-
-                        <div class="tw-pt-4 tw-border-t">
-                            <div class="tw-grid tw-grid-cols-2 tw-gap-4">
-                                <div>
-                                    <Label class="tw-text-muted-foreground">{{ __("Product Price") }}</Label>
-                                    <p class="tw-text-lg tw-font-semibold">${{ inventory.product?.price }}</p>
-                                </div>
-                                <div>
-                                    <Label class="tw-text-muted-foreground">{{ __("Total Value") }}</Label>
-                                    <p class="tw-text-lg tw-font-semibold">
-                                        ${{ (inventory.quantity * inventory.product?.price).toFixed(2) }}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="tw-pt-4 tw-border-t">
-                            <div class="tw-grid tw-grid-cols-2 tw-gap-4 tw-text-sm">
-                                <div>
-                                    <Label class="tw-text-muted-foreground">{{ __("Last Restocked") }}</Label>
-                                    <p>{{ inventory.last_restocked_at ? new Date(inventory.last_restocked_at).toLocaleString() : __("Never") }}</p>
-                                </div>
-                                <div>
-                                    <Label class="tw-text-muted-foreground">{{ __("Last Updated") }}</Label>
-                                    <p>{{ new Date(inventory.updated_at).toLocaleString() }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <!-- Product Information -->
-                <Card>
-                    <CardHeader>
-                        <CardTitle>{{ __("Product Information") }}</CardTitle>
-                    </CardHeader>
-                    <CardContent class="tw-space-y-4">
-                        <div class="tw-flex tw-items-start tw-gap-4">
-                            <div class="tw-w-24 tw-h-24 tw-rounded-lg tw-bg-muted tw-flex tw-items-center tw-justify-center tw-overflow-hidden">
-                                <img
-                                    v-if="inventory.product?.image"
-                                    :src="`/storage/${inventory.product.image}`"
-                                    :alt="inventory.product.name"
-                                    class="tw-w-full tw-h-full tw-object-cover"
-                                />
-                                <Package v-else class="tw-w-12 tw-h-12 tw-text-muted-foreground" />
-                            </div>
-                            <div class="tw-flex-1">
-                                <h3 class="tw-text-lg tw-font-semibold">{{ inventory.product?.name }}</h3>
-                                <p class="tw-text-sm tw-text-muted-foreground tw-mt-1">
-                                    {{ inventory.product?.description || __("No description") }}
-                                </p>
-                                <div class="tw-flex tw-gap-2 tw-mt-2">
-                                    <Badge>{{ inventory.product?.category?.name }}</Badge>
-                                    <Badge :variant="inventory.product?.is_available ? 'success' : 'secondary'">
-                                        {{ inventory.product?.is_available ? __("Available") : __("Unavailable") }}
-                                    </Badge>
-                                </div>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-
-            <!-- Sidebar -->
-            <div class="tw-space-y-6">
-                <!-- Quick Actions -->
-                <Card>
-                    <CardHeader>
-                        <CardTitle>{{ __("Quick Actions") }}</CardTitle>
-                    </CardHeader>
-                    <CardContent class="tw-space-y-2">
-                        <Button
-                            variant="outline"
-                            class="tw-w-full tw-justify-start"
-                            @click="showRestockDialog = true"
-                        >
-                            <Plus class="tw-w-4 tw-h-4 tw-mr-2" />
-                            {{ __("Restock") }}
-                        </Button>
-                        <Button
-                            variant="outline"
-                            class="tw-w-full tw-justify-start"
-                            @click="editInventory"
-                        >
-                            <Edit class="tw-w-4 tw-h-4 tw-mr-2" />
-                            {{ __("Edit Stock Levels") }}
-                        </Button>
-                        <Button
-                            variant="outline"
-                            class="tw-w-full tw-justify-start"
-                            @click="viewProduct"
-                        >
-                            <Eye class="tw-w-4 tw-h-4 tw-mr-2" />
-                            {{ __("View Product") }}
-                        </Button>
-                    </CardContent>
-                </Card>
-
-                <!-- Stock Alert -->
-                <Card v-if="inventory.quantity <= inventory.minimum_stock">
-                    <CardHeader>
-                        <CardTitle class="tw-text-destructive tw-flex tw-items-center tw-gap-2">
-                            <AlertTriangle class="tw-w-5 tw-h-5" />
-                            {{ __("Stock Alert") }}
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent class="tw-text-sm">
-                        <p v-if="inventory.quantity === 0" class="tw-text-destructive tw-font-semibold">
-                            {{ __("Out of stock! Restock immediately.") }}
-                        </p>
-                        <p v-else class="tw-text-warning tw-font-semibold">
-                            {{ __("Low stock warning! Consider restocking.") }}
-                        </p>
-                    </CardContent>
-                </Card>
-            </div>
+        <div class="d-flex gap-2">
+          <v-btn
+            color="primary"
+            :href="`/dashboard/inventory/${inventory.id}/edit`"
+          >
+            <v-icon left>mdi-pencil</v-icon>
+            Edit Inventory
+          </v-btn>
+          <v-btn
+            color="grey"
+            variant="outlined"
+            href="/dashboard/inventory"
+          >
+            <v-icon left>mdi-arrow-left</v-icon>
+            Back to Inventory
+          </v-btn>
         </div>
+      </div>
 
-        <!-- Restock Dialog -->
-        <Dialog v-model:open="showRestockDialog">
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>{{ __("Restock Inventory") }}</DialogTitle>
-                    <DialogDescription>
-                        {{ __("Add stock quantity for") }} {{ inventory.product?.name }}
-                    </DialogDescription>
-                </DialogHeader>
-                <div class="tw-space-y-4 tw-py-4">
-                    <div class="tw-space-y-2">
-                        <Label for="restock_quantity">{{ __("Quantity to Add") }}</Label>
-                        <Input
-                            id="restock_quantity"
-                            v-model.number="restockQuantity"
-                            type="number"
-                            min="1"
-                            :placeholder="__('Enter quantity')"
-                        />
-                        <p class="tw-text-sm tw-text-muted-foreground">
-                            {{ __("New total:") }} {{ inventory.quantity + (restockQuantity || 0) }}
-                        </p>
+      <v-row>
+        <!-- Inventory Details -->
+        <v-col cols="12" lg="8">
+          <v-card elevation="2" class="mb-6">
+            <v-card-title class="text-h6 font-weight-bold text-grey-darken-3">
+              <v-icon left color="primary">mdi-package-variant</v-icon>
+              Inventory Information
+            </v-card-title>
+            <v-card-text>
+              <v-row>
+                <v-col cols="12" md="6">
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey-darken-1 mb-1">Product</div>
+                    <div class="d-flex align-center">
+                      <v-avatar size="40" class="mr-3">
+                        <v-img v-if="inventory.product?.image_url" :src="inventory.product.image_url" />
+                        <v-icon v-else>mdi-food</v-icon>
+                      </v-avatar>
+                      <div>
+                        <div class="font-weight-bold">{{ inventory.product?.name }}</div>
+                        <div class="text-caption text-grey">{{ inventory.product?.category?.name }}</div>
+                      </div>
                     </div>
-                </div>
-                <DialogFooter>
-                    <Button variant="outline" @click="showRestockDialog = false">
-                        {{ __("Cancel") }}
-                    </Button>
-                    <Button @click="restock" :disabled="!restockQuantity || restockQuantity < 1">
-                        <Plus class="tw-w-4 tw-h-4 tw-mr-2" />
-                        {{ __("Restock") }}
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
-    </div>
+                  </div>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey-darken-1 mb-1">Current Stock</div>
+                    <div class="text-h5 font-weight-bold" :class="getStockColorClass(inventory.quantity, inventory.minimum_stock)">
+                      {{ inventory.quantity }} {{ inventory.unit }}
+                    </div>
+                  </div>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey-darken-1 mb-1">Minimum Stock</div>
+                    <div class="text-h6">{{ inventory.minimum_stock }} {{ inventory.unit }}</div>
+                  </div>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey-darken-1 mb-1">Status</div>
+                    <v-chip
+                      :color="getStockStatusColor(inventory.quantity, inventory.minimum_stock)"
+                      size="small"
+                      variant="flat"
+                    >
+                      {{ getStockStatus(inventory.quantity, inventory.minimum_stock) }}
+                    </v-chip>
+                  </div>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey-darken-1 mb-1">Location</div>
+                    <div class="text-body-1">
+                      {{ inventory.location || 'No location specified' }}
+                    </div>
+                  </div>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey-darken-1 mb-1">Expiry Date</div>
+                    <div class="text-body-1">
+                      {{ inventory.expiry_date ? formatDate(inventory.expiry_date) : 'No expiry date' }}
+                    </div>
+                  </div>
+                </v-col>
+                <v-col v-if="inventory.notes" cols="12">
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey-darken-1 mb-1">Notes</div>
+                    <div class="text-body-1">{{ inventory.notes }}</div>
+                  </div>
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+
+          <!-- Stock History -->
+          <v-card elevation="2">
+            <v-card-title class="text-h6 font-weight-bold text-grey-darken-3">
+              <v-icon left color="info">mdi-history</v-icon>
+              Stock History
+            </v-card-title>
+            <v-card-text>
+              <div v-if="stockHistory.length > 0">
+                <v-timeline align="start" density="compact">
+                  <v-timeline-item
+                    v-for="(entry, index) in stockHistory"
+                    :key="index"
+                    :dot-color="entry.type === 'in' ? 'success' : 'warning'"
+                    size="small"
+                  >
+                    <template v-slot:icon>
+                      <v-icon>{{ entry.type === 'in' ? 'mdi-plus' : 'mdi-minus' }}</v-icon>
+                    </template>
+                    <div>
+                      <div class="font-weight-medium">
+                        {{ entry.type === 'in' ? 'Stock Added' : 'Stock Used' }}: {{ entry.quantity }} {{ inventory.unit }}
+                      </div>
+                      <div class="text-caption text-grey">
+                        {{ formatDate(entry.created_at) }} - {{ entry.notes || 'No notes' }}
+                      </div>
+                    </div>
+                  </v-timeline-item>
+                </v-timeline>
+              </div>
+              <div v-else class="text-center py-8 text-grey-darken-1">
+                <v-icon size="48" color="grey-lighten-2">mdi-history</v-icon>
+                <p class="mt-4">No stock history available</p>
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <!-- Quick Actions -->
+        <v-col cols="12" lg="4">
+          <v-card elevation="2">
+            <v-card-title class="text-h6 font-weight-bold text-grey-darken-3">
+              <v-icon left color="primary">mdi-lightning-bolt</v-icon>
+              Quick Actions
+            </v-card-title>
+            <v-card-text>
+              <v-btn
+                color="success"
+                variant="outlined"
+                block
+                class="mb-2"
+                @click="openRestockDialog"
+              >
+                <v-icon left>mdi-plus</v-icon>
+                Restock Item
+              </v-btn>
+              <v-btn
+                color="primary"
+                variant="outlined"
+                block
+                class="mb-2"
+                :href="`/dashboard/inventory/${inventory.id}/edit`"
+              >
+                <v-icon left>mdi-pencil</v-icon>
+                Edit Details
+              </v-btn>
+              <v-btn
+                color="info"
+                variant="outlined"
+                block
+                class="mb-2"
+                :to="{ name: 'dashboard.products.show', params: { product: inventory.product_id } }"
+              >
+                <v-icon left>mdi-eye</v-icon>
+                View Product
+              </v-btn>
+            </v-card-text>
+          </v-card>
+
+          <!-- Stock Alert -->
+          <v-card 
+            v-if="inventory.quantity <= inventory.minimum_stock" 
+            elevation="2" 
+            color="warning" 
+            variant="tonal"
+            class="mt-4"
+          >
+            <v-card-title class="text-h6 text-warning-darken-2">
+              <v-icon left color="warning">mdi-alert</v-icon>
+              Low Stock Alert
+            </v-card-title>
+            <v-card-text class="text-warning-darken-2">
+              <p>This item is running low on stock!</p>
+              <p class="font-weight-bold">
+                Current: {{ inventory.quantity }} / Minimum: {{ inventory.minimum_stock }}
+              </p>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+
+      <!-- Restock Dialog -->
+      <v-dialog v-model="restockDialog" max-width="500">
+        <v-card>
+          <v-card-title>Restock Item</v-card-title>
+          <v-card-text>
+            <v-text-field
+              v-model="restockQuantity"
+              label="Quantity to Add"
+              type="number"
+              variant="outlined"
+              min="1"
+              :suffix="inventory.unit"
+            />
+            <v-textarea
+              v-model="restockNotes"
+              label="Notes (Optional)"
+              variant="outlined"
+              rows="2"
+            />
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer />
+            <v-btn @click="restockDialog = false">Cancel</v-btn>
+            <v-btn color="success" @click="confirmRestock">Confirm</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </v-container>
+  </DashboardLayout>
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { router } from "@inertiajs/vue3";
-import { Head } from "@inertiajs/vue3";
-import { Button } from "@/Components/ui/button";
-import { Label } from "@/Components/ui/label";
-import { Input } from "@/Components/ui/input";
-import { Badge } from "@/Components/ui/badge";
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from "@/Components/ui/card";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/Components/ui/dialog";
-import {
-    Edit,
-    ArrowLeft,
-    Plus,
-    Eye,
-    Package,
-    AlertTriangle,
-} from "lucide-vue-next";
-import { useToast } from "@/Components/ui/toast/use-toast";
-
-const { toast } = useToast();
+import { ref } from 'vue';
+import { Head, router } from '@inertiajs/vue3';
+import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 
 const props = defineProps({
-    inventory: {
-        type: Object,
-        required: true,
-    },
+  inventory: {
+    type: Object,
+    required: true
+  },
+  stockHistory: {
+    type: Array,
+    default: () => []
+  }
 });
 
-const showRestockDialog = ref(false);
-const restockQuantity = ref(null);
+const restockDialog = ref(false);
+const restockQuantity = ref(0);
+const restockNotes = ref('');
 
-const getStockStatusVariant = (inventory) => {
-    if (inventory.quantity === 0) return 'destructive';
-    if (inventory.quantity <= inventory.minimum_stock) return 'warning';
-    return 'success';
+const formatDate = (dateString) => {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  });
 };
 
-const getStockStatusText = (inventory) => {
-    if (inventory.quantity === 0) return __("Out of Stock");
-    if (inventory.quantity <= inventory.minimum_stock) return __("Low Stock");
-    return __("In Stock");
+const getStockColorClass = (quantity, minStock) => {
+  if (quantity === 0) return 'text-error';
+  if (quantity <= minStock) return 'text-warning';
+  return 'text-success';
 };
 
-const goBack = () => {
-    router.visit(route("dashboard.inventory.index"));
+const getStockStatusColor = (quantity, minStock) => {
+  if (quantity === 0) return 'error';
+  if (quantity <= minStock) return 'warning';
+  return 'success';
 };
 
-const editInventory = () => {
-    router.visit(route("dashboard.inventory.edit", props.inventory.id));
+const getStockStatus = (quantity, minStock) => {
+  if (quantity === 0) return 'Out of Stock';
+  if (quantity <= minStock) return 'Low Stock';
+  return 'In Stock';
 };
 
-const viewProduct = () => {
-    router.visit(route("dashboard.products.show", props.inventory.product.id));
+const openRestockDialog = () => {
+  restockQuantity.value = 0;
+  restockNotes.value = '';
+  restockDialog.value = true;
 };
 
-const restock = () => {
-    if (!restockQuantity.value || restockQuantity.value < 1) return;
-
-    router.post(route("dashboard.inventory.restock", props.inventory.id), {
-        quantity: restockQuantity.value
+const confirmRestock = () => {
+  if (restockQuantity.value > 0) {
+    router.post(route('dashboard.inventory.restock', props.inventory.id), {
+      quantity: restockQuantity.value,
+      notes: restockNotes.value
     }, {
-        onSuccess: () => {
-            toast({
-                title: __("Success"),
-                description: __("Inventory restocked successfully"),
-            });
-            showRestockDialog.value = false;
-            restockQuantity.value = null;
-        },
-        onError: () => {
-            toast({
-                title: __("Error"),
-                description: __("Failed to restock inventory"),
-                variant: "destructive",
-            });
-        },
+      onSuccess: () => {
+        restockDialog.value = false;
+        restockQuantity.value = 0;
+        restockNotes.value = '';
+      }
     });
+  }
 };
 </script>
 

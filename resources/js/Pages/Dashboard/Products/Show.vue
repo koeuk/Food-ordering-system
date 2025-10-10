@@ -1,373 +1,235 @@
 <template>
-    <Head :title="__('Product Details')" />
+  <DashboardLayout>
+    <Head :title="`Product: ${product.name}`" />
 
-    <div class="tw-space-y-6">
-        <!-- Header -->
-        <div class="tw-flex tw-items-center tw-justify-between">
-            <div>
-                <h2 class="tw-text-2xl tw-font-bold tw-tracking-tight">
-                    {{ product.name }}
-                </h2>
-                <p class="tw-text-muted-foreground">
-                    {{ __("Product details and information") }}
-                </p>
-            </div>
-            <div class="tw-flex tw-items-center tw-gap-2">
-                <Button
-                    @click="editProduct"
-                >
-                    <Edit class="tw-w-4 tw-h-4 tw-mr-2" />
-                    {{ __("Edit Product") }}
-                </Button>
-                <Button
-                    variant="outline"
-                    @click="goBack"
-                >
-                    <ArrowLeft class="tw-w-4 tw-h-4 tw-mr-2" />
-                    {{ __("Back") }}
-                </Button>
-            </div>
+    <v-container>
+      <!-- Header -->
+      <div class="d-flex justify-space-between align-center mb-6">
+        <div>
+          <h1 class="text-h3 font-weight-bold text-grey-darken-3 mb-2">
+            {{ product.name }}
+          </h1>
+          <p class="text-grey-darken-1">
+            Product Details
+          </p>
         </div>
-
-        <div class="tw-grid tw-grid-cols-1 lg:tw-grid-cols-3 tw-gap-6">
-            <!-- Main Content -->
-            <div class="tw-lg:col-span-2 tw-space-y-6">
-                <!-- Product Image -->
-                <Card>
-                    <CardContent class="tw-p-6">
-                        <div v-if="product.image_url" class="tw-w-full tw-h-64 tw-rounded-lg tw-overflow-hidden">
-                            <img
-                                :src="product.image_url"
-                                :alt="product.name"
-                                class="tw-w-full tw-h-full tw-object-cover"
-                            />
-                        </div>
-                        <div v-else class="tw-w-full tw-h-64 tw-rounded-lg tw-border-2 tw-border-dashed tw-border-muted-foreground/25 tw-flex tw-items-center tw-justify-center">
-                            <div class="tw-text-center">
-                                <Package class="tw-mx-auto tw-h-12 tw-w-12 tw-text-muted-foreground" />
-                                <p class="tw-text-sm tw-text-muted-foreground tw-mt-2">
-                                    {{ __("No image available") }}
-                                </p>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <!-- Product Information -->
-                <Card>
-                    <CardHeader>
-                        <CardTitle>{{ __("Product Information") }}</CardTitle>
-                    </CardHeader>
-                    <CardContent class="tw-space-y-4">
-                        <div>
-                            <Label class="tw-text-sm tw-font-medium tw-text-muted-foreground">
-                                {{ __("Description") }}
-                            </Label>
-                            <p class="tw-mt-1 tw-text-sm">
-                                {{ product.description || __("No description provided") }}
-                            </p>
-                        </div>
-
-                        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4">
-                            <div>
-                                <Label class="tw-text-sm tw-font-medium tw-text-muted-foreground">
-                                    {{ __("Category") }}
-                                </Label>
-                                <p class="tw-mt-1 tw-text-sm">{{ product.category?.name }}</p>
-                            </div>
-                            <div>
-                                <Label class="tw-text-sm tw-font-medium tw-text-muted-foreground">
-                                    {{ __("Price") }}
-                                </Label>
-                                <p class="tw-mt-1 tw-text-sm tw-font-medium">${{ product.price }}</p>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <!-- Inventory Information -->
-                <Card>
-                    <CardHeader>
-                        <CardTitle>{{ __("Inventory Information") }}</CardTitle>
-                    </CardHeader>
-                    <CardContent class="tw-space-y-4">
-                        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-4">
-                            <div>
-                                <Label class="tw-text-sm tw-font-medium tw-text-muted-foreground">
-                                    {{ __("Current Stock") }}
-                                </Label>
-                                <p class="tw-mt-1 tw-text-2xl tw-font-bold">
-                                    {{ product.inventory?.quantity || 0 }}
-                                </p>
-                            </div>
-                            <div>
-                                <Label class="tw-text-sm tw-font-medium tw-text-muted-foreground">
-                                    {{ __("Minimum Stock") }}
-                                </Label>
-                                <p class="tw-mt-1 tw-text-2xl tw-font-bold">
-                                    {{ product.inventory?.minimum_stock || 0 }}
-                                </p>
-                            </div>
-                            <div>
-                                <Label class="tw-text-sm tw-font-medium tw-text-muted-foreground">
-                                    {{ __("Stock Status") }}
-                                </Label>
-                                <div class="tw-mt-1">
-                                    <Badge
-                                        v-if="isLowStock"
-                                        variant="destructive"
-                                    >
-                                        {{ __("Low Stock") }}
-                                    </Badge>
-                                    <Badge
-                                        v-else-if="isOutOfStock"
-                                        variant="destructive"
-                                    >
-                                        {{ __("Out of Stock") }}
-                                    </Badge>
-                                    <Badge
-                                        v-else
-                                        variant="default"
-                                    >
-                                        {{ __("In Stock") }}
-                                    </Badge>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div v-if="product.inventory?.last_restocked_at">
-                            <Label class="tw-text-sm tw-font-medium tw-text-muted-foreground">
-                                {{ __("Last Restocked") }}
-                            </Label>
-                            <p class="tw-mt-1 tw-text-sm">
-                                {{ new Date(product.inventory.last_restocked_at).toLocaleDateString() }}
-                            </p>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <!-- Recent Orders -->
-                <Card>
-                    <CardHeader>
-                        <CardTitle>{{ __("Recent Orders") }}</CardTitle>
-                        <CardDescription>
-                            {{ __("Last 10 orders containing this product") }}
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div v-if="product.order_items && product.order_items.length > 0" class="tw-space-y-2">
-                            <div
-                                v-for="orderItem in product.order_items"
-                                :key="orderItem.id"
-                                class="tw-flex tw-items-center tw-justify-between tw-py-2 tw-px-3 tw-rounded-md tw-bg-muted/50"
-                            >
-                                <div>
-                                    <p class="tw-text-sm tw-font-medium">
-                                        {{ __("Order") }} #{{ orderItem.order?.order_number }}
-                                    </p>
-                                    <p class="tw-text-xs tw-text-muted-foreground">
-                                        {{ new Date(orderItem.order?.created_at).toLocaleDateString() }}
-                                    </p>
-                                </div>
-                                <div class="tw-text-right">
-                                    <p class="tw-text-sm tw-font-medium">
-                                        {{ orderItem.quantity }} {{ __("items") }}
-                                    </p>
-                                    <p class="tw-text-xs tw-text-muted-foreground">
-                                        ${{ orderItem.subtotal }}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div v-else class="tw-text-center tw-py-6">
-                            <ShoppingCart class="tw-mx-auto tw-h-8 tw-w-8 tw-text-muted-foreground" />
-                            <p class="tw-text-sm tw-text-muted-foreground tw-mt-2">
-                                {{ __("No orders found") }}
-                            </p>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-
-            <!-- Sidebar -->
-            <div class="tw-space-y-6">
-                <!-- Product Status -->
-                <Card>
-                    <CardHeader>
-                        <CardTitle>{{ __("Product Status") }}</CardTitle>
-                    </CardHeader>
-                    <CardContent class="tw-space-y-4">
-                        <div class="tw-flex tw-items-center tw-justify-between">
-                            <span class="tw-text-sm tw-font-medium">{{ __("Availability") }}</span>
-                            <Badge :variant="product.is_available ? 'default' : 'secondary'">
-                                {{ product.is_available ? __("Available") : __("Unavailable") }}
-                            </Badge>
-                        </div>
-                        
-                        <div class="tw-flex tw-items-center tw-justify-between">
-                            <span class="tw-text-sm tw-font-medium">{{ __("Stock Level") }}</span>
-                            <Badge
-                                :variant="getStockBadgeVariant()"
-                            >
-                                {{ getStockStatus() }}
-                            </Badge>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <!-- Quick Actions -->
-                <Card>
-                    <CardHeader>
-                        <CardTitle>{{ __("Quick Actions") }}</CardTitle>
-                    </CardHeader>
-                    <CardContent class="tw-space-y-2">
-                        <Button
-                            variant="outline"
-                            class="tw-w-full tw-justify-start"
-                            @click="toggleAvailability"
-                        >
-                            <ToggleLeft class="tw-w-4 tw-h-4 tw-mr-2" />
-                            {{ product.is_available ? __("Disable Product") : __("Enable Product") }}
-                        </Button>
-                        
-                        <Button
-                            variant="outline"
-                            class="tw-w-full tw-justify-start"
-                            @click="manageInventory"
-                        >
-                            <Package class="tw-w-4 tw-h-4 tw-mr-2" />
-                            {{ __("Manage Inventory") }}
-                        </Button>
-                    </CardContent>
-                </Card>
-
-                <!-- Product Statistics -->
-                <Card>
-                    <CardHeader>
-                        <CardTitle>{{ __("Statistics") }}</CardTitle>
-                    </CardHeader>
-                    <CardContent class="tw-space-y-4 tw-text-sm">
-                        <div class="tw-flex tw-justify-between">
-                            <span class="tw-text-muted-foreground">{{ __("Created") }}:</span>
-                            <span>{{ new Date(product.created_at).toLocaleDateString() }}</span>
-                        </div>
-                        <div class="tw-flex tw-justify-between">
-                            <span class="tw-text-muted-foreground">{{ __("Last Updated") }}:</span>
-                            <span>{{ new Date(product.updated_at).toLocaleDateString() }}</span>
-                        </div>
-                        <div class="tw-flex tw-justify-between">
-                            <span class="tw-text-muted-foreground">{{ __("Total Orders") }}:</span>
-                            <span>{{ product.order_items?.length || 0 }}</span>
-                        </div>
-                        <div class="tw-flex tw-justify-between">
-                            <span class="tw-text-muted-foreground">{{ __("Total Sold") }}:</span>
-                            <span>{{ totalQuantitySold }}</span>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
+        <div class="d-flex gap-2">
+          <v-btn
+            color="primary"
+            :href="`/dashboard/products/${product.uuid}/edit`"
+          >
+            <v-icon left>mdi-pencil</v-icon>
+            Edit Product
+          </v-btn>
+          <v-btn
+            color="grey"
+            variant="outlined"
+            href="/dashboard/products"
+          >
+            <v-icon left>mdi-arrow-left</v-icon>
+            Back to Products
+          </v-btn>
         </div>
-    </div>
+      </div>
+
+      <v-row>
+        <!-- Product Details -->
+        <v-col cols="12" lg="8">
+          <v-card elevation="2" class="mb-6">
+            <v-card-title class="text-h6 font-weight-bold text-grey-darken-3">
+              <v-icon left color="primary">mdi-food</v-icon>
+              Product Information
+            </v-card-title>
+            <v-card-text>
+              <v-row>
+                <v-col cols="12" md="6">
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey-darken-1 mb-1">Name</div>
+                    <div class="text-h6">{{ product.name }}</div>
+                  </div>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey-darken-1 mb-1">Category</div>
+                    <v-chip color="primary" size="small">
+                      {{ product.category?.name || 'No Category' }}
+                    </v-chip>
+                  </div>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey-darken-1 mb-1">Price</div>
+                    <div class="text-h5 font-weight-bold text-success">
+                      ${{ formatPrice(product.price) }}
+                    </div>
+                  </div>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey-darken-1 mb-1">Status</div>
+                    <v-chip
+                      :color="product.is_available ? 'success' : 'error'"
+                      size="small"
+                      variant="flat"
+                    >
+                      {{ product.is_available ? 'Available' : 'Unavailable' }}
+                    </v-chip>
+                  </div>
+                </v-col>
+                <v-col cols="12">
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey-darken-1 mb-1">Description</div>
+                    <div class="text-body-1">
+                      {{ product.description || 'No description provided' }}
+                    </div>
+                  </div>
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+
+          <!-- Product Statistics -->
+          <v-card elevation="2">
+            <v-card-title class="text-h6 font-weight-bold text-grey-darken-3">
+              <v-icon left color="info">mdi-chart-line</v-icon>
+              Product Statistics
+            </v-card-title>
+            <v-card-text>
+              <v-row>
+                <v-col cols="12" sm="6" md="3">
+                  <div class="text-center">
+                    <div class="text-h4 font-weight-bold text-primary">{{ stats.orders_count || 0 }}</div>
+                    <div class="text-caption">Total Orders</div>
+                  </div>
+                </v-col>
+                <v-col cols="12" sm="6" md="3">
+                  <div class="text-center">
+                    <div class="text-h4 font-weight-bold text-success">${{ formatPrice(stats.total_revenue || 0) }}</div>
+                    <div class="text-caption">Total Revenue</div>
+                  </div>
+                </v-col>
+                <v-col cols="12" sm="6" md="3">
+                  <div class="text-center">
+                    <div class="text-h4 font-weight-bold text-warning">{{ stats.quantity_sold || 0 }}</div>
+                    <div class="text-caption">Quantity Sold</div>
+                  </div>
+                </v-col>
+                <v-col cols="12" sm="6" md="3">
+                  <div class="text-center">
+                    <div class="text-h4 font-weight-bold text-info">{{ formatPrice(stats.avg_order_value || 0) }}</div>
+                    <div class="text-caption">Avg Order Value</div>
+                  </div>
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <!-- Product Image -->
+        <v-col cols="12" lg="4">
+          <v-card elevation="2">
+            <v-card-title class="text-h6 font-weight-bold text-grey-darken-3">
+              <v-icon left color="primary">mdi-image</v-icon>
+              Product Image
+            </v-card-title>
+            <v-card-text>
+              <v-img
+                v-if="product.image_url"
+                :src="product.image_url"
+                :alt="product.name"
+                aspect-ratio="1"
+                cover
+                class="rounded"
+              />
+              <div v-else class="text-center pa-8">
+                <v-icon size="64" color="grey-lighten-2">mdi-image-off</v-icon>
+                <p class="text-grey-darken-1 mt-4">No image available</p>
+              </div>
+            </v-card-text>
+          </v-card>
+
+          <!-- Quick Actions -->
+          <v-card elevation="2" class="mt-4">
+            <v-card-title class="text-h6 font-weight-bold text-grey-darken-3">
+              <v-icon left color="primary">mdi-lightning-bolt</v-icon>
+              Quick Actions
+            </v-card-title>
+            <v-card-text>
+              <v-btn
+                color="primary"
+                variant="outlined"
+                block
+                class="mb-2"
+                :to="{ name: 'dashboard.products.edit', params: { product: product.id } }"
+              >
+                <v-icon left>mdi-pencil</v-icon>
+                Edit Product
+              </v-btn>
+              <v-btn
+                color="warning"
+                variant="outlined"
+                block
+                class="mb-2"
+                @click="toggleAvailability"
+              >
+                <v-icon left>{{ product.is_available ? 'mdi-eye-off' : 'mdi-eye' }}</v-icon>
+                {{ product.is_available ? 'Mark Unavailable' : 'Mark Available' }}
+              </v-btn>
+              <v-btn
+                color="error"
+                variant="outlined"
+                block
+                @click="deleteProduct"
+              >
+                <v-icon left>mdi-delete</v-icon>
+                Delete Product
+              </v-btn>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-container>
+  </DashboardLayout>
 </template>
 
 <script setup>
-import { computed } from "vue";
-import { router } from "@inertiajs/vue3";
-import { Head } from "@inertiajs/vue3";
-import { Button } from "@/Components/ui/button";
-import { Label } from "@/Components/ui/label";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/Components/ui/card";
-import { Badge } from "@/Components/ui/badge";
-import {
-    Edit,
-    ArrowLeft,
-    Package,
-    ShoppingCart,
-    ToggleLeft,
-} from "lucide-vue-next";
-import { useToast } from "@/Components/ui/toast/use-toast";
-
-const { toast } = useToast();
+import { Head, router } from '@inertiajs/vue3';
+import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 
 const props = defineProps({
-    product: {
-        type: Object,
-        required: true,
-    },
+  product: {
+    type: Object,
+    required: true
+  },
+  stats: {
+    type: Object,
+    default: () => ({})
+  }
 });
 
-// Computed properties
-const isLowStock = computed(() => {
-    return props.product.inventory?.quantity <= props.product.inventory?.minimum_stock && props.product.inventory?.quantity > 0;
-});
-
-const isOutOfStock = computed(() => {
-    return props.product.inventory?.quantity === 0;
-});
-
-const totalQuantitySold = computed(() => {
-    return props.product.order_items?.reduce((total, item) => total + item.quantity, 0) || 0;
-});
-
-// Methods
-const getStockStatus = () => {
-    if (isOutOfStock.value) return __("Out of Stock");
-    if (isLowStock.value) return __("Low Stock");
-    return __("In Stock");
+const formatPrice = (price) => {
+  const numPrice = typeof price === 'number' ? price : parseFloat(price);
+  return numPrice.toFixed(2);
 };
 
-const getStockBadgeVariant = () => {
-    if (isOutOfStock.value) return "destructive";
-    if (isLowStock.value) return "destructive";
-    return "default";
+const toggleAvailability = () => {
+  const action = props.product.is_available ? 'unavailable' : 'available';
+  if (confirm(`Mark product as ${action}?`)) {
+    router.patch(route('dashboard.products.update', props.product.id), {
+      is_available: !props.product.is_available
+    });
+  }
 };
 
-const editProduct = () => {
-    router.visit(route("dashboard.products.edit", props.product.id));
-};
-
-const toggleAvailability = async () => {
-    try {
-        await router.put(
-            route("dashboard.products.update", props.product.id),
-            {
-                is_available: !props.product.is_available,
-            },
-            {
-                preserveState: true,
-                onSuccess: () => {
-                    toast({
-                        title: __("Success"),
-                        description: props.product.is_available
-                            ? __("Product disabled successfully")
-                            : __("Product enabled successfully"),
-                    });
-                },
-                onError: () => {
-                    toast({
-                        title: __("Error"),
-                        description: __("Failed to update product status"),
-                        variant: "destructive",
-                    });
-                },
-            }
-        );
-    } catch (error) {
-        console.error("Error toggling availability:", error);
-    }
-};
-
-const manageInventory = () => {
-    router.visit(route("dashboard.inventory.index", { search: props.product.name }));
-};
-
-const goBack = () => {
-    router.visit(route("dashboard.products.index"));
+const deleteProduct = () => {
+  if (confirm(`Are you sure you want to delete "${props.product.name}"? This action cannot be undone.`)) {
+    router.delete(route('dashboard.products.destroy', props.product.id), {
+      onSuccess: () => {
+        // Redirect to products index
+        router.visit(route('dashboard.products.index'));
+      }
+    });
+  }
 };
 </script>
+

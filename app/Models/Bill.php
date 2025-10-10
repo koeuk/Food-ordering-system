@@ -24,6 +24,14 @@ class Bill extends Model
         'paid_at' => 'datetime',
     ];
 
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
+
     // Relationships
 
     /**

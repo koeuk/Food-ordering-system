@@ -101,14 +101,22 @@
       <v-divider></v-divider>
       
       <!-- Navigation Items -->
-      <v-list-item :to="{ name: 'dashboard.admin' }" link>
+      <v-list-item 
+        href="/dashboard/admin" 
+        :class="{ 'v-list-item--active': isActiveRoute('/dashboard/admin') }"
+        link
+      >
         <template v-slot:prepend>
           <v-icon color="white">mdi-view-dashboard</v-icon>
         </template>
         <v-list-item-title>Dashboard</v-list-item-title>
       </v-list-item>
       
-      <v-list-item :to="{ name: 'profile' }" link>
+      <v-list-item 
+        href="/profile" 
+        :class="{ 'v-list-item--active': isActiveRoute('/profile') }"
+        link
+      >
         <template v-slot:prepend>
           <v-icon color="white">mdi-account</v-icon>
         </template>
@@ -116,42 +124,66 @@
       </v-list-item>
 
       <!-- Dashboard Section -->
-      <v-list-item :to="{ name: 'dashboard.products.index' }" link>
+      <v-list-item 
+        href="/dashboard/products" 
+        :class="{ 'v-list-item--active': isActiveRoute('/dashboard/products') }"
+        link
+      >
         <template v-slot:prepend>
           <v-icon color="white">mdi-food</v-icon>
         </template>
         <v-list-item-title>Products</v-list-item-title>
       </v-list-item>
       
-      <v-list-item :to="{ name: 'dashboard.categories.index' }" link>
+      <v-list-item 
+        href="/dashboard/categories" 
+        :class="{ 'v-list-item--active': isActiveRoute('/dashboard/categories') }"
+        link
+      >
         <template v-slot:prepend>
           <v-icon color="white">mdi-tag</v-icon>
         </template>
         <v-list-item-title>Categories</v-list-item-title>
       </v-list-item>
       
-      <v-list-item :to="{ name: 'dashboard.inventory.index' }" link>
+      <v-list-item 
+        href="/dashboard/inventory" 
+        :class="{ 'v-list-item--active': isActiveRoute('/dashboard/inventory') }"
+        link
+      >
         <template v-slot:prepend>
           <v-icon color="white">mdi-package-variant</v-icon>
         </template>
         <v-list-item-title>Inventory</v-list-item-title>
       </v-list-item>
       
-      <v-list-item :to="{ name: 'dashboard.orders.index' }" link>
+      <v-list-item 
+        href="/dashboard/orders" 
+        :class="{ 'v-list-item--active': isActiveRoute('/dashboard/orders') }"
+        link
+      >
         <template v-slot:prepend>
           <v-icon color="white">mdi-clipboard-list</v-icon>
         </template>
         <v-list-item-title>Orders</v-list-item-title>
       </v-list-item>
       
-      <v-list-item :to="{ name: 'dashboard.suppliers.index' }" link>
+      <v-list-item 
+        href="/dashboard/suppliers" 
+        :class="{ 'v-list-item--active': isActiveRoute('/dashboard/suppliers') }"
+        link
+      >
         <template v-slot:prepend>
           <v-icon color="white">mdi-truck-delivery</v-icon>
         </template>
         <v-list-item-title>Suppliers</v-list-item-title>
       </v-list-item>
       
-      <v-list-item :to="{ name: 'dashboard.reports.sales' }" link>
+      <v-list-item 
+        href="/dashboard/reports" 
+        :class="{ 'v-list-item--active': isActiveRoute('/dashboard/reports') }"
+        link
+      >
         <template v-slot:prepend>
           <v-icon color="white">mdi-chart-line</v-icon>
         </template>
@@ -262,6 +294,11 @@ const toggleTheme = () => {
 const logout = () => {
   router.post('/logout');
 };
+
+const isActiveRoute = (routePath) => {
+  const currentPath = window.location.pathname;
+  return currentPath.startsWith(routePath);
+};
 </script>
 
 <style scoped>
@@ -278,7 +315,18 @@ const logout = () => {
 }
 
 .dashboard-drawer .v-list-item--active {
-  background-color: rgba(255, 255, 255, 0.2) !important;
+  background-color: rgba(255, 255, 255, 0.25) !important;
+  border-left: 4px solid #FFD700 !important;
+  font-weight: 600 !important;
+}
+
+.dashboard-drawer .v-list-item--active .v-icon {
+  color: #FFD700 !important;
+}
+
+.dashboard-drawer .v-list-item--active .v-list-item-title {
+  color: #FFD700 !important;
+  font-weight: 600 !important;
 }
 
 .dashboard-drawer .v-divider {
