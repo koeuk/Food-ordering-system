@@ -269,7 +269,25 @@ const submitForm = () => {
   if (valid.value) {
     loading.value = true;
     
-    router.post(route('dashboard.suppliers.store'), form.value, {
+    // Create a plain object copy to avoid circular references
+    const supplierData = {
+      company_name: form.value.company_name,
+      contact_person: form.value.contact_person,
+      email: form.value.email,
+      phone: form.value.phone,
+      address: form.value.address,
+      city: form.value.city,
+      state: form.value.state,
+      postal_code: form.value.postal_code,
+      country: form.value.country,
+      website: form.value.website,
+      payment_terms: form.value.payment_terms,
+      credit_limit: form.value.credit_limit,
+      notes: form.value.notes,
+      is_active: form.value.is_active
+    };
+    
+    router.post(route('dashboard.suppliers.store'), supplierData, {
       onSuccess: () => {
         // Supplier created successfully
       },

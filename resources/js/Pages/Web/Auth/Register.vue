@@ -135,7 +135,7 @@
                 <v-btn
                   variant="text"
                   color="primary"
-                  :to="{ name: 'web.auth.login' }"
+                  href="/login"
                   class="mb-2"
                 >
                   <v-icon left>mdi-login</v-icon>

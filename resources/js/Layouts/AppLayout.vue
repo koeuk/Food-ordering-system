@@ -33,16 +33,6 @@
         </v-btn>
 
         <template v-if="user">
-          <v-btn
-            text
-            dark
-            href="/orders"
-            class="mx-2"
-          >
-            <v-icon left>mdi-clipboard-list</v-icon>
-            My Orders
-          </v-btn>
-
           <!-- Admin Menu -->
           <template v-if="user.role === 'admin'">
             <v-btn
@@ -137,7 +127,7 @@
                 </template>
                 <v-list-item-title>Dashboard</v-list-item-title>
               </v-list-item>
-              <v-list-item :to="{ name: 'profile' }">
+              <v-list-item :to="{ name: 'profile.edit' }">
                 <v-list-item-title>Profile</v-list-item-title>
               </v-list-item>
               <v-divider />
@@ -190,13 +180,6 @@
         </v-list-item>
 
         <template v-if="user">
-          <v-list-item href="/orders">
-            <template v-slot:prepend>
-              <v-icon>mdi-clipboard-list</v-icon>
-            </template>
-            <v-list-item-title>My Orders</v-list-item-title>
-          </v-list-item>
-
           <!-- Admin Menu -->
           <template v-if="user.role === 'admin'">
             <v-list-item :to="{ name: 'admin.products.index' }">
@@ -244,7 +227,7 @@
             </template>
             <v-list-item-title>Dashboard</v-list-item-title>
           </v-list-item>
-          <v-list-item :to="{ name: 'profile' }">
+          <v-list-item :to="{ name: 'profile.edit' }">
             <v-list-item-title>Profile</v-list-item-title>
           </v-list-item>
           <v-list-item @click="logout">

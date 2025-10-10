@@ -217,11 +217,12 @@ const imagePreview = computed(() => {
 
 onMounted(() => {
   // Initialize form with current product data
-  form.value.name = props.product.name;
+  form.value.name = props.product.name || '';
   form.value.category_id = props.product.category_id;
-  form.value.price = props.product.price;
+  form.value.price = props.product.price || '';
   form.value.description = props.product.description || '';
-  form.value.is_available = props.product.is_available;
+  // Ensure is_available is always a boolean
+  form.value.is_available = Boolean(props.product.is_available);
 });
 
 const submitForm = () => {
@@ -240,7 +241,7 @@ const submitForm = () => {
       formData.append('image', form.value.image[0]);
     }
 
-    router.post(route('dashboard.products.update', props.product.id), formData, {
+    router.post(route('dashboard.products.update', props.product.uuid), formData, {
       onSuccess: () => {
         // Product updated successfully
       },

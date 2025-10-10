@@ -256,7 +256,17 @@ const submitForm = () => {
   if (valid.value) {
     loading.value = true;
     
-    router.put(route('dashboard.inventory.update', props.inventory.uuid), form.value, {
+    // Create a plain object copy to avoid circular references
+    const inventoryData = {
+      quantity: form.value.quantity,
+      minimum_stock: form.value.minimum_stock,
+      unit: form.value.unit,
+      location: form.value.location,
+      expiry_date: form.value.expiry_date,
+      notes: form.value.notes
+    };
+    
+    router.put(route('dashboard.inventory.update', props.inventory.uuid), inventoryData, {
       onSuccess: () => {
         // Inventory updated successfully
       },

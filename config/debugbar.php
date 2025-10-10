@@ -38,7 +38,7 @@ return [
      | Leaving it to null will allow localhost only.
      */
     'storage' => [
-        'enabled'    => env('DEBUGBAR_STORAGE_ENABLED', false), // Disabled to prevent timeout issues
+        'enabled'    => env('DEBUGBAR_STORAGE_ENABLED', true), // Enable storage to prevent header size issues
         'open'       => env('DEBUGBAR_OPEN_STORAGE'), // bool/callback.
         'driver'     => env('DEBUGBAR_STORAGE_DRIVER', 'file'), // redis, file, pdo, socket, custom
         'path'       => env('DEBUGBAR_STORAGE_PATH', storage_path('debugbar')), // For file driver

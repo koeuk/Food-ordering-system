@@ -283,27 +283,46 @@ const rules = {
 
 onMounted(() => {
   // Initialize form with current supplier data
-  form.value.company_name = props.supplier.company_name;
-  form.value.contact_person = props.supplier.contact_person;
-  form.value.email = props.supplier.email;
-  form.value.phone = props.supplier.phone;
-  form.value.address = props.supplier.address;
-  form.value.city = props.supplier.city;
-  form.value.state = props.supplier.state;
-  form.value.postal_code = props.supplier.postal_code;
-  form.value.country = props.supplier.country;
+  form.value.company_name = props.supplier.company_name || '';
+  form.value.contact_person = props.supplier.contact_person || '';
+  form.value.email = props.supplier.email || '';
+  form.value.phone = props.supplier.phone || '';
+  form.value.address = props.supplier.address || '';
+  form.value.city = props.supplier.city || '';
+  form.value.state = props.supplier.state || '';
+  form.value.postal_code = props.supplier.postal_code || '';
+  form.value.country = props.supplier.country || '';
   form.value.website = props.supplier.website || '';
-  form.value.payment_terms = props.supplier.payment_terms;
+  form.value.payment_terms = props.supplier.payment_terms || 'net_30';
   form.value.credit_limit = props.supplier.credit_limit || '';
   form.value.notes = props.supplier.notes || '';
-  form.value.is_active = props.supplier.is_active;
+  // Ensure is_active is always a boolean
+  form.value.is_active = Boolean(props.supplier.is_active);
 });
 
 const submitForm = () => {
   if (valid.value) {
     loading.value = true;
     
-    router.put(route('dashboard.suppliers.update', props.supplier.uuid), form.value, {
+    // Create a plain object copy to avoid circular references
+    const supplierData = {
+      company_name: form.value.company_name,
+      contact_person: form.value.contact_person,
+      email: form.value.email,
+      phone: form.value.phone,
+      address: form.value.address,
+      city: form.value.city,
+      state: form.value.state,
+      postal_code: form.value.postal_code,
+      country: form.value.country,
+      website: form.value.website,
+      payment_terms: form.value.payment_terms,
+      credit_limit: form.value.credit_limit,
+      notes: form.value.notes,
+      is_active: form.value.is_active
+    };
+    
+    router.put(route('dashboard.suppliers.update', props.supplier.uuid), supplierData, {
       onSuccess: () => {
         // Supplier updated successfully
       },

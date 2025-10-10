@@ -218,7 +218,18 @@ const submitForm = () => {
   if (valid.value) {
     loading.value = true;
     
-    router.post(route('dashboard.inventory.store'), form.value, {
+    // Create a plain object copy to avoid circular references
+    const inventoryData = {
+      product_id: form.value.product_id,
+      quantity: form.value.quantity,
+      minimum_stock: form.value.minimum_stock,
+      unit: form.value.unit,
+      location: form.value.location,
+      expiry_date: form.value.expiry_date,
+      notes: form.value.notes
+    };
+    
+    router.post(route('dashboard.inventory.store'), inventoryData, {
       onSuccess: () => {
         // Inventory item created successfully
       },

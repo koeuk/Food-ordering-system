@@ -75,7 +75,7 @@
                 <v-btn
                   variant="text"
                   color="primary"
-                  :to="{ name: 'dashboard.auth.login' }"
+                  href="/login"
                   class="mb-2"
                 >
                   <v-icon left>mdi-shield-account</v-icon>
@@ -85,7 +85,7 @@
                 <v-btn
                   variant="text"
                   color="grey"
-                  :to="{ name: 'web.auth.register' }"
+                  href="/register"
                 >
                   Don't have an account? Register
                 </v-btn>
