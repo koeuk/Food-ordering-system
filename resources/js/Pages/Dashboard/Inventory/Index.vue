@@ -131,7 +131,7 @@
                   size="small"
                   color="primary"
                   variant="outlined"
-                  :href="`/dashboard/inventory/${item.id}/edit`"
+                  :href="`/dashboard/inventory/${item.uuid}/edit`"
                 >
                   <v-icon size="small">mdi-pencil</v-icon>
                 </v-btn>

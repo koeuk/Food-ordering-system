@@ -16,7 +16,7 @@
         <div class="d-flex gap-2">
           <v-btn
             color="primary"
-            :to="{ name: 'dashboard.orders.edit', params: { order: order.id } }"
+            :href="`/dashboard/orders/${order.uuid}/edit`"
           >
             <v-icon left>mdi-pencil</v-icon>
             Edit Order
@@ -320,7 +320,7 @@ const orderTimeline = computed(() => {
 
 const updateOrderStatus = (newStatus) => {
   if (confirm(`Update order status to "${newStatus}"?`)) {
-    router.patch(route('dashboard.orders.update-status', props.order.id), {
+    router.patch(route('dashboard.orders.update-status', props.order.uuid), {
       status: newStatus
     });
   }
@@ -328,7 +328,7 @@ const updateOrderStatus = (newStatus) => {
 
 const cancelOrder = () => {
   if (confirm(`Cancel order #${props.order.order_number}?`)) {
-    router.post(route('dashboard.orders.cancel', props.order.id), {}, {
+    router.post(route('dashboard.orders.cancel', props.order.uuid), {}, {
       onSuccess: () => {
         // Order cancelled
       }

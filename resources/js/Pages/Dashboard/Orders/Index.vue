@@ -123,7 +123,7 @@
                   size="small"
                   color="info"
                   variant="outlined"
-                  :href="`/dashboard/orders/${item.id}`"
+                  :href="`/dashboard/orders/${item.uuid}`"
                 >
                   <v-icon size="small">mdi-eye</v-icon>
                 </v-btn>
@@ -223,7 +223,7 @@ const filterByStatus = (status) => {
 };
 
 const updateOrderStatus = (order, newStatus) => {
-  router.patch(route('dashboard.orders.update-status', order.id), {
+  router.patch(route('dashboard.orders.update-status', order.uuid), {
     status: newStatus
   }, {
     onSuccess: () => {
@@ -234,7 +234,7 @@ const updateOrderStatus = (order, newStatus) => {
 
 const cancelOrder = (order) => {
   if (confirm(`Are you sure you want to cancel order #${order.order_number}?`)) {
-    router.post(route('dashboard.orders.cancel', order.id), {}, {
+    router.post(route('dashboard.orders.cancel', order.uuid), {}, {
       onSuccess: () => {
         // Order cancelled
       }

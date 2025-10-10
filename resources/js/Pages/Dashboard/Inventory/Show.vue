@@ -16,7 +16,7 @@
         <div class="d-flex gap-2">
           <v-btn
             color="primary"
-            :href="`/dashboard/inventory/${inventory.id}/edit`"
+            :href="`/dashboard/inventory/${inventory.uuid}/edit`"
           >
             <v-icon left>mdi-pencil</v-icon>
             Edit Inventory
@@ -169,7 +169,7 @@
                 variant="outlined"
                 block
                 class="mb-2"
-                :href="`/dashboard/inventory/${inventory.id}/edit`"
+                :href="`/dashboard/inventory/${inventory.uuid}/edit`"
               >
                 <v-icon left>mdi-pencil</v-icon>
                 Edit Details
@@ -294,7 +294,7 @@ const openRestockDialog = () => {
 
 const confirmRestock = () => {
   if (restockQuantity.value > 0) {
-    router.post(route('dashboard.inventory.restock', props.inventory.id), {
+    router.post(route('dashboard.inventory.restock', props.inventory.uuid), {
       quantity: restockQuantity.value,
       notes: restockNotes.value
     }, {

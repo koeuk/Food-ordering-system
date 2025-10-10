@@ -82,7 +82,7 @@
                   size="small"
                   color="info"
                   variant="outlined"
-                  :href="`/dashboard/suppliers/${item.id}`"
+                  :href="`/dashboard/suppliers/${item.uuid}`"
                 >
                   <v-icon size="small">mdi-eye</v-icon>
                 </v-btn>
@@ -90,7 +90,7 @@
                   size="small"
                   color="primary"
                   variant="outlined"
-                  :href="`/dashboard/suppliers/${item.id}/edit`"
+                  :href="`/dashboard/suppliers/${item.uuid}/edit`"
                 >
                   <v-icon size="small">mdi-pencil</v-icon>
                 </v-btn>
@@ -135,7 +135,7 @@ const headers = [
 
 const deleteSupplier = (supplier) => {
   if (confirm(`Are you sure you want to delete "${supplier.name}"?`)) {
-    router.delete(route('dashboard.suppliers.destroy', supplier.id), {
+    router.delete(route('dashboard.suppliers.destroy', supplier.uuid), {
       onSuccess: () => {
         // Supplier deleted
       }

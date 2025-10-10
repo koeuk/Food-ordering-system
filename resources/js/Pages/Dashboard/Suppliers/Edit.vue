@@ -16,7 +16,7 @@
         <div class="d-flex gap-2">
           <v-btn
             color="info"
-            :to="{ name: 'dashboard.suppliers.show', params: { supplier: supplier.id } }"
+            :href="`/dashboard/suppliers/${supplier.uuid}`"
           >
             <v-icon left>mdi-eye</v-icon>
             View Supplier
@@ -218,7 +218,7 @@
                     color="grey"
                     variant="outlined"
                     size="large"
-                    :to="{ name: 'dashboard.suppliers.show', params: { supplier: supplier.id } }"
+                    :href="`/dashboard/suppliers/${supplier.uuid}`"
                   >
                     Cancel
                   </v-btn>
@@ -303,7 +303,7 @@ const submitForm = () => {
   if (valid.value) {
     loading.value = true;
     
-    router.put(route('dashboard.suppliers.update', props.supplier.id), form.value, {
+    router.put(route('dashboard.suppliers.update', props.supplier.uuid), form.value, {
       onSuccess: () => {
         // Supplier updated successfully
       },

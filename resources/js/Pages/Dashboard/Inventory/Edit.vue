@@ -16,7 +16,7 @@
         <div class="d-flex gap-2">
           <v-btn
             color="info"
-            :to="{ name: 'dashboard.inventory.show', params: { inventory: inventory.id } }"
+            :href="`/dashboard/inventory/${inventory.uuid}`"
           >
             <v-icon left>mdi-eye</v-icon>
             View Details
@@ -162,7 +162,7 @@
                     color="grey"
                     variant="outlined"
                     size="large"
-                    :to="{ name: 'dashboard.inventory.show', params: { inventory: inventory.id } }"
+                    :href="`/dashboard/inventory/${inventory.uuid}`"
                   >
                     Cancel
                   </v-btn>
@@ -256,7 +256,7 @@ const submitForm = () => {
   if (valid.value) {
     loading.value = true;
     
-    router.put(route('dashboard.inventory.update', props.inventory.id), form.value, {
+    router.put(route('dashboard.inventory.update', props.inventory.uuid), form.value, {
       onSuccess: () => {
         // Inventory updated successfully
       },

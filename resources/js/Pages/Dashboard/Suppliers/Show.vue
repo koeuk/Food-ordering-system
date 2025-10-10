@@ -16,7 +16,7 @@
         <div class="d-flex gap-2">
           <v-btn
             color="primary"
-            :to="{ name: 'dashboard.suppliers.edit', params: { supplier: supplier.id } }"
+            :href="`/dashboard/suppliers/${supplier.uuid}/edit`"
           >
             <v-icon left>mdi-pencil</v-icon>
             Edit Supplier
@@ -224,7 +224,7 @@
                 variant="outlined"
                 block
                 class="mb-2"
-                :to="{ name: 'dashboard.suppliers.edit', params: { supplier: supplier.id } }"
+                :href="`/dashboard/suppliers/${supplier.uuid}/edit`"
               >
                 <v-icon left>mdi-pencil</v-icon>
                 Edit Supplier

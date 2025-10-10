@@ -16,7 +16,7 @@
         <div class="d-flex gap-2">
           <v-btn
             color="info"
-            :to="{ name: 'dashboard.bills.show', params: { bill: bill.id } }"
+            :href="`/dashboard/bills/${bill.uuid}`"
           >
             <v-icon left>mdi-eye</v-icon>
             View Bill
@@ -208,7 +208,7 @@
                     color="grey"
                     variant="outlined"
                     size="large"
-                    :to="{ name: 'dashboard.bills.show', params: { bill: bill.id } }"
+                    :href="`/dashboard/bills/${bill.uuid}`"
                   >
                     Cancel
                   </v-btn>
@@ -319,7 +319,7 @@ const submitForm = () => {
       total_amount: totalAmount.value
     };
 
-    router.put(route('dashboard.bills.update', props.bill.id), billData, {
+    router.put(route('dashboard.bills.update', props.bill.uuid), billData, {
       onSuccess: () => {
         // Bill updated successfully
       },

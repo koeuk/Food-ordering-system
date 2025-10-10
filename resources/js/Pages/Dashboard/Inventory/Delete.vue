@@ -16,7 +16,7 @@
         <v-btn
           color="grey"
           variant="outlined"
-          :to="{ name: 'dashboard.inventory.show', params: { inventory: inventory.id } }"
+          :href="`/dashboard/inventory/${inventory.uuid}`"
         >
           <v-icon left>mdi-arrow-left</v-icon>
           Back to Inventory Item
@@ -174,7 +174,7 @@
                   color="primary"
                   variant="outlined"
                   size="small"
-                  :to="{ name: 'dashboard.inventory.edit', params: { inventory: inventory.id } }"
+                  :href="`/dashboard/inventory/${inventory.uuid}/edit`"
                 >
                   Edit
                 </v-btn>
@@ -214,7 +214,7 @@
                 color="grey"
                 variant="outlined"
                 size="large"
-                :to="{ name: 'dashboard.inventory.show', params: { inventory: inventory.id } }"
+                :href="`/dashboard/inventory/${inventory.uuid}`"
               >
                 Cancel
               </v-btn>
@@ -274,7 +274,7 @@ const confirmDelete = () => {
   if (confirm(`Are you absolutely sure you want to delete inventory for "${props.inventory.product?.name}"? This action cannot be undone.`)) {
     loading.value = true;
     
-    router.delete(route('dashboard.inventory.destroy', props.inventory.id), {
+    router.delete(route('dashboard.inventory.destroy', props.inventory.uuid), {
       onSuccess: () => {
         // Redirect to inventory index
         router.visit(route('dashboard.inventory.index'));

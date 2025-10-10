@@ -53,7 +53,7 @@
                 size="small"
                 color="primary"
                 variant="outlined"
-                :href="`/dashboard/categories/${item.id}`"
+                :href="`/dashboard/categories/${item.uuid}`"
                 class="mr-2"
               >
                 <v-icon size="small">mdi-eye</v-icon>
@@ -63,7 +63,7 @@
                 size="small"
                 color="warning"
                 variant="outlined"
-                :href="`/dashboard/categories/${item.id}/edit`"
+                :href="`/dashboard/categories/${item.uuid}/edit`"
               >
                 <v-icon size="small">mdi-pencil</v-icon>
                 Edit

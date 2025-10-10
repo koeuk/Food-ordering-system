@@ -109,7 +109,7 @@
                   size="small"
                   color="info"
                   variant="outlined"
-                  :to="{ name: 'dashboard.bills.show', params: { bill: item.id } }"
+                  :href="`/dashboard/bills/${item.uuid}`"
                 >
                   <v-icon size="small">mdi-eye</v-icon>
                 </v-btn>
@@ -207,7 +207,7 @@ const capitalizeStatus = (status) => {
 
 const markAsPaid = (bill) => {
   if (confirm(`Mark bill #${bill.bill_number} as paid?`)) {
-    router.post(route('dashboard.bills.mark-paid', bill.id), {}, {
+    router.post(route('dashboard.bills.mark-paid', bill.uuid), {}, {
       onSuccess: () => {
         // Bill marked as paid
       }
@@ -216,7 +216,7 @@ const markAsPaid = (bill) => {
 };
 
 const downloadBill = (bill) => {
-  window.open(route('dashboard.bills.download', bill.id), '_blank');
+  window.open(route('dashboard.bills.download', bill.uuid), '_blank');
 };
 
 const refreshBills = () => {

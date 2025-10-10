@@ -46,7 +46,7 @@
         <v-card-actions>
           <v-btn
             color="primary"
-            :href="`/dashboard/categories/${category.id}/edit`"
+            :href="`/dashboard/categories/${category.uuid}/edit`"
           >
             <v-icon left>mdi-pencil</v-icon>
             Edit

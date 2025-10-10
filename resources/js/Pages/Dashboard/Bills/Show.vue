@@ -16,7 +16,7 @@
         <div class="d-flex gap-2">
           <v-btn
             color="primary"
-            :to="{ name: 'dashboard.bills.edit', params: { bill: bill.id } }"
+            :href="`/dashboard/bills/${bill.uuid}/edit`"
           >
             <v-icon left>mdi-pencil</v-icon>
             Edit Bill
@@ -236,7 +236,7 @@
                 color="primary"
                 variant="outlined"
                 block
-                :to="{ name: 'dashboard.bills.edit', params: { bill: bill.id } }"
+                :href="`/dashboard/bills/${bill.uuid}/edit`"
               >
                 <v-icon left>mdi-pencil</v-icon>
                 Edit Bill
@@ -370,7 +370,7 @@ const getDueDateClass = (dueDate) => {
 
 const markAsPaid = () => {
   if (confirm(`Mark bill #${props.bill.bill_number} as paid?`)) {
-    router.patch(route('dashboard.bills.update-status', props.bill.id), {
+    router.patch(route('dashboard.bills.update-status', props.bill.uuid), {
       payment_status: 'paid'
     });
   }
@@ -378,14 +378,14 @@ const markAsPaid = () => {
 
 const markAsPending = () => {
   if (confirm(`Mark bill #${props.bill.bill_number} as pending?`)) {
-    router.patch(route('dashboard.bills.update-status', props.bill.id), {
+    router.patch(route('dashboard.bills.update-status', props.bill.uuid), {
       payment_status: 'pending'
     });
   }
 };
 
 const downloadBill = () => {
-  window.open(route('dashboard.bills.download', props.bill.id), '_blank');
+  window.open(route('dashboard.bills.download', props.bill.uuid), '_blank');
 };
 </script>
 

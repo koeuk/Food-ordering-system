@@ -138,7 +138,7 @@ const submit = () => {
   if (!valid.value) return;
   
   processing.value = true;
-  form.put(route('dashboard.categories.update', props.category.id), {
+  form.put(route('dashboard.categories.update', props.category.uuid), {
     onSuccess: () => {
       processing.value = false;
     },
@@ -157,6 +157,6 @@ const deleteCategory = () => {
     return;
   }
 
-  router.delete(route('dashboard.categories.destroy', props.category.id));
+  router.delete(route('dashboard.categories.destroy', props.category.uuid));
 };
 </script>
