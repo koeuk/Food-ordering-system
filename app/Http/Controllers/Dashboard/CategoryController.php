@@ -15,6 +15,7 @@ class CategoryController extends Controller
     public function index(Request $request)
     {
         $categories = Category::query()
+            ->withCount('products')
             ->when($request->search, function ($query, $search) {
                 $query->where('name', 'like', "%{$search}%")
                       ->orWhere('description', 'like', "%{$search}%");
@@ -22,7 +23,7 @@ class CategoryController extends Controller
             ->orderBy('name')
             ->paginate(15);
 
-        return Inertia::render('Categories/Index', [
+        return Inertia::render('Dashboard/Categories/Index', [
             'categories' => $categories,
             'filters' => $request->only(['search']),
         ]);
@@ -33,7 +34,7 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Categories/Create');
+        return Inertia::render('Dashboard/Categories/Create');
     }
 
     /**
@@ -48,7 +49,7 @@ class CategoryController extends Controller
 
         Category::create($validated);
 
-        return redirect()->route('manager.categories.index')
+        return redirect()->route('dashboard.categories.index')
             ->with('success', 'Category created successfully.');
     }
 
@@ -61,7 +62,7 @@ class CategoryController extends Controller
             $query->with('inventory')->latest();
         }]);
 
-        return Inertia::render('Categories/Show', [
+        return Inertia::render('Dashboard/Categories/Show', [
             'category' => $category,
         ]);
     }
@@ -71,7 +72,7 @@ class CategoryController extends Controller
      */
     public function edit(Category $category)
     {
-        return Inertia::render('Categories/Edit', [
+        return Inertia::render('Dashboard/Categories/Edit', [
             'category' => $category,
         ]);
     }
@@ -88,7 +89,7 @@ class CategoryController extends Controller
 
         $category->update($validated);
 
-        return redirect()->route('manager.categories.index')
+        return redirect()->route('dashboard.categories.index')
             ->with('success', 'Category updated successfully.');
     }
 
@@ -99,13 +100,13 @@ class CategoryController extends Controller
     {
         // Check if category has products
         if ($category->products()->count() > 0) {
-            return redirect()->route('manager.categories.index')
+            return redirect()->route('dashboard.categories.index')
                 ->with('error', 'Cannot delete category with existing products.');
         }
 
         $category->delete();
 
-        return redirect()->route('manager.categories.index')
+        return redirect()->route('dashboard.categories.index')
             ->with('success', 'Category deleted successfully.');
     }
 }

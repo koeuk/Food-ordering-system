@@ -26,14 +26,21 @@ Route::get('/', function () {
     ]);
 });
 
-// Auth Routes
-Route::get('/login', function () {
-    return Inertia::render('Web/Auth/Login');
-})->name('login');
+// Role-based Dashboards
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', function () {
+        $user = auth()->user();
+        
+        if ($user->isAdmin()) {
+            return redirect()->route('dashboard.admin');
+        } else {
+            return redirect()->route('dashboard.user');
+        }
+    })->name('dashboard');
 
-Route::get('/register', function () {
-    return Inertia::render('Web/Auth/Register');
-})->name('register');
+    Route::get('/dashboard/user', [DashboardController::class, 'userDashboard'])->name('dashboard.user');
+    Route::get('/dashboard/admin', [DashboardController::class, 'adminDashboard'])->name('dashboard.admin');
+});
 
 // Public Web Routes (Web Interface)
 Route::prefix('web')->name('web.')->group(function () {

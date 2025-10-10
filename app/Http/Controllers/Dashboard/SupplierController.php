@@ -23,7 +23,7 @@ class SupplierController extends Controller
             ->orderBy('name')
             ->paginate(15);
 
-        return Inertia::render('Suppliers/Index', [
+        return Inertia::render('Dashboard/Suppliers/Index', [
             'suppliers' => $suppliers,
             'filters' => $request->only(['search']),
         ]);
@@ -34,7 +34,7 @@ class SupplierController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Suppliers/Create');
+        return Inertia::render('Dashboard/Suppliers/Create');
     }
 
     /**
@@ -52,7 +52,7 @@ class SupplierController extends Controller
 
         Supplier::create($validated);
 
-        return redirect()->route('manager.suppliers.index')
+        return redirect()->route('dashboard.suppliers.index')
             ->with('success', 'Supplier created successfully.');
     }
 
@@ -65,7 +65,7 @@ class SupplierController extends Controller
             $query->with('manager')->latest()->limit(10);
         }]);
 
-        return Inertia::render('Suppliers/Show', [
+        return Inertia::render('Dashboard/Suppliers/Show', [
             'supplier' => $supplier,
         ]);
     }
@@ -75,7 +75,7 @@ class SupplierController extends Controller
      */
     public function edit(Supplier $supplier)
     {
-        return Inertia::render('Suppliers/Edit', [
+        return Inertia::render('Dashboard/Suppliers/Edit', [
             'supplier' => $supplier,
         ]);
     }
@@ -95,7 +95,7 @@ class SupplierController extends Controller
 
         $supplier->update($validated);
 
-        return redirect()->route('manager.suppliers.index')
+        return redirect()->route('dashboard.suppliers.index')
             ->with('success', 'Supplier updated successfully.');
     }
 
@@ -106,13 +106,13 @@ class SupplierController extends Controller
     {
         // Check if supplier has inventory orders
         if ($supplier->inventoryOrders()->count() > 0) {
-            return redirect()->route('manager.suppliers.index')
+            return redirect()->route('dashboard.suppliers.index')
                 ->with('error', 'Cannot delete supplier with existing inventory orders.');
         }
 
         $supplier->delete();
 
-        return redirect()->route('manager.suppliers.index')
+        return redirect()->route('dashboard.suppliers.index')
             ->with('success', 'Supplier deleted successfully.');
     }
 }

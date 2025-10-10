@@ -24,7 +24,7 @@ class OrderController extends Controller
             ->latest()
             ->paginate(10);
 
-        return Inertia::render('Orders/Index', [
+        return Inertia::render('Web/Orders/Index', [
             'orders' => $orders,
         ]);
     }
@@ -147,7 +147,7 @@ class OrderController extends Controller
 
         $order->load(['items.product', 'bill', 'customer']);
 
-        return Inertia::render('Orders/Show', [
+        return Inertia::render('Web/Orders/Show', [
             'order' => $order,
         ]);
     }

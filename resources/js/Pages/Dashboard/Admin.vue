@@ -262,25 +262,25 @@ const quickActions = [
     title: 'Add Product',
     icon: 'mdi-plus',
     color: 'primary',
-    route: { name: 'admin.products.create' }
+    route: { name: 'dashboard.products.create' }
   },
   {
     title: 'Manage Inventory',
     icon: 'mdi-package-variant',
     color: 'info',
-    route: { name: 'admin.inventory.index' }
+    route: { name: 'dashboard.inventory.index' }
   },
   {
     title: 'View Reports',
     icon: 'mdi-chart-bar',
     color: 'success',
-    route: { name: 'admin.reports.sales' }
+    route: { name: 'dashboard.reports.sales' }
   },
   {
     title: 'Order Management',
     icon: 'mdi-clipboard-list',
     color: 'warning',
-    route: { name: 'admin.orders.index' }
+    route: { name: 'dashboard.orders.index' }
   }
 ];
 
@@ -333,6 +333,6 @@ const capitalizeStatus = (status) => {
 
 const restockItem = (itemId) => {
   // Navigate to inventory management page
-  router.visit('/manager/inventory');
+  router.visit(route('dashboard.inventory.index'));
 };
 </script>

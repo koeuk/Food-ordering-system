@@ -34,13 +34,70 @@ class InventoryController extends Controller
         // Get low stock count for alert
         $lowStockCount = Inventory::whereRaw('quantity <= minimum_stock')->count();
 
-        return Inertia::render('Inventory/Index', [
+        return Inertia::render('Dashboard/Inventory/Index', [
             'inventory' => $inventory,
             'lowStockCount' => $lowStockCount,
             'filters' => [
                 'search' => $request->search,
                 'low_stock' => $request->low_stock,
             ],
+        ]);
+    }
+
+    /**
+     * Show the form for creating new inventory
+     */
+    public function create()
+    {
+        // Get products that don't have inventory yet
+        $products = Product::with('category')
+            ->doesntHave('inventory')
+            ->orderBy('name')
+            ->get();
+
+        return Inertia::render('Dashboard/Inventory/Create', [
+            'products' => $products,
+        ]);
+    }
+
+    /**
+     * Store a newly created inventory
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'product_id' => 'required|exists:products,id|unique:inventory,product_id',
+            'quantity' => 'required|integer|min:0',
+            'minimum_stock' => 'required|integer|min:0',
+        ]);
+
+        Inventory::create($validated);
+
+        return redirect()->route('dashboard.inventory.index')
+            ->with('success', 'Inventory created successfully.');
+    }
+
+    /**
+     * Show inventory details
+     */
+    public function show(Inventory $inventory)
+    {
+        $inventory->load(['product.category']);
+
+        return Inertia::render('Dashboard/Inventory/Show', [
+            'inventory' => $inventory,
+        ]);
+    }
+
+    /**
+     * Show edit form
+     */
+    public function edit(Inventory $inventory)
+    {
+        $inventory->load(['product.category']);
+
+        return Inertia::render('Dashboard/Inventory/Edit', [
+            'inventory' => $inventory,
         ]);
     }
 
@@ -71,6 +128,17 @@ class InventoryController extends Controller
         $inventory->increaseQuantity($validated['quantity']);
 
         return back()->with('success', 'Inventory restocked successfully!');
+    }
+
+    /**
+     * Remove the specified inventory from storage
+     */
+    public function destroy(Inventory $inventory)
+    {
+        $inventory->delete();
+
+        return redirect()->route('dashboard.inventory.index')
+            ->with('success', 'Inventory deleted successfully.');
     }
 
     /**

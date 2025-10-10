@@ -101,53 +101,61 @@
       <v-divider></v-divider>
       
       <!-- Navigation Items -->
-      <v-list-item link title="Dashboard" :to="{ name: 'dashboard.admin' }">
+      <v-list-item :to="{ name: 'dashboard.admin' }" link>
         <template v-slot:prepend>
           <v-icon color="white">mdi-view-dashboard</v-icon>
         </template>
+        <v-list-item-title>Dashboard</v-list-item-title>
       </v-list-item>
       
-      <v-list-item link title="Account" :to="{ name: 'profile' }">
+      <v-list-item :to="{ name: 'profile' }" link>
         <template v-slot:prepend>
           <v-icon color="white">mdi-account</v-icon>
         </template>
+        <v-list-item-title>Account</v-list-item-title>
       </v-list-item>
 
       <!-- Dashboard Section -->
-      <v-list-item link title="Products" :to="{ name: 'dashboard.products.index' }">
+      <v-list-item :to="{ name: 'dashboard.products.index' }" link>
         <template v-slot:prepend>
           <v-icon color="white">mdi-food</v-icon>
         </template>
+        <v-list-item-title>Products</v-list-item-title>
       </v-list-item>
       
-      <v-list-item link title="Categories" :to="{ name: 'dashboard.categories.index' }">
+      <v-list-item :to="{ name: 'dashboard.categories.index' }" link>
         <template v-slot:prepend>
           <v-icon color="white">mdi-tag</v-icon>
         </template>
+        <v-list-item-title>Categories</v-list-item-title>
       </v-list-item>
       
-      <v-list-item link title="Inventory" :to="{ name: 'dashboard.inventory.index' }">
+      <v-list-item :to="{ name: 'dashboard.inventory.index' }" link>
         <template v-slot:prepend>
           <v-icon color="white">mdi-package-variant</v-icon>
         </template>
+        <v-list-item-title>Inventory</v-list-item-title>
       </v-list-item>
       
-      <v-list-item link title="Orders" :to="{ name: 'dashboard.orders.index' }">
+      <v-list-item :to="{ name: 'dashboard.orders.index' }" link>
         <template v-slot:prepend>
           <v-icon color="white">mdi-clipboard-list</v-icon>
         </template>
+        <v-list-item-title>Orders</v-list-item-title>
       </v-list-item>
       
-      <v-list-item link title="Suppliers" :to="{ name: 'dashboard.suppliers.index' }">
+      <v-list-item :to="{ name: 'dashboard.suppliers.index' }" link>
         <template v-slot:prepend>
           <v-icon color="white">mdi-truck-delivery</v-icon>
         </template>
+        <v-list-item-title>Suppliers</v-list-item-title>
       </v-list-item>
       
-      <v-list-item link title="Reports" :to="{ name: 'dashboard.reports.sales' }">
+      <v-list-item :to="{ name: 'dashboard.reports.sales' }" link>
         <template v-slot:prepend>
           <v-icon color="white">mdi-chart-line</v-icon>
         </template>
+        <v-list-item-title>Reports</v-list-item-title>
       </v-list-item>
 
       <!-- Logout Button -->
