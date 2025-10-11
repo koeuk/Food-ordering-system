@@ -39,7 +39,7 @@
           Product Information
         </v-card-title>
         <v-card-text>
-          <v-form ref="form" v-model="valid">
+          <v-form ref="formRef" v-model="valid">
             <v-row>
               <!-- Product Name -->
               <v-col cols="12" md="6">
@@ -48,6 +48,7 @@
                   label="Product Name"
                   variant="outlined"
                   :rules="[rules.required]"
+                  :error-messages="form.errors.name"
                   required
                 />
               </v-col>
@@ -62,6 +63,7 @@
                   label="Category"
                   variant="outlined"
                   :rules="[rules.required]"
+                  :error-messages="form.errors.category_id"
                   required
                 />
               </v-col>
@@ -76,6 +78,7 @@
                   prefix="$"
                   variant="outlined"
                   :rules="[rules.required, rules.price]"
+                  :error-messages="form.errors.price"
                   required
                 />
               </v-col>
@@ -96,6 +99,7 @@
                   label="Description"
                   variant="outlined"
                   rows="3"
+                  :error-messages="form.errors.description"
                 />
               </v-col>
 
@@ -123,6 +127,7 @@
                   show-size
                   hint="Leave empty to keep current image"
                   persistent-hint
+                  :error-messages="form.errors.image"
                 />
               </v-col>
 
@@ -149,7 +154,7 @@
                     size="large"
                     :disabled="!valid"
                     @click="submitForm"
-                    :loading="loading"
+                    :loading="form.processing"
                   >
                     <v-icon left>mdi-check</v-icon>
                     Update Product
@@ -158,7 +163,7 @@
                     color="grey"
                     variant="outlined"
                     size="large"
-                    :to="{ name: 'dashboard.products.show', params: { product: product.id } }"
+                    href="/dashboard/products"
                   >
                     Cancel
                   </v-btn>
@@ -174,7 +179,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { Head, router } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 
 const props = defineProps({
@@ -188,7 +193,7 @@ const props = defineProps({
   }
 });
 
-const form = ref({
+const form = useForm({
   name: '',
   category_id: null,
   price: '',
@@ -197,8 +202,8 @@ const form = ref({
   image: null
 });
 
+const formRef = ref(null);
 const valid = ref(false);
-const loading = ref(false);
 
 const rules = {
   required: (value) => !!value || 'This field is required',
@@ -209,47 +214,29 @@ const rules = {
 };
 
 const imagePreview = computed(() => {
-  if (form.value.image && form.value.image.length > 0) {
-    return URL.createObjectURL(form.value.image[0]);
+  if (form.image && form.image.length > 0) {
+    return URL.createObjectURL(form.image[0]);
   }
   return null;
 });
 
 onMounted(() => {
   // Initialize form with current product data
-  form.value.name = props.product.name || '';
-  form.value.category_id = props.product.category_id;
-  form.value.price = props.product.price || '';
-  form.value.description = props.product.description || '';
+  form.name = props.product.name || '';
+  form.category_id = props.product.category_id;
+  form.price = props.product.price || '';
+  form.description = props.product.description || '';
   // Ensure is_available is always a boolean
-  form.value.is_available = Boolean(props.product.is_available);
+  form.is_available = Boolean(props.product.is_available);
 });
 
 const submitForm = () => {
   if (valid.value) {
-    loading.value = true;
-    
-    const formData = new FormData();
-    formData.append('name', form.value.name);
-    formData.append('category_id', form.value.category_id);
-    formData.append('price', form.value.price);
-    formData.append('description', form.value.description);
-    formData.append('is_available', form.value.is_available ? 1 : 0);
-    formData.append('_method', 'PUT');
-    
-    if (form.value.image && form.value.image.length > 0) {
-      formData.append('image', form.value.image[0]);
-    }
-
-    router.post(route('dashboard.products.update', props.product.uuid), formData, {
+    form.post(route('dashboard.products.update', props.product.uuid), {
+      forceFormData: true,
+      _method: 'PUT',
       onSuccess: () => {
         // Product updated successfully
-      },
-      onError: () => {
-        loading.value = false;
-      },
-      onFinish: () => {
-        loading.value = false;
       }
     });
   }

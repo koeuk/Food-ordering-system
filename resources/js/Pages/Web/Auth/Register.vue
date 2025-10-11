@@ -188,8 +188,29 @@ const getRoleDescription = (role) => {
 };
 
 const submit = () => {
+  console.log('Register form submitted');
+  console.log('Form data:', {
+    name: form.name,
+    email: form.email,
+    role: form.role,
+    terms: form.terms
+  });
+  console.log('Route:', route('register'));
+  
   form.post(route('register'), {
-    onFinish: () => form.reset('password', 'password_confirmation'),
+    onStart: () => {
+      console.log('Register request started');
+    },
+    onSuccess: (page) => {
+      console.log('Register successful', page);
+    },
+    onError: (errors) => {
+      console.error('Register error:', errors);
+    },
+    onFinish: () => {
+      console.log('Register request finished');
+      form.reset('password', 'password_confirmation');
+    },
   });
 };
 </script>

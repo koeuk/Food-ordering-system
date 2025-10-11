@@ -17,13 +17,14 @@
           Category Details
         </v-card-title>
         <v-card-text>
-          <v-form ref="form" v-model="valid" @submit.prevent="submit">
+          <v-form ref="formRef" v-model="valid" @submit.prevent="submit">
             <v-row>
               <v-col cols="12" md="6">
                 <v-text-field
                   v-model="form.name"
                   label="Category Name"
                   :rules="nameRules"
+                  :error-messages="form.errors.name"
                   required
                   variant="outlined"
                 />
@@ -33,6 +34,7 @@
                   v-model="form.slug"
                   label="Slug"
                   :rules="slugRules"
+                  :error-messages="form.errors.slug"
                   required
                   variant="outlined"
                 />
@@ -43,6 +45,7 @@
                   label="Description"
                   variant="outlined"
                   rows="3"
+                  :error-messages="form.errors.description"
                 />
               </v-col>
               <v-col cols="12">
@@ -50,6 +53,7 @@
                   v-model="form.is_active"
                   label="Active"
                   color="primary"
+                  :error-messages="form.errors.is_active"
                 />
               </v-col>
             </v-row>
@@ -58,7 +62,7 @@
               <v-btn
                 type="submit"
                 color="primary"
-                :loading="processing"
+                :loading="form.processing"
                 :disabled="!valid"
               >
                 <v-icon left>mdi-content-save</v-icon>
@@ -103,7 +107,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, onMounted } from 'vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 
@@ -114,14 +118,22 @@ const props = defineProps({
   },
 });
 
+const formRef = ref(null);
 const valid = ref(false);
-const processing = ref(false);
 
 const form = useForm({
-  name: props.category.name,
-  slug: props.category.slug,
-  description: props.category.description || '',
-  is_active: props.category.is_active ?? true,
+  name: '',
+  slug: '',
+  description: '',
+  is_active: true,
+});
+
+// Initialize form with category data
+onMounted(() => {
+  form.name = props.category.name || '';
+  form.slug = props.category.slug || '';
+  form.description = props.category.description || '';
+  form.is_active = Boolean(props.category.is_active ?? true);
 });
 
 const nameRules = [
@@ -137,13 +149,12 @@ const slugRules = [
 const submit = () => {
   if (!valid.value) return;
   
-  processing.value = true;
   form.put(route('dashboard.categories.update', props.category.uuid), {
     onSuccess: () => {
-      processing.value = false;
+      // Category updated successfully
     },
     onError: () => {
-      processing.value = false;
+      // Handle errors
     },
   });
 };

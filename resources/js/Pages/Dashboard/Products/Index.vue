@@ -1,5 +1,6 @@
 <template>
   <DashboardLayout>
+
     <Head title="Products Management" />
 
     <v-container>
@@ -26,21 +27,12 @@
           Products List
         </v-card-title>
         <v-card-text>
-          <v-data-table
-            :headers="headers"
-            :items="products.data || []"
-            :loading="loading"
-            class="elevation-0"
-          >
+          <v-data-table :headers="headers" :items="products.data || []" :loading="loading" class="elevation-0">
             <!-- Product Image & Name -->
             <template v-slot:item.name="{ item }">
               <div class="d-flex align-center py-2">
                 <v-avatar size="40" class="mr-3">
-                  <v-img
-                    v-if="item.image_url"
-                    :src="item.image_url"
-                    :alt="item.name"
-                  />
+                  <v-img v-if="item.image_url" :src="item.image_url" :alt="item.name" />
                   <v-icon v-else>mdi-food</v-icon>
                 </v-avatar>
                 <span class="font-weight-medium">{{ item.name }}</span>
@@ -49,12 +41,7 @@
 
             <!-- Category -->
             <template v-slot:item.category="{ item }">
-              <v-chip
-                v-if="item.category"
-                color="primary"
-                size="small"
-                variant="outlined"
-              >
+              <v-chip v-if="item.category" color="primary" size="small" variant="outlined">
                 {{ item.category.name }}
               </v-chip>
             </template>
@@ -66,11 +53,7 @@
 
             <!-- Availability -->
             <template v-slot:item.is_available="{ item }">
-              <v-chip 
-                :color="item.is_available ? 'success' : 'error'" 
-                size="small"
-                variant="flat"
-              >
+              <v-chip :color="item.is_available ? 'success' : 'error'" size="small" variant="flat">
                 {{ item.is_available ? 'Available' : 'Unavailable' }}
               </v-chip>
             </template>
@@ -78,28 +61,13 @@
             <!-- Actions -->
             <template v-slot:item.actions="{ item }">
               <div class="d-flex gap-2">
-                <v-btn
-                  size="small"
-                  color="info"
-                  variant="outlined"
-                  :href="`/dashboard/products/${item.uuid}`"
-                >
+                <v-btn size="small" color="info" variant="outlined" :href="`/dashboard/products/${item.uuid}`">
                   <v-icon size="small">mdi-eye</v-icon>
                 </v-btn>
-                <v-btn
-                  size="small"
-                  color="primary"
-                  variant="outlined"
-                  :href="`/dashboard/products/${item.uuid}/edit`"
-                >
+                <v-btn size="small" color="primary" variant="outlined" :href="`/dashboard/products/${item.uuid}/edit`">
                   <v-icon size="small">mdi-pencil</v-icon>
                 </v-btn>
-                <v-btn
-                  size="small"
-                  color="error"
-                  variant="outlined"
-                  @click="deleteProduct(item)"
-                >
+                <v-btn size="small" color="error" variant="outlined" @click="deleteProduct(item)">
                   <v-icon size="small">mdi-delete</v-icon>
                 </v-btn>
               </div>
@@ -112,40 +80,39 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { Head, router } from '@inertiajs/vue3';
-import DashboardLayout from '@/Layouts/DashboardLayout.vue';
+  import { ref } from 'vue';
+  import { Head, router } from '@inertiajs/vue3';
+  import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 
-const props = defineProps({
-  products: {
-    type: Object,
-    default: () => ({ data: [] })
-  }
-});
+  const props = defineProps({
+    products: {
+      type: Object,
+      default: () => ({ data: [] })
+    }
+  });
 
-const loading = ref(false);
+  const loading = ref(false);
 
-const headers = [
-  { title: 'Product', key: 'name', sortable: true },
-  { title: 'Category', key: 'category', sortable: false },
-  { title: 'Price', key: 'price', sortable: true },
-  { title: 'Status', key: 'is_available', sortable: true },
-  { title: 'Actions', key: 'actions', sortable: false }
-];
+  const headers = [
+    { title: 'Product', key: 'name', sortable: true },
+    { title: 'Category', key: 'category', sortable: false },
+    { title: 'Price', key: 'price', sortable: true },
+    { title: 'Status', key: 'is_available', sortable: true },
+    { title: 'Actions', key: 'actions', sortable: false }
+  ];
 
-const formatPrice = (price) => {
-  const numPrice = typeof price === 'number' ? price : parseFloat(price);
-  return numPrice.toFixed(2);
-};
+  const formatPrice = (price) => {
+    const numPrice = typeof price === 'number' ? price : parseFloat(price);
+    return numPrice.toFixed(2);
+  };
 
-const deleteProduct = (product) => {
-  if (confirm(`Are you sure you want to delete "${product.name}"?`)) {
-    router.delete(`/dashboard/products/${product.uuid}`, {
-      onSuccess: () => {
-        // Product deleted successfully
-      }
-    });
-  }
-};
+  const deleteProduct = (product) => {
+    if (confirm(`Are you sure you want to delete "${product.name}"?`)) {
+      router.delete(`/dashboard/products/${product.uuid}`, {
+        onSuccess: () => {
+          // Product deleted successfully
+        }
+      });
+    }
+  };
 </script>
-

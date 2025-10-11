@@ -118,8 +118,28 @@ const fillDemoCredentials = (role) => {
 };
 
 const submit = () => {
+  console.log('Login form submitted');
+  console.log('Form data:', {
+    email: form.email,
+    password: form.password ? '***' : '',
+    remember: form.remember
+  });
+  console.log('Route:', route('login'));
+  
   form.post(route('login'), {
-    onFinish: () => form.reset('password'),
+    onStart: () => {
+      console.log('Login request started');
+    },
+    onSuccess: (page) => {
+      console.log('Login successful', page);
+    },
+    onError: (errors) => {
+      console.error('Login error:', errors);
+    },
+    onFinish: () => {
+      console.log('Login request finished');
+      form.reset('password');
+    },
   });
 };
 </script>

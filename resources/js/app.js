@@ -4,6 +4,7 @@ import '../css/app.css';
 import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import { createVuetify } from 'vuetify';
 import { createPinia } from 'pinia';
 
@@ -81,6 +82,7 @@ createInertiaApp({
     setup({ el, App, props, plugin }) {
         return createApp({ render: () => h(App, props) })
             .use(plugin)
+            .use(ZiggyVue)
             .use(vuetify)
             .use(pinia)
             .mount(el);
@@ -93,16 +95,13 @@ createInertiaApp({
 // Configure Inertia.js to include CSRF token
 import { router } from '@inertiajs/vue3';
 
-// Get CSRF token from meta tag
+// Get CSRF token from meta tag and configure it globally
 const token = document.head.querySelector('meta[name="csrf-token"]');
 
 if (token) {
-    // Configure global headers for all Inertia requests
-    router.on('before', (event) => {
-        event.detail.visit.headers = {
-            ...event.detail.visit.headers,
-            'X-CSRF-TOKEN': token.content,
-        };
-    });
+    // Set default headers for all Inertia requests
+    router.defaults.headers = {
+        'X-CSRF-TOKEN': token.content,
+    };
 }
 
