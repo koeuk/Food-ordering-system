@@ -167,6 +167,15 @@ const isEdit = computed(() => !!props.inventory);
 const formRef = ref(null);
 const valid = ref(false);
 
+// Get selected product name for display
+const selectedProductName = computed(() => {
+  if (form.product_id) {
+    const product = props.products.find(p => p.id === form.product_id);
+    return product ? product.name : '';
+  }
+  return '';
+});
+
 const form = useForm({
   product_id: null,
   quantity: '',
@@ -197,7 +206,15 @@ onMounted(() => {
     form.minimum_stock = props.inventory.minimum_stock || '';
     form.unit = props.inventory.unit || 'pieces';
     form.location = props.inventory.location || '';
-    form.expiry_date = props.inventory.expiry_date || '';
+    
+    // Format date for HTML date input (YYYY-MM-DD)
+    if (props.inventory.expiry_date) {
+      const date = new Date(props.inventory.expiry_date);
+      form.expiry_date = date.toISOString().split('T')[0];
+    } else {
+      form.expiry_date = '';
+    }
+    
     form.notes = props.inventory.notes || '';
   }
 });
@@ -217,18 +234,28 @@ const rules = {
 const submitForm = () => {
   if (!valid.value) return;
   
+  // Prepare form data with proper date formatting
+  const formData = {
+    ...form.data(),
+    // Ensure date is properly formatted for database storage
+    expiry_date: form.expiry_date || null
+  };
+  
   if (isEdit.value) {
     // Update existing inventory
-    form.put(route('dashboard.inventory.update', props.inventory.uuid), {
+    form.put(`/dashboard/inventory/${props.inventory.uuid}`, formData, {
       onSuccess: () => {
-        // Inventory updated successfully
+        // Redirect to inventory index page after successful update
+        window.location.href = '/dashboard/inventory';
       }
     });
   } else {
     // Create new inventory
-    form.post(route('dashboard.inventory.store'), {
+    form.post('/dashboard/inventory', formData, {
       onSuccess: () => {
         form.reset();
+        // Redirect to inventory index page after successful creation
+        window.location.href = '/dashboard/inventory';
       }
     });
   }

@@ -163,20 +163,42 @@
       <!-- Restock Dialog -->
       <v-dialog v-model="restockDialog" max-width="500">
         <v-card>
-          <v-card-title>Restock Item</v-card-title>
+          <v-card-title class="d-flex align-center">
+            <v-icon left color="success">mdi-plus</v-icon>
+            Restock Item
+          </v-card-title>
           <v-card-text>
+            <div v-if="selectedItem" class="mb-4">
+              <p class="text-subtitle-2 mb-2">Product: {{ selectedItem.product?.name }}</p>
+              <p class="text-body-2 text-grey-darken-1 mb-2">
+                Current Stock: {{ selectedItem.quantity }} units
+              </p>
+              <p class="text-body-2 text-grey-darken-1">
+                Minimum Stock: {{ selectedItem.minimum_stock }} units
+              </p>
+            </div>
             <v-text-field
               v-model="restockQuantity"
               label="Quantity to Add"
               type="number"
               variant="outlined"
               min="1"
+              :rules="[v => !!v || 'Quantity is required', v => v > 0 || 'Quantity must be greater than 0']"
+              required
             />
           </v-card-text>
           <v-card-actions>
             <v-spacer />
-            <v-btn @click="restockDialog = false">Cancel</v-btn>
-            <v-btn color="primary" @click="confirmRestock">Confirm</v-btn>
+            <v-btn @click="closeRestockDialog">Cancel</v-btn>
+            <v-btn 
+              color="success" 
+              @click="confirmRestock"
+              :disabled="!restockQuantity || restockQuantity <= 0"
+              :loading="restockLoading"
+            >
+              <v-icon left>mdi-check</v-icon>
+              Confirm Restock
+            </v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -213,6 +235,7 @@ const loading = ref(false);
 const restockDialog = ref(false);
 const restockQuantity = ref(0);
 const selectedItem = ref(null);
+const restockLoading = ref(false);
 
 // Delete dialog state
 const deleteDialog = ref(false);
@@ -246,11 +269,39 @@ const getStockStatus = (quantity, minStock) => {
 };
 
 const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString('en-US', {
+  if (!dateString) return 'Never';
+  
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInHours = Math.floor((now - date) / (1000 * 60 * 60));
+  
+  // Format date part
+  const datePart = date.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric'
   });
+  
+  // Format time part
+  const timePart = date.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+  
+  // If it's today, show date + time + (Today)
+  if (diffInHours < 24 && date.toDateString() === now.toDateString()) {
+    return `${datePart} ${timePart} (Today)`;
+  }
+  
+  // If it's yesterday, show date + time + (Yesterday)
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+  if (date.toDateString() === yesterday.toDateString()) {
+    return `${datePart} ${timePart} (Yesterday)`;
+  }
+  
+  // For all other cases, show date + time
+  return `${datePart} ${timePart}`;
 };
 
 const openRestockDialog = (item) => {
@@ -259,15 +310,37 @@ const openRestockDialog = (item) => {
   restockDialog.value = true;
 };
 
+const closeRestockDialog = () => {
+  restockDialog.value = false;
+  selectedItem.value = null;
+  restockQuantity.value = 0;
+  restockLoading.value = false;
+};
+
 const confirmRestock = () => {
   if (selectedItem.value && restockQuantity.value > 0) {
-    router.post(route('dashboard.inventory.restock', selectedItem.value.id), {
+    restockLoading.value = true;
+    
+    router.post(`/dashboard/inventory/${selectedItem.value.uuid}/restock`, {
       quantity: restockQuantity.value
     }, {
+      onStart: () => {
+        restockLoading.value = true;
+      },
       onSuccess: () => {
         restockDialog.value = false;
         selectedItem.value = null;
         restockQuantity.value = 0;
+        restockLoading.value = false;
+        // Reload the page to show updated inventory
+        router.reload({ only: ['inventory', 'stats'] });
+      },
+      onError: (errors) => {
+        console.error('Restock error:', errors);
+        restockLoading.value = false;
+      },
+      onFinish: () => {
+        restockLoading.value = false;
       }
     });
   }

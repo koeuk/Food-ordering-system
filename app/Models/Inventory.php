@@ -16,11 +16,16 @@ class Inventory extends Model
         'product_id',
         'quantity',
         'minimum_stock',
+        'unit',
+        'location',
+        'expiry_date',
+        'notes',
         'last_restocked_at',
     ];
 
     protected $casts = [
         'last_restocked_at' => 'datetime',
+        'expiry_date' => 'date',
     ];
 
     /**
@@ -57,6 +62,7 @@ class Inventory extends Model
     public function decreaseQuantity($amount)
     {
         $this->quantity -= $amount;
+        $this->touch(); // Explicitly update the updated_at timestamp
         return $this->save();
     }
 
@@ -67,6 +73,7 @@ class Inventory extends Model
     {
         $this->quantity += $amount;
         $this->last_restocked_at = now();
+        $this->touch(); // Explicitly update the updated_at timestamp
         return $this->save();
     }
 

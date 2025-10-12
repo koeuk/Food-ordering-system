@@ -115,7 +115,6 @@ const categoryToDelete = ref(null);
 
 const headers = [
   { title: 'Name', key: 'name', sortable: true },
-  { title: 'Slug', key: 'slug', sortable: true },
   { title: 'Status', key: 'is_active', sortable: true },
   { title: 'Products', key: 'products_count', sortable: true },
   { title: 'Actions', key: 'actions', sortable: false, align: 'end' }

@@ -31,12 +31,17 @@ class InventoryController extends Controller
 
         $inventory = $query->paginate(15);
 
-        // Get low stock count for alert
-        $lowStockCount = Inventory::whereRaw('quantity <= minimum_stock')->count();
+        // Calculate inventory statistics
+        $stats = [
+            'in_stock' => Inventory::whereRaw('quantity > minimum_stock')->count(),
+            'low_stock' => Inventory::whereRaw('quantity <= minimum_stock AND quantity > 0')->count(),
+            'out_of_stock' => Inventory::where('quantity', 0)->count(),
+        ];
 
         return Inertia::render('Dashboard/Inventory/Index', [
             'inventory' => $inventory,
-            'lowStockCount' => $lowStockCount,
+            'stats' => $stats,
+            'lowStockCount' => $stats['low_stock'],
             'filters' => [
                 'search' => $request->search,
                 'low_stock' => $request->low_stock,
@@ -69,6 +74,10 @@ class InventoryController extends Controller
             'product_id' => 'required|exists:products,id|unique:inventory,product_id',
             'quantity' => 'required|integer|min:0',
             'minimum_stock' => 'required|integer|min:0',
+            'unit' => 'nullable|string|max:50',
+            'location' => 'nullable|string|max:255',
+            'expiry_date' => 'nullable|date',
+            'notes' => 'nullable|string',
         ]);
 
         Inventory::create($validated);
@@ -95,9 +104,13 @@ class InventoryController extends Controller
     public function edit(Inventory $inventory)
     {
         $inventory->load(['product.category']);
+        
+        // Get all products for the dropdown (including the current one)
+        $products = Product::with('category')->orderBy('name')->get();
 
         return Inertia::render('Dashboard/Inventory/Edit', [
             'inventory' => $inventory,
+            'products' => $products,
         ]);
     }
 
@@ -109,11 +122,17 @@ class InventoryController extends Controller
         $validated = $request->validate([
             'quantity' => 'required|integer|min:0',
             'minimum_stock' => 'required|integer|min:0',
+            'unit' => 'nullable|string|max:50',
+            'location' => 'nullable|string|max:255',
+            'expiry_date' => 'nullable|date',
+            'notes' => 'nullable|string',
         ]);
 
         $inventory->update($validated);
+        $inventory->touch(); // Explicitly update the updated_at timestamp
 
-        return back()->with('success', 'Inventory updated successfully!');
+        return redirect()->route('dashboard.inventory.index')
+            ->with('success', 'Inventory updated successfully!');
     }
 
     /**
