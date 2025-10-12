@@ -52,4 +52,35 @@ class ProductController extends Controller
             'product' => $product,
         ]);
     }
+
+    /**
+     * Get a random product for "Add Random Product" functionality
+     */
+    public function random()
+    {
+        $randomProduct = Product::where('is_available', true)
+            ->inRandomOrder()
+            ->with(['category'])
+            ->first();
+
+        return response()->json($randomProduct);
+    }
+
+    /**
+     * Get related products (same category, excluding current product)
+     */
+    public function related(Product $product)
+    {
+        $relatedProducts = Product::where('is_available', true)
+            ->where('category_id', $product->category_id)
+            ->where('id', '!=', $product->id)
+            ->with(['category'])
+            ->inRandomOrder()
+            ->limit(3)
+            ->get();
+
+        return response()->json([
+            'related_products' => $relatedProducts
+        ]);
+    }
 }

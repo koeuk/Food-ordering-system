@@ -60,7 +60,9 @@ Route::middleware(['auth'])->group(function () {
 Route::prefix('web')->name('web.')->group(function () {
     // Products (Public Menu)
     Route::get('/products', [WebProductController::class, 'index'])->name('products.index');
-    Route::get('/products/{product}', [WebProductController::class, 'show'])->name('products.show');
+    Route::get('/products/{product:uuid}', [WebProductController::class, 'show'])->name('products.show');
+    Route::get('/products/random', [WebProductController::class, 'random'])->name('products.random');
+    Route::get('/products/related/{product:uuid}', [WebProductController::class, 'related'])->name('products.related');
     
     // Orders (User Orders)
     Route::get('/orders', [WebOrderController::class, 'index'])->name('orders.index');

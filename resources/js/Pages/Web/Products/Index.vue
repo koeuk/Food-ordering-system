@@ -12,6 +12,18 @@
           Browse our delicious selection
         </p>
       </div>
+      <div>
+        <v-btn 
+          color="info" 
+          variant="outlined"
+          size="large"
+          @click="addRandomProduct"
+          class="mb-2"
+        >
+          <v-icon left>mdi-dice-6</v-icon>
+          Add Random Product
+        </v-btn>
+      </div>
     </div>
 
     <!-- Search and Filters -->
@@ -94,7 +106,7 @@
                 <v-btn 
                   color="primary" 
                   variant="outlined"
-                  :to="{ name: 'web.products.show', params: { product: product.id } }"
+                  :href="`/web/products/${product.uuid}`"
                 >
                   View Details
                 </v-btn>
@@ -169,7 +181,7 @@ const getCategoryColor = (categoryName) => {
 };
 
 const handleFilter = () => {
-  router.get(route('web.products.index'), {
+  router.get('/web/products', {
     search: search.value,
     category_id: categoryId.value
   }, {
@@ -178,7 +190,7 @@ const handleFilter = () => {
 };
 
 const handlePageChange = (page) => {
-  router.get(route('web.products.index'), {
+  router.get('/web/products', {
     page: page,
     search: search.value,
     category_id: categoryId.value
@@ -193,6 +205,24 @@ const addToCart = (product) => {
   // You can implement cart functionality here
   // For now, we'll show a success message
   alert(`${product.name} added to cart!`);
+};
+
+const addRandomProduct = async () => {
+  try {
+    // Fetch a random product
+    const response = await fetch('/web/products/random');
+    const randomProduct = await response.json();
+    
+    if (randomProduct) {
+      console.log('Adding random product to cart:', randomProduct.name);
+      alert(`Random product "${randomProduct.name}" added to cart!`);
+    } else {
+      alert('No products available to add randomly.');
+    }
+  } catch (error) {
+    console.error('Error adding random product:', error);
+    alert('Error adding random product. Please try again.');
+  }
 };
 </script>
 
