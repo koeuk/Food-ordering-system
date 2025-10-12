@@ -74,7 +74,7 @@
                 </template>
                 <v-list-item-title>Dashboard</v-list-item-title>
               </v-list-item>
-              <v-list-item :to="{ name: 'profile.edit' }">
+              <v-list-item href="/profile">
                 <v-list-item-title>Profile</v-list-item-title>
               </v-list-item>
               <v-divider />
@@ -85,10 +85,10 @@
           </v-menu>
         </template>
         <template v-else>
-          <v-btn variant="text" dark :to="{ name: 'login' }" class="mx-1">
+          <v-btn variant="text" dark href="/login" class="mx-1">
             Login
           </v-btn>
-          <v-btn variant="outlined" dark :to="{ name: 'register' }" class="mx-1">
+          <v-btn variant="outlined" dark href="/register" class="mx-1">
             Register
           </v-btn>
         </template>
@@ -160,7 +160,7 @@
             </template>
             <v-list-item-title>Dashboard</v-list-item-title>
           </v-list-item>
-          <v-list-item :to="{ name: 'profile.edit' }">
+          <v-list-item href="/profile">
             <v-list-item-title>Profile</v-list-item-title>
           </v-list-item>
           <v-list-item @click="logout">
@@ -169,10 +169,10 @@
         </template>
         <template v-else>
           <v-divider />
-          <v-list-item :to="{ name: 'login' }">
+          <v-list-item href="/login">
             <v-list-item-title>Login</v-list-item-title>
           </v-list-item>
-          <v-list-item :to="{ name: 'register' }">
+          <v-list-item href="/register">
             <v-list-item-title>Register</v-list-item-title>
           </v-list-item>
         </template>
@@ -231,6 +231,11 @@
   };
 
   const logout = () => {
-    router.post('/logout');
+    router.post('/logout', {}, {
+      onSuccess: () => {
+        // Redirect to home page after logout
+        window.location.href = '/';
+      }
+    });
   };
 </script>

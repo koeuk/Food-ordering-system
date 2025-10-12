@@ -195,9 +195,8 @@ const submit = () => {
     role: form.role,
     terms: form.terms
   });
-  console.log('Route:', route('register'));
   
-  form.post(route('register'), {
+  form.post('/register', {
     onStart: () => {
       console.log('Register request started');
     },

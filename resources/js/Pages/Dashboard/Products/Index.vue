@@ -61,13 +61,36 @@
             <!-- Actions -->
             <template v-slot:item.actions="{ item }">
               <div class="d-flex gap-2">
-                <v-btn size="small" color="info" variant="outlined" :href="`/dashboard/products/${item.uuid}`">
+                <!-- View Button -->
+                <v-btn 
+                  size="small" 
+                  color="info" 
+                  variant="outlined" 
+                  :href="`/dashboard/products/${item.uuid}`"
+                  title="View Details"
+                >
                   <v-icon size="small">mdi-eye</v-icon>
                 </v-btn>
-                <v-btn size="small" color="primary" variant="outlined" :href="`/dashboard/products/${item.uuid}/edit`">
+                
+                <!-- Edit Button -->
+                <v-btn 
+                  size="small" 
+                  color="primary" 
+                  variant="outlined" 
+                  :href="`/dashboard/products/${item.uuid}/edit`"
+                  title="Edit Product"
+                >
                   <v-icon size="small">mdi-pencil</v-icon>
                 </v-btn>
-                <v-btn size="small" color="error" variant="outlined" @click="deleteProduct(item)">
+                
+                <!-- Delete Button (Parent Activator) -->
+                <v-btn 
+                  size="small" 
+                  color="error" 
+                  variant="outlined" 
+                  @click="openDeleteDialog(item)"
+                  title="Delete Product"
+                >
                   <v-icon size="small">mdi-delete</v-icon>
                 </v-btn>
               </div>
@@ -76,43 +99,76 @@
         </v-card-text>
       </v-card>
     </v-container>
+
+    <!-- Delete Confirmation Dialog -->
+    <DeleteDialog
+      v-if="productToDelete"
+      v-model="deleteDialog"
+      :product="productToDelete"
+      :stats="productStats"
+      @deleted="handleProductDeleted"
+    />
   </DashboardLayout>
 </template>
 
 <script setup>
-  import { ref } from 'vue';
-  import { Head, router } from '@inertiajs/vue3';
-  import DashboardLayout from '@/Layouts/DashboardLayout.vue';
+import { ref } from 'vue';
+import { Head, router } from '@inertiajs/vue3';
+import DashboardLayout from '@/Layouts/DashboardLayout.vue';
+import DeleteDialog from '@/Components/Dashboard/Products/DeleteDialog.vue';
 
-  const props = defineProps({
-    products: {
-      type: Object,
-      default: () => ({ data: [] })
-    }
-  });
+const props = defineProps({
+  products: {
+    type: Object,
+    default: () => ({ data: [] })
+  }
+});
 
-  const loading = ref(false);
+const loading = ref(false);
 
-  const headers = [
-    { title: 'Product', key: 'name', sortable: true },
-    { title: 'Category', key: 'category', sortable: false },
-    { title: 'Price', key: 'price', sortable: true },
-    { title: 'Status', key: 'is_available', sortable: true },
-    { title: 'Actions', key: 'actions', sortable: false }
-  ];
+// Delete dialog state
+const deleteDialog = ref(false);
+const productToDelete = ref(null);
+const productStats = ref({
+  orders_count: 0,
+  total_revenue: 0
+});
 
-  const formatPrice = (price) => {
-    const numPrice = typeof price === 'number' ? price : parseFloat(price);
-    return numPrice.toFixed(2);
+const headers = [
+  { title: 'Product', key: 'name', sortable: true },
+  { title: 'Category', key: 'category', sortable: false },
+  { title: 'Price', key: 'price', sortable: true },
+  { title: 'Status', key: 'is_available', sortable: true },
+  { title: 'Actions', key: 'actions', sortable: false, align: 'end' }
+];
+
+const formatPrice = (price) => {
+  const numPrice = typeof price === 'number' ? price : parseFloat(price);
+  return numPrice.toFixed(2);
+};
+
+// Open delete dialog (Parent Activator Pattern)
+const openDeleteDialog = (product) => {
+  productToDelete.value = product;
+  
+  // Optionally fetch product stats for deletion impact
+  // For now, use mock data
+  productStats.value = {
+    orders_count: Math.floor(Math.random() * 20),
+    total_revenue: (Math.random() * 500).toFixed(2)
   };
+  
+  // Open dialog
+  deleteDialog.value = true;
+};
 
-  const deleteProduct = (product) => {
-    if (confirm(`Are you sure you want to delete "${product.name}"?`)) {
-      router.delete(`/dashboard/products/${product.uuid}`, {
-        onSuccess: () => {
-          // Product deleted successfully
-        }
-      });
-    }
-  };
+// Handle successful deletion
+const handleProductDeleted = () => {
+  // Reload products data
+  router.reload({ only: ['products'] });
+  
+  // Reset state
+  productToDelete.value = null;
+  productStats.value = { orders_count: 0, total_revenue: 0 };
+};
 </script>

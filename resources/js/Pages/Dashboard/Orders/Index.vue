@@ -26,7 +26,7 @@
             <v-card-text>
               <div class="d-flex align-center justify-space-between">
                 <div>
-                  <div class="text-h6 font-weight-bold">{{ stats.total || 0 }}</div>
+                  <div class="text-h6 font-weight-bold">{{ (stats && stats.total) || 0 }}</div>
                   <div class="text-caption">All Orders</div>
                 </div>
                 <v-icon size="40" color="primary">mdi-clipboard-list</v-icon>
@@ -39,7 +39,7 @@
             <v-card-text>
               <div class="d-flex align-center justify-space-between">
                 <div>
-                  <div class="text-h6 font-weight-bold">{{ stats.pending || 0 }}</div>
+                  <div class="text-h6 font-weight-bold">{{ (stats && stats.pending) || 0 }}</div>
                   <div class="text-caption">Pending</div>
                 </div>
                 <v-icon size="40" color="warning">mdi-clock-outline</v-icon>
@@ -52,7 +52,7 @@
             <v-card-text>
               <div class="d-flex align-center justify-space-between">
                 <div>
-                  <div class="text-h6 font-weight-bold">{{ stats.preparing || 0 }}</div>
+                  <div class="text-h6 font-weight-bold">{{ (stats && stats.preparing) || 0 }}</div>
                   <div class="text-caption">Preparing</div>
                 </div>
                 <v-icon size="40" color="info">mdi-chef-hat</v-icon>
@@ -65,7 +65,7 @@
             <v-card-text>
               <div class="d-flex align-center justify-space-between">
                 <div>
-                  <div class="text-h6 font-weight-bold">{{ stats.delivered || 0 }}</div>
+                  <div class="text-h6 font-weight-bold">{{ (stats && stats.delivered) || 0 }}</div>
                   <div class="text-caption">Delivered</div>
                 </div>
                 <v-icon size="40" color="success">mdi-check-circle</v-icon>
@@ -139,21 +139,42 @@
                     </v-btn>
                   </template>
                   <v-list>
-                    <v-list-item @click="updateOrderStatus(item, 'confirmed')">
+                    <v-list-item @click="openStatusDialog(item, 'confirm')">
+                      <template v-slot:prepend>
+                        <v-icon color="info">mdi-check</v-icon>
+                      </template>
                       <v-list-item-title>Confirm Order</v-list-item-title>
                     </v-list-item>
-                    <v-list-item @click="updateOrderStatus(item, 'preparing')">
+                    <v-list-item @click="openStatusDialog(item, 'preparing')">
+                      <template v-slot:prepend>
+                        <v-icon color="info">mdi-chef-hat</v-icon>
+                      </template>
                       <v-list-item-title>Mark as Preparing</v-list-item-title>
                     </v-list-item>
-                    <v-list-item @click="updateOrderStatus(item, 'ready')">
+                    <v-list-item @click="openStatusDialog(item, 'ready')">
+                      <template v-slot:prepend>
+                        <v-icon color="success">mdi-check-circle</v-icon>
+                      </template>
                       <v-list-item-title>Mark as Ready</v-list-item-title>
                     </v-list-item>
-                    <v-list-item @click="updateOrderStatus(item, 'delivered')">
+                    <v-list-item @click="openStatusDialog(item, 'delivered')">
+                      <template v-slot:prepend>
+                        <v-icon color="success">mdi-truck-delivery</v-icon>
+                      </template>
                       <v-list-item-title>Mark as Delivered</v-list-item-title>
                     </v-list-item>
                     <v-divider />
-                    <v-list-item @click="cancelOrder(item)" class="text-error">
-                      <v-list-item-title>Cancel Order</v-list-item-title>
+                    <v-list-item @click="openStatusDialog(item, 'cancel')">
+                      <template v-slot:prepend>
+                        <v-icon color="warning">mdi-cancel</v-icon>
+                      </template>
+                      <v-list-item-title class="text-warning">Cancel Order</v-list-item-title>
+                    </v-list-item>
+                    <v-list-item @click="openDeleteDialog(item)">
+                      <template v-slot:prepend>
+                        <v-icon color="error">mdi-delete</v-icon>
+                      </template>
+                      <v-list-item-title class="text-error">Delete Order</v-list-item-title>
                     </v-list-item>
                   </v-list>
                 </v-menu>
@@ -163,6 +184,23 @@
         </v-card-text>
       </v-card>
     </v-container>
+
+    <!-- Delete Confirmation Dialog -->
+    <DeleteDialog
+      v-if="orderToDelete"
+      v-model="deleteDialog"
+      :order="orderToDelete"
+      @deleted="handleOrderDeleted"
+    />
+
+    <!-- Status Change Confirmation Dialog -->
+    <StatusChangeDialog
+      v-if="orderForStatusChange"
+      v-model="statusDialog"
+      :order="orderForStatusChange"
+      :status-action="statusAction"
+      @success="handleStatusChangeSuccess"
+    />
   </DashboardLayout>
 </template>
 
@@ -171,6 +209,8 @@ import { ref, computed } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 import OrderStatusChip from '@/Components/Dashboard/OrderStatusChip.vue';
+import DeleteDialog from '@/Components/Dashboard/Orders/DeleteDialog.vue';
+import StatusChangeDialog from '@/Components/Dashboard/Orders/StatusChangeDialog.vue';
 
 const props = defineProps({
   orders: {
@@ -185,6 +225,15 @@ const props = defineProps({
 
 const loading = ref(false);
 const statusFilter = ref('all');
+
+// Delete dialog state
+const deleteDialog = ref(false);
+const orderToDelete = ref(null);
+
+// Status change dialog state
+const statusDialog = ref(false);
+const orderForStatusChange = ref(null);
+const statusAction = ref('');
 
 const headers = [
   { title: 'Order #', key: 'order_number', sortable: true },
@@ -222,28 +271,34 @@ const filterByStatus = (status) => {
   statusFilter.value = status;
 };
 
-const updateOrderStatus = (order, newStatus) => {
-  router.patch(route('dashboard.orders.update-status', order.uuid), {
-    status: newStatus
-  }, {
-    onSuccess: () => {
-      // Status updated
-    }
-  });
+// Open status change dialog
+const openStatusDialog = (order, action) => {
+  orderForStatusChange.value = order;
+  statusAction.value = action;
+  statusDialog.value = true;
 };
 
-const cancelOrder = (order) => {
-  if (confirm(`Are you sure you want to cancel order #${order.order_number}?`)) {
-    router.post(route('dashboard.orders.cancel', order.uuid), {}, {
-      onSuccess: () => {
-        // Order cancelled
-      }
-    });
-  }
+// Handle successful status change
+const handleStatusChangeSuccess = () => {
+  router.reload({ only: ['orders', 'stats'] });
+  orderForStatusChange.value = null;
+  statusAction.value = '';
 };
 
 const refreshOrders = () => {
   router.reload();
+};
+
+// Open delete dialog (Parent Activator Pattern)
+const openDeleteDialog = (order) => {
+  orderToDelete.value = order;
+  deleteDialog.value = true;
+};
+
+// Handle successful deletion
+const handleOrderDeleted = () => {
+  router.reload({ only: ['orders', 'stats'] });
+  orderToDelete.value = null;
 };
 </script>
 

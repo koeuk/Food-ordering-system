@@ -120,20 +120,39 @@
               <div class="d-flex gap-2">
                 <v-btn
                   size="small"
+                  color="info"
+                  variant="outlined"
+                  :href="`/dashboard/inventory/${item.uuid}`"
+                  title="View Details"
+                >
+                  <v-icon size="small">mdi-eye</v-icon>
+                </v-btn>
+                <v-btn
+                  size="small"
                   color="success"
                   variant="outlined"
                   @click="openRestockDialog(item)"
+                  title="Restock Item"
                 >
                   <v-icon size="small">mdi-plus</v-icon>
-                  Restock
                 </v-btn>
                 <v-btn
                   size="small"
                   color="primary"
                   variant="outlined"
                   :href="`/dashboard/inventory/${item.uuid}/edit`"
+                  title="Edit Inventory"
                 >
                   <v-icon size="small">mdi-pencil</v-icon>
+                </v-btn>
+                <v-btn
+                  size="small"
+                  color="error"
+                  variant="outlined"
+                  @click="openDeleteDialog(item)"
+                  title="Delete Inventory"
+                >
+                  <v-icon size="small">mdi-delete</v-icon>
                 </v-btn>
               </div>
             </template>
@@ -162,6 +181,14 @@
         </v-card>
       </v-dialog>
     </v-container>
+
+    <!-- Delete Confirmation Dialog -->
+    <DeleteDialog
+      v-if="inventoryToDelete"
+      v-model="deleteDialog"
+      :inventory="inventoryToDelete"
+      @deleted="handleInventoryDeleted"
+    />
   </DashboardLayout>
 </template>
 
@@ -169,6 +196,7 @@
 import { ref } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
+import DeleteDialog from '@/Components/Dashboard/Inventory/DeleteDialog.vue';
 
 const props = defineProps({
   inventory: {
@@ -186,13 +214,17 @@ const restockDialog = ref(false);
 const restockQuantity = ref(0);
 const selectedItem = ref(null);
 
+// Delete dialog state
+const deleteDialog = ref(false);
+const inventoryToDelete = ref(null);
+
 const headers = [
   { title: 'Product', key: 'product', sortable: true },
   { title: 'Quantity', key: 'quantity', sortable: true },
   { title: 'Min Stock', key: 'minimum_stock', sortable: true },
   { title: 'Status', key: 'status', sortable: false },
   { title: 'Last Updated', key: 'updated_at', sortable: true },
-  { title: 'Actions', key: 'actions', sortable: false }
+  { title: 'Actions', key: 'actions', sortable: false, align: 'end' }
 ];
 
 const getQuantityColor = (quantity, minStock) => {
@@ -239,6 +271,18 @@ const confirmRestock = () => {
       }
     });
   }
+};
+
+// Open delete dialog (Parent Activator Pattern)
+const openDeleteDialog = (inventory) => {
+  inventoryToDelete.value = inventory;
+  deleteDialog.value = true;
+};
+
+// Handle successful deletion
+const handleInventoryDeleted = () => {
+  router.reload({ only: ['inventory', 'stats'] });
+  inventoryToDelete.value = null;
 };
 </script>
 

@@ -124,9 +124,8 @@ const submit = () => {
     password: form.password ? '***' : '',
     remember: form.remember
   });
-  console.log('Route:', route('login'));
   
-  form.post(route('login'), {
+  form.post('/login', {
     onStart: () => {
       console.log('Login request started');
     },

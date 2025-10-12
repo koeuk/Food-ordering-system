@@ -29,8 +29,20 @@ class OrderController extends Controller
             ->latest()
             ->paginate(15);
 
+        // Calculate order statistics
+        $stats = [
+            'total' => Order::count(),
+            'pending' => Order::where('status', 'pending')->count(),
+            'confirmed' => Order::where('status', 'confirmed')->count(),
+            'preparing' => Order::where('status', 'preparing')->count(),
+            'ready' => Order::where('status', 'ready')->count(),
+            'delivered' => Order::where('status', 'delivered')->count(),
+            'cancelled' => Order::where('status', 'cancelled')->count(),
+        ];
+
         return Inertia::render('Dashboard/Orders/Index', [
             'orders' => $orders,
+            'stats' => $stats,
             'filters' => $request->only(['search', 'status']),
         ]);
     }
