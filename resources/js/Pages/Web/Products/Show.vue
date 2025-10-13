@@ -214,11 +214,20 @@ const getCategoryColor = (categoryName) => {
 };
 
 const addToCart = (product) => {
-  // Add to cart functionality
-  console.log('Adding to cart:', product.name);
-  // You can implement cart functionality here
-  // For now, we'll show a success message
-  alert(`${product.name} added to cart!`);
+  // Add to cart and redirect to cart page
+  router.post('/web/cart/add', {
+    product_uuid: product.uuid,
+    quantity: 1
+  }, {
+    onSuccess: () => {
+      // Product added successfully, redirect to cart
+      window.location.href = '/web/cart';
+    },
+    onError: (errors) => {
+      console.error('Error adding to cart:', errors);
+      alert('Error adding product to cart. Please try again.');
+    }
+  });
 };
 
 const addRandomProduct = async () => {

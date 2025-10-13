@@ -78,7 +78,7 @@
                                     </div>
                                     <div class="d-flex gap-2">
                                         <v-btn size="small" variant="outlined"
-                                            :href="`/orders/${order.id}`">
+                                            :href="`/my-orders/${order.id}`">
                                             <v-icon left size="small">mdi-eye</v-icon>
                                             View
                                         </v-btn>
@@ -94,7 +94,7 @@
                     </v-list>
 
                     <div class="text-center mt-6">
-                        <v-btn variant="outlined" href="/orders">
+                        <v-btn variant="outlined" href="/my-orders">
                             View All Orders
                             <v-icon right>mdi-arrow-right</v-icon>
                         </v-btn>

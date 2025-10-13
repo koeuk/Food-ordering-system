@@ -50,8 +50,19 @@
         </template>
       </div>
 
-      <!-- User Menu -->
+      <!-- Cart and User Menu -->
       <div class="d-none d-sm-flex align-center ml-4">
+        <!-- Cart Button -->
+        <v-btn 
+          text 
+          dark 
+          href="/web/cart"
+          class="mx-2"
+        >
+          <v-icon left>mdi-cart</v-icon>
+          Cart
+        </v-btn>
+
         <template v-if="user">
           <v-menu offset-y>
             <template v-slot:activator="{ props }">
@@ -110,6 +121,12 @@
             <v-icon>mdi-food</v-icon>
           </template>
           <v-list-item-title>Menu</v-list-item-title>
+        </v-list-item>
+        <v-list-item href="/web/cart">
+          <template v-slot:prepend>
+            <v-icon>mdi-cart</v-icon>
+          </template>
+          <v-list-item-title>Cart</v-list-item-title>
         </v-list-item>
 
         <template v-if="user">

@@ -112,6 +112,62 @@
         </v-col>
       </v-row>
 
+      <!-- New Orders Notifications -->
+      <v-card v-if="newOrders.length > 0" class="mb-8" elevation="2">
+        <v-card-title class="text-h6 font-weight-bold text-grey-darken-3">
+          <v-icon left color="purple">mdi-bell-ring</v-icon>
+          New Orders (Last 24 Hours)
+          <v-chip color="purple" size="small" class="ml-2">
+            {{ newOrders.length }}
+          </v-chip>
+        </v-card-title>
+        <v-card-text>
+          <v-list>
+            <v-list-item
+              v-for="order in newOrders"
+              :key="order.id"
+              class="px-0"
+            >
+              <template v-slot:prepend>
+                <v-avatar color="purple" size="40">
+                  <v-icon color="white">mdi-shopping</v-icon>
+                </v-avatar>
+              </template>
+              
+              <v-list-item-title class="font-weight-medium">
+                Order #{{ order.order_number }}
+              </v-list-item-title>
+              
+              <v-list-item-subtitle>
+                {{ order.customer_name || order.customer?.name }} • {{ order.customer_phone || 'No phone' }}
+              </v-list-item-subtitle>
+              
+              <!-- Location Information -->
+              <div v-if="order.delivery_address" class="mt-2">
+                <div class="d-flex align-center text-body-2 text-grey-darken-2">
+                  <v-icon size="16" color="success" class="mr-1">mdi-map-marker</v-icon>
+                  {{ order.delivery_address }}
+                </div>
+              </div>
+              
+              <template v-slot:append>
+                <div class="text-right">
+                  <div class="text-h6 font-weight-bold text-primary mb-1">
+                    ${{ formatPrice(order.total) }}
+                  </div>
+                  <v-chip color="warning" size="small" class="mb-1">
+                    {{ capitalizeStatus(order.status) }}
+                  </v-chip>
+                  <div class="text-caption text-grey-darken-1">
+                    {{ formatDate(order.created_at) }}
+                  </div>
+                </div>
+              </template>
+            </v-list-item>
+          </v-list>
+        </v-card-text>
+      </v-card>
+
       <!-- Recent Orders & Low Stock -->
       <v-row>
         <!-- Recent Orders -->
@@ -139,8 +195,16 @@
                   </v-list-item-title>
                   
                   <v-list-item-subtitle>
-                    {{ order.customer?.name }} • {{ formatPrice(order.total) }}
+                    {{ order.customer_name || order.customer?.name }} • {{ order.customer_phone || 'No phone' }}
                   </v-list-item-subtitle>
+                  
+                  <!-- Location Information -->
+                  <div v-if="order.delivery_address" class="mt-2">
+                    <div class="d-flex align-center text-body-2 text-grey-darken-2">
+                      <v-icon size="16" color="success" class="mr-1">mdi-map-marker</v-icon>
+                      {{ order.delivery_address }}
+                    </div>
+                  </div>
                   
                   <template v-slot:append>
                     <div class="text-right">
@@ -224,6 +288,10 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
+  newOrders: {
+    type: Array,
+    default: () => []
+  },
   lowStockItems: {
     type: Array,
     default: () => []
@@ -254,6 +322,12 @@ const statsCards = computed(() => [
     value: props.stats?.low_stock_count || 0,
     icon: 'mdi-alert-triangle',
     color: 'warning'
+  },
+  {
+    title: 'New Orders (24h)',
+    value: props.stats?.new_orders_count || 0,
+    icon: 'mdi-bell-ring',
+    color: 'purple'
   }
 ]);
 

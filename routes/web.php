@@ -64,8 +64,16 @@ Route::prefix('web')->name('web.')->group(function () {
     Route::get('/products/random', [WebProductController::class, 'random'])->name('products.random');
     Route::get('/products/related/{product:uuid}', [WebProductController::class, 'related'])->name('products.related');
     
+    // Cart
+    Route::get('/cart', [\App\Http\Controllers\Web\CartController::class, 'show'])->name('cart.show');
+    Route::post('/cart/add', [\App\Http\Controllers\Web\CartController::class, 'add'])->name('cart.add');
+    Route::patch('/cart/items/{cartItem:uuid}', [\App\Http\Controllers\Web\CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/items/{cartItem:uuid}', [\App\Http\Controllers\Web\CartController::class, 'remove'])->name('cart.remove');
+    Route::delete('/cart/clear', [\App\Http\Controllers\Web\CartController::class, 'clear'])->name('cart.clear');
+    
     // Orders (User Orders)
     Route::get('/orders', [WebOrderController::class, 'index'])->name('orders.index');
+    Route::post('/orders', [WebOrderController::class, 'store'])->name('orders.store');
     Route::get('/orders/{order}', [WebOrderController::class, 'show'])->name('orders.show');
 });
 
@@ -81,12 +89,10 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Orders
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::get('/orders/create', [OrderController::class, 'create'])->name('orders.create');
-    Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
-    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
-    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+    // User Orders (Customer Orders)
+    Route::get('/my-orders', [WebOrderController::class, 'index'])->name('my-orders.index');
+    Route::get('/my-orders/{order}', [WebOrderController::class, 'show'])->name('my-orders.show');
+    Route::post('/orders/{order}/cancel', [WebOrderController::class, 'cancel'])->name('orders.cancel');
 
     // Bills
     Route::get('/bills/{bill}', [BillController::class, 'show'])->name('bills.show');

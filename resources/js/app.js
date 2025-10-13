@@ -101,10 +101,12 @@ const token = document.head.querySelector('meta[name="csrf-token"]');
 if (token) {
     // Set default headers for all Inertia requests using the 'before' hook
     router.on('before', (event) => {
-        event.detail.visit.headers = {
-            ...event.detail.visit.headers,
-            'X-CSRF-TOKEN': token.content,
-        };
+        // Ensure headers object exists
+        if (!event.detail.visit.headers) {
+            event.detail.visit.headers = {};
+        }
+        
+        event.detail.visit.headers['X-CSRF-TOKEN'] = token.content;
     });
 }
 

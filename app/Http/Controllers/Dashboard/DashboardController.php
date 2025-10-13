@@ -58,10 +58,16 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // Recent orders
+        // Recent orders with location data
         $recentOrders = Order::with(['customer', 'bill'])
             ->latest()
             ->take(10)
+            ->get();
+
+        // New orders (last 24 hours) for notifications
+        $newOrders = Order::where('created_at', '>=', now()->subDay())
+            ->with(['customer', 'bill'])
+            ->latest()
             ->get();
 
         // Top selling products
@@ -77,6 +83,7 @@ class DashboardController extends Controller
                 'orders_today' => Order::whereDate('created_at', today())->count(),
                 'active_products' => Product::where('is_available', true)->count(),
                 'low_stock_count' => Inventory::whereRaw('quantity <= minimum_stock')->count(),
+                'new_orders_count' => $newOrders->count(),
             ],
             'todaySales' => $todaySales,
             'monthSales' => $monthSales,
@@ -84,6 +91,7 @@ class DashboardController extends Controller
             'pendingOrders' => $pendingOrders,
             'lowStockItems' => $lowStockItems,
             'recentOrders' => $recentOrders,
+            'newOrders' => $newOrders,
             'topProducts' => $topProducts,
         ]);
     }
