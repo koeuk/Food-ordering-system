@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app :theme="isDark ? 'dark' : 'light'">
     <!-- Navigation -->
     <v-app-bar app color="primary" dark elevation="1">
       <v-app-bar-nav-icon @click="drawer = !drawer" class="d-lg-none" />
@@ -12,11 +12,27 @@
 
       <v-spacer />
 
+      <!-- Theme Toggle -->
+      <v-btn
+        icon
+        variant="text"
+        @click="toggleTheme"
+        class="mr-2"
+        :title="isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme'"
+      >
+        <v-icon>{{ isDark ? 'mdi-weather-sunny' : 'mdi-weather-night' }}</v-icon>
+      </v-btn>
+
       <!-- Desktop Navigation -->
       <div class="d-none d-lg-flex align-center">
         <v-btn text dark href="/web/products" class="mx-2">
           <v-icon left>mdi-food</v-icon>
           Menu
+        </v-btn>
+        
+        <v-btn text dark href="/blog" class="mx-2">
+          <v-icon left>mdi-newspaper</v-icon>
+          Blog
         </v-btn>
 
         <template v-if="user">
@@ -122,6 +138,12 @@
           </template>
           <v-list-item-title>Menu</v-list-item-title>
         </v-list-item>
+        <v-list-item href="/blog">
+          <template v-slot:prepend>
+            <v-icon>mdi-newspaper</v-icon>
+          </template>
+          <v-list-item-title>Blog</v-list-item-title>
+        </v-list-item>
         <v-list-item href="/web/cart">
           <template v-slot:prepend>
             <v-icon>mdi-cart</v-icon>
@@ -215,8 +237,8 @@
     </v-main>
 
     <!-- Footer -->
-    <v-footer app color="grey-lighten-4" class="justify-center">
-      <div class="text-center">
+    <v-footer app color="surface-variant" class="justify-center">
+      <div class="text-center text-on-surface">
         &copy; {{ new Date().getFullYear() }} Food Ordering System. All rights reserved.
       </div>
     </v-footer>
@@ -224,7 +246,7 @@
 </template>
 
 <script setup>
-  import { ref, computed } from 'vue';
+  import { ref, computed, onMounted } from 'vue';
   import { Link, usePage } from '@inertiajs/vue3';
   import { router } from '@inertiajs/vue3';
 
@@ -235,17 +257,61 @@
     }
   });
 
-  const page = usePage();
-  const drawer = ref(false);
-  const showSuccessSnackbar = ref(true);
-  const showErrorSnackbar = ref(true);
+const page = usePage();
+const drawer = ref(false);
+const showSuccessSnackbar = ref(true);
+const showErrorSnackbar = ref(true);
 
-  const user = computed(() => page.props.auth?.user);
-  const flash = computed(() => page.props.flash);
+// Theme management
+const isDark = ref(false); // Default to light theme
+
+const user = computed(() => page.props.auth?.user);
+const flash = computed(() => page.props.flash);
 
   const capitalizeRole = (role) => {
     return role.charAt(0).toUpperCase() + role.slice(1);
   };
+
+  // Theme persistence functions
+  const loadTheme = () => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      isDark.value = savedTheme === 'dark';
+    } else {
+      // Default to light theme
+      isDark.value = false;
+    }
+    applyTheme();
+  };
+
+  const saveTheme = () => {
+    localStorage.setItem('theme', isDark.value ? 'dark' : 'light');
+  };
+
+  const applyTheme = () => {
+    const html = document.documentElement;
+    if (isDark.value) {
+      html.classList.add('dark');
+      html.setAttribute('data-theme', 'dark');
+    } else {
+      html.classList.remove('dark');
+      html.setAttribute('data-theme', 'light');
+    }
+  };
+
+  const toggleTheme = () => {
+    isDark.value = !isDark.value;
+    applyTheme();
+    saveTheme();
+    
+    // Optional: Show a brief notification
+    console.log(`Theme switched to: ${isDark.value ? 'dark' : 'light'} mode`);
+  };
+
+  // Initialize theme on component mount
+  onMounted(() => {
+    loadTheme();
+  });
 
   const logout = () => {
     router.post('/logout', {}, {

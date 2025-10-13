@@ -78,7 +78,7 @@
                                     </div>
                                     <div class="d-flex gap-2">
                                         <v-btn size="small" variant="outlined"
-                                            :href="`/my-orders/${order.id}`">
+                                            :href="`/my-orders/${order.uuid}`">
                                             <v-icon left size="small">mdi-eye</v-icon>
                                             View
                                         </v-btn>

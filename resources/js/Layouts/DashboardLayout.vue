@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app :theme="isDark ? 'dark' : 'light'">
     <!-- Top Header Bar -->
     <v-app-bar
       app
@@ -26,6 +26,7 @@
           variant="text"
           @click="toggleTheme"
           class="mr-2"
+          :title="isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme'"
         >
           <v-icon>{{ isDark ? 'mdi-weather-sunny' : 'mdi-weather-night' }}</v-icon>
         </v-btn>
@@ -63,13 +64,13 @@
             </v-btn>
           </template>
           <v-list>
-            <v-list-item :to="{ name: 'profile' }">
+            <v-list-item href="/profile">
               <template v-slot:prepend>
                 <v-icon>mdi-account</v-icon>
               </template>
               <v-list-item-title>Profile</v-list-item-title>
             </v-list-item>
-            <v-list-item :to="{ name: 'dashboard' }">
+            <v-list-item href="/dashboard/admin">
               <template v-slot:prepend>
                 <v-icon>mdi-home</v-icon>
               </template>
@@ -112,16 +113,6 @@
         <v-list-item-title>Dashboard</v-list-item-title>
       </v-list-item>
       
-      <v-list-item 
-        href="/profile" 
-        :class="{ 'v-list-item--active': isActiveRoute('/profile') }"
-        link
-      >
-        <template v-slot:prepend>
-          <v-icon color="white">mdi-account</v-icon>
-        </template>
-        <v-list-item-title>Account</v-list-item-title>
-      </v-list-item>
 
       <!-- Dashboard Section -->
       <v-list-item 
@@ -231,6 +222,9 @@
       {{ flash.error }}
     </v-snackbar>
 
+    <!-- Global Notification System -->
+    <NotificationSnackbar />
+
     <!-- Main Content -->
     <v-main>
       <v-container fluid class="pa-4">
@@ -241,8 +235,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { usePage, router } from '@inertiajs/vue3';
+import NotificationSnackbar from '@/Components/Global/NotificationSnackbar.vue';
 
 const props = defineProps({
   user: {
@@ -256,9 +251,11 @@ const drawer = ref(true);
 const showSuccessSnackbar = ref(true);
 const showErrorSnackbar = ref(true);
 
+// Theme management
+const isDark = ref(false); // Default to light theme
+
 const user = computed(() => page.props.auth?.user);
 const flash = computed(() => page.props.flash);
-const isDark = computed(() => page.props.theme === 'dark');
 
 const capitalizeRole = (role) => {
   return role ? role.charAt(0).toUpperCase() + role.slice(1) : '';
@@ -272,24 +269,46 @@ const getRoleColor = (role) => {
   return colors[role] || 'grey';
 };
 
-const getDashboardTitle = () => {
-  if (user.value?.role === 'admin') {
-    return 'Admin Dashboard';
+// Theme persistence functions
+const loadTheme = () => {
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme) {
+    isDark.value = savedTheme === 'dark';
+  } else {
+    // Default to light theme
+    isDark.value = false;
   }
-  return 'User Dashboard';
+  applyTheme();
 };
 
-const getDashboardSubtitle = () => {
-  if (user.value?.role === 'admin') {
-    return 'Manage your restaurant';
+const saveTheme = () => {
+  localStorage.setItem('theme', isDark.value ? 'dark' : 'light');
+};
+
+const applyTheme = () => {
+  const html = document.documentElement;
+  if (isDark.value) {
+    html.classList.add('dark');
+    html.setAttribute('data-theme', 'dark');
+  } else {
+    html.classList.remove('dark');
+    html.setAttribute('data-theme', 'light');
   }
-  return 'Order delicious food';
 };
 
 const toggleTheme = () => {
-  // Theme toggle functionality can be implemented here
-  console.log('Theme toggle clicked');
+  isDark.value = !isDark.value;
+  applyTheme();
+  saveTheme();
+  
+  // Optional: Show a brief notification
+  console.log(`Theme switched to: ${isDark.value ? 'dark' : 'light'} mode`);
 };
+
+// Initialize theme on component mount
+onMounted(() => {
+  loadTheme();
+});
 
 const logout = () => {
   router.post('/logout');
@@ -331,5 +350,31 @@ const isActiveRoute = (routePath) => {
 
 .dashboard-drawer .v-divider {
   border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Theme transition animations */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Dark theme specific styles */
+.v-theme--dark {
+  --v-theme-surface: #1a1a1a;
+  --v-theme-background: #121212;
+  --v-theme-on-surface: #ffffff;
+  --v-theme-on-background: #ffffff;
+}
+
+/* Light theme specific styles */
+.v-theme--light {
+  --v-theme-surface: #ffffff;
+  --v-theme-background: #fafafa;
+  --v-theme-on-surface: #000000;
+  --v-theme-on-background: #000000;
+}
+
+/* Theme toggle button hover effect */
+.v-btn--icon:hover {
+  transform: scale(1.1);
 }
 </style>

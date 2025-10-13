@@ -22,6 +22,8 @@
     },
     "dependencies": {
         "@mdi/font": "^7.4.47",
+        "chart.js": "^4.5.1",
+        "leaflet": "^1.9.4",
         "lucide-vue-next": "^0.545.0",
         "pinia": "^2.1.7",
         "vue": "^3.4.0",

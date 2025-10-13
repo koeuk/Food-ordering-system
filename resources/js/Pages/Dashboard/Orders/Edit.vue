@@ -87,17 +87,6 @@
                 />
               </v-col>
 
-              <!-- Order Date -->
-              <v-col cols="12" md="6">
-                <v-text-field
-                  v-model="form.order_date"
-                  label="Order Date"
-                  type="datetime-local"
-                  variant="outlined"
-                  :rules="[rules.required]"
-                  required
-                />
-              </v-col>
 
               <!-- Delivery Address -->
               <v-col cols="12">
@@ -264,7 +253,6 @@ const form = ref({
   customer_id: null,
   order_number: '',
   status: 'pending',
-  order_date: '',
   delivery_address: '',
   special_instructions: '',
   order_items: []
@@ -331,7 +319,6 @@ onMounted(() => {
   form.value.customer_id = props.order.customer_id;
   form.value.order_number = props.order.order_number;
   form.value.status = props.order.status;
-  form.value.order_date = props.order.order_date ? new Date(props.order.order_date).toISOString().slice(0, 16) : '';
   form.value.delivery_address = props.order.delivery_address;
   form.value.special_instructions = props.order.special_instructions || '';
   

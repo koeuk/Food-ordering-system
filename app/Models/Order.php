@@ -20,6 +20,8 @@ class Order extends Model
         'tax',
         'total',
         'delivery_address',
+        'delivery_latitude',
+        'delivery_longitude',
         'notes',
         'confirmed_at',
         'delivered_at',

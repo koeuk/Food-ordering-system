@@ -35,19 +35,64 @@ class BillController extends Controller
     {
         $validated = $request->validate([
             'payment_method' => 'required|in:cash,card,online',
+            'card_details' => 'nullable|array',
+            'card_details.cardNumber' => 'nullable|string|regex:/^\d{4}\s\d{4}\s\d{4}\s\d{4}$/',
+            'card_details.expiryDate' => 'nullable|string|regex:/^(0[1-9]|1[0-2])\/\d{2}$/',
+            'card_details.cvv' => 'nullable|string|regex:/^\d{3,4}$/',
+            'card_details.cardholderName' => 'nullable|string|max:255',
+            'bank_details' => 'nullable|array',
+            'bank_details.bank' => 'nullable|string|max:255',
+            'bank_details.accountNumber' => 'nullable|string|regex:/^\d{8,20}$/',
         ]);
 
         if ($bill->isPaid()) {
             return back()->withErrors(['error' => 'Bill is already paid']);
         }
 
+        // Validate card details if payment method is card
+        if ($validated['payment_method'] === 'card') {
+            if (!$validated['card_details'] || 
+                !$validated['card_details']['cardNumber'] || 
+                !$validated['card_details']['expiryDate'] || 
+                !$validated['card_details']['cvv'] || 
+                !$validated['card_details']['cardholderName']) {
+                return back()->withErrors(['cardNumber' => 'All card details are required']);
+            }
+        }
+
+        // Validate bank details if payment method is online
+        if ($validated['payment_method'] === 'online') {
+            if (!$validated['bank_details'] || 
+                !$validated['bank_details']['bank'] || 
+                !$validated['bank_details']['accountNumber']) {
+                return back()->withErrors(['bank' => 'All bank details are required']);
+            }
+        }
+
         // Here you would integrate with payment gateway (Stripe/PayPal)
-        // For now, we'll just mark as paid
+        // For demo purposes, we'll simulate payment processing
+        try {
+            // Simulate payment processing delay
+            sleep(1);
+            
+            // For card payments, you would validate with payment processor
+            if ($validated['payment_method'] === 'card') {
+                // Simulate card validation
+                $cardNumber = str_replace(' ', '', $validated['card_details']['cardNumber']);
+                if (!preg_match('/^\d{16}$/', $cardNumber)) {
+                    return back()->withErrors(['cardNumber' => 'Invalid card number']);
+                }
+            }
 
-        $bill->markAsPaid($validated['payment_method']);
+            // Mark bill as paid
+            $bill->markAsPaid($validated['payment_method']);
 
-        return redirect()->route('orders.show', $bill->order)
-            ->with('success', 'Payment processed successfully!');
+            return redirect()->route('my-orders.show', $bill->order)
+                ->with('success', 'Payment processed successfully! Your order is now confirmed.');
+
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Payment processing failed. Please try again.']);
+        }
     }
 
     /**

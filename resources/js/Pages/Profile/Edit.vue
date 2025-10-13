@@ -113,6 +113,101 @@
         </v-card-actions>
       </v-card>
 
+      <!-- Update Password Section -->
+      <v-card elevation="2" class="mt-6">
+        <v-card-title class="text-h6 font-weight-bold text-grey-darken-3">
+          <v-icon left color="primary">mdi-lock</v-icon>
+          Update Password
+        </v-card-title>
+        <v-card-text>
+          <v-form ref="passwordFormRef" v-model="passwordFormValid">
+            <v-row>
+              <!-- Current Password -->
+              <v-col cols="12">
+                <v-text-field
+                  v-model="passwordForm.current_password"
+                  label="Current Password"
+                  type="password"
+                  variant="outlined"
+                  :rules="[rules.required]"
+                  :error-messages="passwordForm.errors.current_password"
+                  required
+                  prepend-inner-icon="mdi-lock-outline"
+                />
+              </v-col>
+
+              <!-- New Password -->
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="passwordForm.password"
+                  label="New Password"
+                  type="password"
+                  variant="outlined"
+                  :rules="[rules.required, rules.password]"
+                  :error-messages="passwordForm.errors.password"
+                  required
+                  prepend-inner-icon="mdi-lock-plus"
+                />
+              </v-col>
+
+              <!-- Confirm Password -->
+              <v-col cols="12" md="6">
+                <v-text-field
+                  v-model="passwordForm.password_confirmation"
+                  label="Confirm New Password"
+                  type="password"
+                  variant="outlined"
+                  :rules="[rules.required, rules.passwordConfirmation]"
+                  :error-messages="passwordForm.errors.password_confirmation"
+                  required
+                  prepend-inner-icon="mdi-lock-check"
+                />
+              </v-col>
+            </v-row>
+
+            <!-- Password Requirements -->
+            <v-alert type="info" variant="tonal" class="mb-4">
+              <template v-slot:prepend>
+                <v-icon>mdi-information</v-icon>
+              </template>
+              <div>
+                <div class="font-weight-bold mb-2">Password Requirements:</div>
+                <ul class="text-body-2 mb-0">
+                  <li>At least 8 characters long</li>
+                  <li>Contains at least one uppercase letter</li>
+                  <li>Contains at least one lowercase letter</li>
+                  <li>Contains at least one number</li>
+                  <li>Contains at least one special character</li>
+                </ul>
+              </div>
+            </v-alert>
+
+            <!-- Success Message -->
+            <v-alert
+              v-if="passwordStatus"
+              type="success"
+              variant="tonal"
+              class="mb-4"
+            >
+              {{ passwordStatus }}
+            </v-alert>
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn
+            color="primary"
+            size="large"
+            :disabled="!passwordFormValid"
+            :loading="passwordForm.processing"
+            @click="updatePassword"
+          >
+            <v-icon left>mdi-lock-reset</v-icon>
+            Update Password
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+
       <!-- Delete Account Section -->
       <v-card elevation="2" class="mt-6" color="error" variant="outlined">
         <v-card-title class="text-h6 font-weight-bold text-error">
@@ -201,7 +296,9 @@ const props = defineProps({
 });
 
 const formRef = ref(null);
+const passwordFormRef = ref(null);
 const valid = ref(false);
+const passwordFormValid = ref(false);
 const confirmUserDeletion = ref(false);
 
 const form = useForm({
@@ -209,6 +306,12 @@ const form = useForm({
   email: props.user.email,
   phone: props.user.phone || '',
   address: props.user.address || '',
+});
+
+const passwordForm = useForm({
+  current_password: '',
+  password: '',
+  password_confirmation: '',
 });
 
 const deleteForm = useForm({
@@ -221,11 +324,44 @@ const rules = {
     const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return pattern.test(value) || 'Enter a valid email address';
   },
+  password: (value) => {
+    if (!value) return 'Password is required';
+    if (value.length < 8) return 'Password must be at least 8 characters';
+    if (!/(?=.*[a-z])/.test(value)) return 'Password must contain at least one lowercase letter';
+    if (!/(?=.*[A-Z])/.test(value)) return 'Password must contain at least one uppercase letter';
+    if (!/(?=.*\d)/.test(value)) return 'Password must contain at least one number';
+    if (!/(?=.*[@$!%*?&])/.test(value)) return 'Password must contain at least one special character';
+    return true;
+  },
+  passwordConfirmation: (value) => {
+    return value === passwordForm.password || 'Passwords do not match';
+  },
 };
 
 const submit = () => {
   if (valid.value) {
     form.patch(route('profile.update'));
+  }
+};
+
+const updatePassword = () => {
+  if (passwordFormValid.value) {
+    passwordForm.put(route('password.update'), {
+      preserveScroll: true,
+      onSuccess: () => {
+        passwordForm.reset();
+        passwordFormRef.value?.reset();
+      },
+      onError: () => {
+        if (passwordForm.errors.current_password) {
+          passwordForm.reset('current_password');
+        }
+        if (passwordForm.errors.password) {
+          passwordForm.reset('password', 'password_confirmation');
+        }
+      },
+      onFinish: () => passwordForm.reset(),
+    });
   }
 };
 
@@ -246,4 +382,10 @@ const closeModal = () => {
   confirmUserDeletion.value = false;
   deleteForm.reset();
 };
+
+// Computed property for password status
+const passwordStatus = computed(() => {
+  // This will be set by the backend when password update is successful
+  return props.status && props.status.includes('password') ? props.status : null;
+});
 </script>

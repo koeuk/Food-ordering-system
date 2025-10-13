@@ -55,13 +55,20 @@ class InventoryController extends Controller
     public function create()
     {
         // Get products that don't have inventory yet
-        $products = Product::with('category')
+        $productsWithoutInventory = Product::with('category')
             ->doesntHave('inventory')
             ->orderBy('name')
             ->get();
 
+        // Get all products for reference
+        $allProducts = Product::with('category')->orderBy('name')->get();
+
         return Inertia::render('Dashboard/Inventory/Create', [
-            'products' => $products,
+            'products' => $productsWithoutInventory,
+            'allProducts' => $allProducts,
+            'hasAvailableProducts' => $productsWithoutInventory->count() > 0,
+            'availableCount' => $productsWithoutInventory->count(),
+            'totalCount' => $allProducts->count(),
         ]);
     }
 
@@ -70,8 +77,9 @@ class InventoryController extends Controller
      */
     public function store(Request $request)
     {
+        // First validate basic fields
         $validated = $request->validate([
-            'product_id' => 'required|exists:products,id|unique:inventory,product_id',
+            'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:0',
             'minimum_stock' => 'required|integer|min:0',
             'unit' => 'nullable|string|max:50',
@@ -79,6 +87,14 @@ class InventoryController extends Controller
             'expiry_date' => 'nullable|date',
             'notes' => 'nullable|string',
         ]);
+
+        // Check if product already has inventory
+        $existingInventory = Inventory::where('product_id', $validated['product_id'])->first();
+        if ($existingInventory) {
+            return back()->withErrors([
+                'product_id' => 'This product already has inventory. Please edit the existing inventory instead.'
+            ])->withInput();
+        }
 
         Inventory::create($validated);
 

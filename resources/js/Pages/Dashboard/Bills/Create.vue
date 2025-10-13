@@ -214,7 +214,7 @@
                     </v-col>
                     <v-col cols="12" md="6">
                       <div class="mb-2">
-                        <strong>Order Date:</strong> {{ formatDate(selectedOrder.order_date) }}
+                        <strong>Order Date:</strong> {{ formatDate(selectedOrder.created_at) }}
                       </div>
                       <div class="mb-2">
                         <strong>Status:</strong> 

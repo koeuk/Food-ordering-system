@@ -57,3 +57,107 @@
         @apply bg-background text-foreground;
     }
 }
+
+/* Global Theme Styles */
+.v-theme--dark {
+    --v-theme-surface: #1E1E1E;
+    --v-theme-background: #121212;
+    --v-theme-on-surface: #FFFFFF;
+    --v-theme-on-background: #FFFFFF;
+    --v-theme-on-primary: #FFFFFF;
+    --v-theme-on-secondary: #FFFFFF;
+}
+
+.v-theme--light {
+    --v-theme-surface: #FFFFFF;
+    --v-theme-background: #FAFAFA;
+    --v-theme-on-surface: #000000;
+    --v-theme-on-background: #000000;
+    --v-theme-on-primary: #FFFFFF;
+    --v-theme-on-secondary: #000000;
+}
+
+/* Dark Theme Specific Styles */
+.v-theme--dark .v-card {
+    background-color: #1E1E1E !important;
+    color: #FFFFFF !important;
+}
+
+.v-theme--dark .v-data-table {
+    background-color: #1E1E1E !important;
+    color: #FFFFFF !important;
+}
+
+.v-theme--dark .v-data-table__wrapper {
+    background-color: #1E1E1E !important;
+}
+
+.v-theme--dark .v-list {
+    background-color: #1E1E1E !important;
+    color: #FFFFFF !important;
+}
+
+.v-theme--dark .v-list-item {
+    color: #FFFFFF !important;
+}
+
+.v-theme--dark .v-text-field input {
+    color: #FFFFFF !important;
+}
+
+.v-theme--dark .v-select input {
+    color: #FFFFFF !important;
+}
+
+.v-theme--dark .v-textarea textarea {
+    color: #FFFFFF !important;
+}
+
+/* Light Theme Specific Styles */
+.v-theme--light .v-card {
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+}
+
+.v-theme--light .v-data-table {
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+}
+
+.v-theme--light .v-data-table__wrapper {
+    background-color: #FFFFFF !important;
+}
+
+.v-theme--light .v-list {
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+}
+
+.v-theme--light .v-list-item {
+    color: #000000 !important;
+}
+
+/* Text visibility for both themes */
+.v-theme--dark .text-grey-darken-3 {
+    color: #FFFFFF !important;
+}
+
+.v-theme--dark .text-grey-darken-1 {
+    color: #B0B0B0 !important;
+}
+
+.v-theme--dark .text-grey-darken-2 {
+    color: #CCCCCC !important;
+}
+
+.v-theme--light .text-grey-darken-3 {
+    color: #000000 !important;
+}
+
+.v-theme--light .text-grey-darken-1 {
+    color: #666666 !important;
+}
+
+.v-theme--light .text-grey-darken-2 {
+    color: #333333 !important;
+}

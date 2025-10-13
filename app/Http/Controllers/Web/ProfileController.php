@@ -19,9 +19,22 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): Response
     {
+        $user = $request->user();
+        
+        // If user is admin, show admin profile page
+        if ($user->role === 'admin') {
+            return Inertia::render('Dashboard/Profile', [
+                'mustVerifyEmail' => $user instanceof MustVerifyEmail,
+                'status' => session('status'),
+                'user' => $user,
+            ]);
+        }
+        
+        // Regular user profile
         return Inertia::render('Profile/Edit', [
-            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
+            'mustVerifyEmail' => $user instanceof MustVerifyEmail,
             'status' => session('status'),
+            'user' => $user,
         ]);
     }
 

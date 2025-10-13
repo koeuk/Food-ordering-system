@@ -137,7 +137,7 @@
           </v-card>
 
           <!-- Customer Information -->
-          <v-card elevation="2" v-if="order.customer_name || order.customer_phone || order.delivery_address">
+          <v-card elevation="2" v-if="order.customer_name || order.customer_phone || order.delivery_address" class="mb-6">
             <v-card-title class="text-h6 font-weight-bold text-grey-darken-3">
               <v-icon left color="primary">mdi-account</v-icon>
               Customer Information
@@ -186,6 +186,15 @@
               </v-list>
             </v-card-text>
           </v-card>
+
+          <!-- Delivery Location Map -->
+          <DeliveryLocationMap 
+            v-if="order.delivery_address || order.delivery_latitude"
+            :address="order.delivery_address"
+            :coordinates="deliveryCoordinates"
+            :map-height="400"
+            @coordinates-found="handleCoordinatesFound"
+          />
         </v-col>
 
         <!-- Order Summary & Actions -->
@@ -339,6 +348,7 @@
 import { computed, ref } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import DeliveryLocationMap from '@/Components/Map/DeliveryLocationMap.vue';
 
 const props = defineProps({
   order: {
@@ -395,6 +405,22 @@ const canCancelOrder = computed(() => {
   return props.order.status === 'pending' || props.order.status === 'confirmed';
 });
 
+const deliveryCoordinates = computed(() => {
+  if (props.order.delivery_latitude && props.order.delivery_longitude) {
+    return {
+      lat: parseFloat(props.order.delivery_latitude),
+      lng: parseFloat(props.order.delivery_longitude)
+    };
+  }
+  return null;
+});
+
+const handleCoordinatesFound = (coordinates) => {
+  // Emit event to parent or handle coordinates update
+  console.log('Coordinates found:', coordinates);
+  // You could emit this to parent component or update the order
+};
+
 const getStatusColor = (status) => {
   const colors = {
     'pending': 'orange',
@@ -441,7 +467,7 @@ const capitalizeStatus = (status) => {
 const cancelOrder = () => {
   if (confirm('Are you sure you want to cancel this order? This action cannot be undone.')) {
     cancelling.value = true;
-    router.post(`/orders/${props.order.id}/cancel`, {}, {
+    router.post(`/orders/${props.order.uuid}/cancel`, {}, {
       onSuccess: () => {
         cancelling.value = false;
         // Order cancelled successfully

@@ -77,6 +77,8 @@ class OrderController extends Controller
             'customer_name' => 'required|string|max:255',
             'customer_phone' => 'required|string|max:20',
             'delivery_location' => 'required|string',
+            'delivery_latitude' => 'nullable|numeric|between:-90,90',
+            'delivery_longitude' => 'nullable|numeric|between:-180,180',
             'order_notes' => 'nullable|string|max:500',
             'total_amount' => 'required|numeric|min:0',
         ]);
@@ -138,6 +140,8 @@ class OrderController extends Controller
                 'tax' => $tax,
                 'total' => $total,
                 'delivery_address' => $validated['delivery_location'],
+                'delivery_latitude' => $validated['delivery_latitude'] ?? null,
+                'delivery_longitude' => $validated['delivery_longitude'] ?? null,
                 'notes' => $validated['order_notes'] ?? null,
             ]);
 

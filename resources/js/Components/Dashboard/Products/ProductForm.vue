@@ -89,6 +89,7 @@
 <script setup>
     import { ref, computed, onMounted } from 'vue';
     import { useForm } from '@inertiajs/vue3';
+    import { useNotifications } from '@/composables/useNotifications';
 
     const props = defineProps({
         product: {
@@ -102,6 +103,7 @@
     });
 
     const isEdit = computed(() => !!props.product);
+    const { success, error, handleSuccess, handleError } = useNotifications();
 
     const formRef = ref(null);
     const valid = ref(false);
@@ -146,21 +148,27 @@
 
         if (isEdit.value) {
             // Update existing product
-            // Transform form data to include _method for Laravel method spoofing
             form.transform((data) => ({
                 ...data,
                 _method: 'PUT'
             })).post(route('dashboard.products.update', props.product.uuid), {
                 forceFormData: true,
                 onSuccess: () => {
-                    // Product updated successfully
+                    handleSuccess('update', 'Product');
+                },
+                onError: () => {
+                    handleError('update', 'Product');
                 }
             });
         } else {
             // Create new product
             form.post(route('dashboard.products.store'), {
                 onSuccess: () => {
+                    handleSuccess('create', 'Product');
                     form.reset();
+                },
+                onError: () => {
+                    handleError('create', 'Product');
                 }
             });
         }

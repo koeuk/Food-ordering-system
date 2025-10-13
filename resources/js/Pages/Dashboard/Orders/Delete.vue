@@ -70,7 +70,7 @@
             <v-col cols="12" md="6">
               <div class="mb-4">
                 <div class="text-subtitle-2 text-grey-darken-1 mb-1">Order Date</div>
-                <div class="text-body-1">{{ formatDateTime(order.order_date) }}</div>
+                <div class="text-body-1">{{ formatDateTime(order.created_at) }}</div>
               </div>
             </v-col>
             <v-col cols="12" md="6">
@@ -260,6 +260,7 @@ import { ref } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 import OrderStatusChip from '@/Components/Dashboard/OrderStatusChip.vue';
+import { useNotifications } from '@/composables/useNotifications';
 
 const props = defineProps({
   order: {
@@ -269,6 +270,7 @@ const props = defineProps({
 });
 
 const loading = ref(false);
+const { handleSuccess, handleError } = useNotifications();
 
 const formatPrice = (price) => {
   const numPrice = typeof price === 'number' ? price : parseFloat(price);
@@ -302,11 +304,13 @@ const confirmDelete = () => {
     
     router.delete(route('dashboard.orders.destroy', props.order.id), {
       onSuccess: () => {
+        handleSuccess('delete', 'Order');
         // Redirect to orders index
         router.visit(route('dashboard.orders.index'));
       },
       onError: () => {
         loading.value = false;
+        handleError('delete', 'Order');
       },
       onFinish: () => {
         loading.value = false;

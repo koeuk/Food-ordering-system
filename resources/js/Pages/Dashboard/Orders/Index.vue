@@ -127,6 +127,15 @@
                 >
                   <v-icon size="small">mdi-eye</v-icon>
                 </v-btn>
+                <v-btn
+                  v-if="hasCoordinates(item)"
+                  size="small"
+                  color="success"
+                  variant="outlined"
+                  @click="showLocationOnMap(item)"
+                >
+                  <v-icon size="small">mdi-map-marker</v-icon>
+                </v-btn>
                 <v-menu>
                   <template v-slot:activator="{ props }">
                     <v-btn
@@ -287,6 +296,18 @@ const handleStatusChangeSuccess = () => {
 
 const refreshOrders = () => {
   router.reload();
+};
+
+// Map functionality
+const hasCoordinates = (order) => {
+  return order.delivery_latitude && order.delivery_longitude;
+};
+
+const showLocationOnMap = (order) => {
+  if (hasCoordinates(order)) {
+    const url = `https://www.google.com/maps?q=${order.delivery_latitude},${order.delivery_longitude}`;
+    window.open(url, '_blank');
+  }
 };
 
 // Open delete dialog (Parent Activator Pattern)

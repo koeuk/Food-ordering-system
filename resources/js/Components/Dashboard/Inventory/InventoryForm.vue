@@ -33,6 +33,16 @@
                   <v-list-item-subtitle>{{ item.raw.category?.name }}</v-list-item-subtitle>
                 </v-list-item>
               </template>
+              <template v-slot:no-data>
+                <v-list-item>
+                  <v-list-item-title class="text-grey">
+                    No products available for inventory creation
+                  </v-list-item-title>
+                  <v-list-item-subtitle>
+                    All products already have inventory records
+                  </v-list-item-subtitle>
+                </v-list-item>
+              </template>
             </v-select>
           </v-col>
 
@@ -150,6 +160,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useForm } from '@inertiajs/vue3';
+import { useNotifications } from '@/composables/useNotifications';
 
 const props = defineProps({
   inventory: {
@@ -163,6 +174,7 @@ const props = defineProps({
 });
 
 const isEdit = computed(() => !!props.inventory);
+const { handleSuccess, handleError } = useNotifications();
 
 const formRef = ref(null);
 const valid = ref(false);
@@ -245,17 +257,25 @@ const submitForm = () => {
     // Update existing inventory
     form.put(`/dashboard/inventory/${props.inventory.uuid}`, formData, {
       onSuccess: () => {
+        handleSuccess('update', 'Inventory Item');
         // Redirect to inventory index page after successful update
         window.location.href = '/dashboard/inventory';
+      },
+      onError: () => {
+        handleError('update', 'Inventory Item');
       }
     });
   } else {
     // Create new inventory
     form.post('/dashboard/inventory', formData, {
       onSuccess: () => {
+        handleSuccess('create', 'Inventory Item');
         form.reset();
         // Redirect to inventory index page after successful creation
         window.location.href = '/dashboard/inventory';
+      },
+      onError: () => {
+        handleError('create', 'Inventory Item');
       }
     });
   }

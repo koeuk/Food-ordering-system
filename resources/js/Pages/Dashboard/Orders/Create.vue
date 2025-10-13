@@ -80,17 +80,6 @@
                 />
               </v-col>
 
-              <!-- Order Date -->
-              <v-col cols="12" md="6">
-                <v-text-field
-                  v-model="form.order_date"
-                  label="Order Date"
-                  type="datetime-local"
-                  variant="outlined"
-                  :rules="[rules.required]"
-                  required
-                />
-              </v-col>
 
               <!-- Delivery Address -->
               <v-col cols="12">
@@ -251,7 +240,6 @@ const form = ref({
   customer_id: null,
   order_number: '',
   status: 'pending',
-  order_date: '',
   delivery_address: '',
   special_instructions: '',
   order_items: [{
@@ -322,7 +310,6 @@ const removeOrderItem = (index) => {
 onMounted(() => {
   // Set default order date to now
   const now = new Date();
-  form.value.order_date = now.toISOString().slice(0, 16);
 });
 
 const submitForm = () => {

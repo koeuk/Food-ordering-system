@@ -72,11 +72,38 @@
             <v-card-title class="text-h6 font-weight-bold text-grey-darken-3">
               <v-icon left color="success">mdi-chart-line</v-icon>
               Sales Analytics
+              <v-spacer></v-spacer>
+              <v-btn
+                icon
+                size="small"
+                @click="fetchSalesData"
+                :loading="isLoading"
+                color="primary"
+                variant="text"
+              >
+                <v-icon>mdi-refresh</v-icon>
+              </v-btn>
             </v-card-title>
             <v-card-text>
-              <div class="text-center pa-8">
-                <v-icon size="64" color="grey-lighten-2">mdi-chart-line</v-icon>
-                <p class="text-grey-darken-1 mt-4">Sales chart will be implemented here</p>
+              <div v-if="isLoading" class="text-center pa-8">
+                <v-progress-circular indeterminate color="primary" class="mb-4"></v-progress-circular>
+                <p class="text-grey-darken-1">Loading sales data...</p>
+              </div>
+              <div v-else-if="chartError" class="text-center pa-8">
+                <v-icon size="64" color="error" class="mb-4">mdi-alert-circle</v-icon>
+                <p class="text-error mb-4">{{ chartError }}</p>
+                <v-btn color="primary" @click="fetchSalesData">Retry</v-btn>
+              </div>
+              <SalesChart v-else :data="salesData" :options="salesChartOptions" />
+              <div v-if="!isLoading && !chartError" class="mt-4 text-center">
+                <v-chip color="success" size="small" class="mr-2">
+                  <v-icon start>mdi-calendar-month</v-icon>
+                  Last 12 Months
+                </v-chip>
+                <v-chip color="info" size="small">
+                  <v-icon start>mdi-currency-usd</v-icon>
+                  Total: ${{ formatPrice(salesData.datasets[0]?.data.reduce((a, b) => a + b, 0) || 0) }}
+                </v-chip>
               </div>
             </v-card-text>
           </v-card>
@@ -277,9 +304,11 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
+import SalesChart from '@/Components/Charts/SalesChart.vue';
+import axios from 'axios';
 
 const props = defineProps({
   user: Object,
@@ -296,6 +325,86 @@ const props = defineProps({
     type: Array,
     default: () => []
   }
+});
+
+// Reactive data for sales chart
+const salesData = ref({
+  labels: [],
+  datasets: [{
+    label: 'Revenue ($)',
+    data: [],
+    backgroundColor: [],
+    borderColor: [],
+    borderWidth: 2,
+    borderRadius: 8,
+    borderSkipped: false,
+  }]
+});
+
+const isLoading = ref(true);
+const chartError = ref(null);
+
+// Fetch real sales data
+const fetchSalesData = async () => {
+  try {
+    isLoading.value = true;
+    chartError.value = null;
+    
+    const response = await axios.get('/dashboard/api/sales-analytics', {
+      params: {
+        period: 'monthly',
+        months: 12
+      }
+    });
+    
+    const monthlyData = response.data.daily_sales;
+    
+    // Transform the data for Chart.js
+    const labels = monthlyData.map(item => item.month_name);
+    const revenues = monthlyData.map(item => parseFloat(item.revenue) || 0);
+    
+    // Generate colors for each bar
+    const backgroundColors = revenues.map(() => 'rgba(76, 175, 80, 0.8)');
+    const borderColors = revenues.map(() => 'rgba(76, 175, 80, 1)');
+    
+    salesData.value = {
+      labels,
+      datasets: [{
+        label: 'Revenue ($)',
+        data: revenues,
+        backgroundColor: backgroundColors,
+        borderColor: borderColors,
+        borderWidth: 2,
+        borderRadius: 8,
+        borderSkipped: false,
+      }]
+    };
+    
+  } catch (error) {
+    console.error('Error fetching sales data:', error);
+    chartError.value = 'Failed to load sales data';
+    
+    // Fallback to sample data if API fails
+    salesData.value = {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      datasets: [{
+        label: 'Revenue ($)',
+        data: [4200, 3800, 5200, 6100, 5800, 7200, 6800, 7500, 8200, 7800, 8900, 9500],
+        backgroundColor: Array(12).fill('rgba(76, 175, 80, 0.8)'),
+        borderColor: Array(12).fill('rgba(76, 175, 80, 1)'),
+        borderWidth: 2,
+        borderRadius: 8,
+        borderSkipped: false,
+      }]
+    };
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+// Fetch data on component mount
+onMounted(() => {
+  fetchSalesData();
 });
 
 const statsCards = computed(() => [
@@ -364,6 +473,80 @@ const orderStatuses = [
   { name: 'Ready', count: 4, percentage: 20, color: 'purple', icon: 'mdi-check-circle' },
   { name: 'Delivered', count: 3, percentage: 15, color: 'success', icon: 'mdi-truck-delivery' }
 ];
+
+const salesChartOptions = computed(() => ({
+  plugins: {
+    legend: {
+      display: true,
+      position: 'top',
+      labels: {
+        color: '#333',
+        font: {
+          size: 14,
+          weight: 'bold'
+        }
+      }
+    },
+    tooltip: {
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      titleColor: 'white',
+      bodyColor: 'white',
+      borderColor: 'rgba(76, 175, 80, 1)',
+      borderWidth: 1,
+      cornerRadius: 8,
+      displayColors: true,
+      titleFont: {
+        size: 14,
+        weight: 'bold'
+      },
+      bodyFont: {
+        size: 13
+      },
+      callbacks: {
+        title: function(context) {
+          return `Month: ${context[0].label}`;
+        },
+        label: function(context) {
+          return `Revenue: $${context.parsed.y.toLocaleString()}`;
+        }
+      }
+    }
+  },
+  scales: {
+    x: {
+      grid: {
+        display: false
+      },
+      ticks: {
+        color: '#666',
+        font: {
+          size: 12,
+          weight: '500'
+        }
+      }
+    },
+    y: {
+      beginAtZero: true,
+      grid: {
+        color: 'rgba(0, 0, 0, 0.1)',
+        drawBorder: false
+      },
+      ticks: {
+        color: '#666',
+        font: {
+          size: 12
+        },
+        callback: function(value) {
+          return '$' + value.toLocaleString();
+        }
+      }
+    }
+  },
+  animation: {
+    duration: 1200,
+    easing: 'easeInOutQuart'
+  }
+}));
 
 const formatPrice = (price) => {
   const numPrice = typeof price === 'number' ? price : parseFloat(price);

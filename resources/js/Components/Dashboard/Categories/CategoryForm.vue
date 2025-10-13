@@ -46,6 +46,7 @@
 <script setup>
     import { ref, computed, onMounted } from 'vue';
     import { useForm } from '@inertiajs/vue3';
+    import { useNotifications } from '@/composables/useNotifications';
 
     const props = defineProps({
         category: {
@@ -55,6 +56,7 @@
     });
 
     const isEdit = computed(() => !!props.category);
+    const { handleSuccess, handleError } = useNotifications();
 
     const formRef = ref(null);
     const valid = ref(false);
@@ -86,17 +88,25 @@
             // Update existing category
             form.put(`/dashboard/categories/${props.category.uuid}`, {}, {
                 onSuccess: () => {
+                    handleSuccess('update', 'Category');
                     // Redirect to categories index page after successful update
                     window.location.href = '/dashboard/categories';
+                },
+                onError: () => {
+                    handleError('update', 'Category');
                 }
             });
         } else {
             // Create new category
             form.post('/dashboard/categories', {}, {
                 onSuccess: () => {
+                    handleSuccess('create', 'Category');
                     form.reset();
                     // Redirect to categories index page after successful creation
                     window.location.href = '/dashboard/categories';
+                },
+                onError: () => {
+                    handleError('create', 'Category');
                 }
             });
         }

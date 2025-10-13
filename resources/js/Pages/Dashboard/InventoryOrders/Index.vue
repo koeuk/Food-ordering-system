@@ -100,7 +100,7 @@
 
             <!-- Order Date -->
             <template v-slot:item.order_date="{ item }">
-              {{ formatDate(item.order_date) }}
+              {{ formatDate(item.created_at) }}
             </template>
 
             <!-- Expected Date -->

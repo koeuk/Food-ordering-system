@@ -183,6 +183,7 @@
 <script setup>
 import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { useNotifications } from '@/composables/useNotifications';
 
 const props = defineProps({
   product: {
@@ -203,6 +204,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['update:modelValue', 'deleted']);
+const { handleSuccess, handleError } = useNotifications();
 
 const loading = ref(false);
 
@@ -218,11 +220,13 @@ const confirmDelete = () => {
   router.delete(route('dashboard.products.destroy', props.product.uuid), {
     onSuccess: () => {
       loading.value = false;
+      handleSuccess('delete', 'Product');
       emit('update:modelValue', false);
       emit('deleted');
     },
     onError: (errors) => {
       loading.value = false;
+      handleError('delete', 'Product');
       console.error('Delete failed:', errors);
     }
   });

@@ -198,16 +198,54 @@ class DashboardController extends Controller
      */
     public function getSalesAnalytics(Request $request)
     {
-        $days = $request->input('days', 30);
-        $startDate = now()->subDays($days);
+        $period = $request->input('period', 'monthly'); // daily, weekly, monthly
+        $months = $request->input('months', 12); // number of months to show
 
-        // Daily sales data
-        $dailySales = Order::where('created_at', '>=', $startDate)
-            ->where('status', 'delivered')
-            ->selectRaw('DATE(created_at) as date, SUM(total) as revenue, COUNT(*) as orders')
-            ->groupBy('date')
-            ->orderBy('date')
-            ->get();
+        if ($period === 'monthly') {
+            // Monthly sales data for the last 12 months
+            $startDate = now()->subMonths($months - 1)->startOfMonth();
+            
+            $monthlySales = Order::where('created_at', '>=', $startDate)
+                ->where('status', 'delivered')
+                ->selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, SUM(total) as revenue, COUNT(*) as orders')
+                ->groupBy('year', 'month')
+                ->orderBy('year', 'asc')
+                ->orderBy('month', 'asc')
+                ->get();
+
+            // Fill in missing months with zero values
+            $salesData = collect();
+            $currentDate = $startDate;
+            
+            while ($currentDate->lte(now())) {
+                $existingData = $monthlySales->first(function ($item) use ($currentDate) {
+                    return $item->year == $currentDate->year && $item->month == $currentDate->month;
+                });
+                
+                $salesData->push([
+                    'year' => $currentDate->year,
+                    'month' => $currentDate->month,
+                    'month_name' => $currentDate->format('M'),
+                    'revenue' => $existingData ? $existingData->revenue : 0,
+                    'orders' => $existingData ? $existingData->orders : 0,
+                ]);
+                
+                $currentDate->addMonth();
+            }
+            
+            $dailySales = $salesData;
+        } else {
+            // Daily sales data
+            $days = $request->input('days', 30);
+            $startDate = now()->subDays($days);
+
+            $dailySales = Order::where('created_at', '>=', $startDate)
+                ->where('status', 'delivered')
+                ->selectRaw('DATE(created_at) as date, SUM(total) as revenue, COUNT(*) as orders')
+                ->groupBy('date')
+                ->orderBy('date')
+                ->get();
+        }
 
         // Top selling products
         $topProducts = Product::withCount(['orderItems as total_quantity' => function ($query) use ($startDate) {

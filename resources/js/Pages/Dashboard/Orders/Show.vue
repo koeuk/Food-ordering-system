@@ -58,7 +58,7 @@
                 <v-col cols="12" md="6">
                   <div class="mb-4">
                     <div class="text-subtitle-2 text-grey-darken-1 mb-1">Order Date</div>
-                    <div class="text-body-1">{{ formatDateTime(order.order_date) }}</div>
+                    <div class="text-body-1">{{ formatDateTime(order.created_at) }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" md="6">
@@ -94,7 +94,7 @@
                 <v-col cols="12" md="6">
                   <div class="mb-4">
                     <div class="text-subtitle-2 text-grey-darken-1 mb-1">Customer Name</div>
-                    <div class="text-h6">{{ order.customer?.name || 'N/A' }}</div>
+                    <div class="text-h6">{{ order.customer?.name || order.customer_name || 'N/A' }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" md="6">
@@ -106,7 +106,7 @@
                 <v-col cols="12" md="6">
                   <div class="mb-4">
                     <div class="text-subtitle-2 text-grey-darken-1 mb-1">Phone</div>
-                    <div class="text-body-1">{{ order.customer?.phone || 'N/A' }}</div>
+                    <div class="text-body-1">{{ order.customer?.phone || order.customer_phone || 'N/A' }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" md="6">
@@ -118,6 +118,15 @@
               </v-row>
             </v-card-text>
           </v-card>
+
+          <!-- Delivery Location Map -->
+          <DeliveryLocationMap 
+            v-if="order.delivery_address || order.delivery_latitude"
+            :address="order.delivery_address"
+            :coordinates="deliveryCoordinates"
+            :map-height="450"
+            class="mb-6"
+          />
 
           <!-- Order Items -->
           <v-card elevation="2">
@@ -270,6 +279,7 @@ import { computed } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 import OrderStatusChip from '@/Components/Dashboard/OrderStatusChip.vue';
+import DeliveryLocationMap from '@/Components/Map/DeliveryLocationMap.vue';
 
 const props = defineProps({
   order: {
@@ -284,21 +294,33 @@ const formatPrice = (price) => {
 };
 
 const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric'
-  });
+  if (!dateString) return 'N/A';
+  try {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  } catch (error) {
+    console.error('Date formatting error:', error);
+    return 'Invalid Date';
+  }
 };
 
 const formatDateTime = (dateString) => {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+  if (!dateString) return 'N/A';
+  try {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  } catch (error) {
+    console.error('Date formatting error:', error);
+    return 'Invalid Date';
+  }
 };
 
 const orderTimeline = computed(() => {
@@ -316,6 +338,16 @@ const orderTimeline = computed(() => {
     ...status,
     active: index <= currentIndex
   }));
+});
+
+const deliveryCoordinates = computed(() => {
+  if (props.order.delivery_latitude && props.order.delivery_longitude) {
+    return {
+      lat: parseFloat(props.order.delivery_latitude),
+      lng: parseFloat(props.order.delivery_longitude)
+    };
+  }
+  return null;
 });
 
 const updateOrderStatus = (newStatus) => {

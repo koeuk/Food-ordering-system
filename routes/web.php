@@ -45,7 +45,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
         $user = \Illuminate\Support\Facades\Auth::user();
         
-        if ($user->isAdmin()) {
+        if ($user && $user->role === 'admin') {
             return redirect()->route('dashboard.admin');
         } else {
             return redirect()->route('dashboard.user');
@@ -82,6 +82,14 @@ Route::get('/products', function () {
     return redirect()->route('web.products.index');
 });
 
+// Blog Routes
+Route::prefix('blog')->name('blog.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Web\BlogController::class, 'index'])->name('index');
+    Route::get('/about', [\App\Http\Controllers\Web\BlogController::class, 'about'])->name('about');
+    Route::get('/vision', [\App\Http\Controllers\Web\BlogController::class, 'vision'])->name('vision');
+    Route::get('/policy', [\App\Http\Controllers\Web\BlogController::class, 'policy'])->name('policy');
+});
+
 // Authenticated Customer Routes
 Route::middleware(['auth'])->group(function () {
     // Profile
@@ -91,8 +99,8 @@ Route::middleware(['auth'])->group(function () {
 
     // User Orders (Customer Orders)
     Route::get('/my-orders', [WebOrderController::class, 'index'])->name('my-orders.index');
-    Route::get('/my-orders/{order}', [WebOrderController::class, 'show'])->name('my-orders.show');
-    Route::post('/orders/{order}/cancel', [WebOrderController::class, 'cancel'])->name('orders.cancel');
+    Route::get('/my-orders/{order:uuid}', [WebOrderController::class, 'show'])->name('my-orders.show');
+    Route::post('/orders/{order:uuid}/cancel', [WebOrderController::class, 'cancel'])->name('orders.cancel');
 
     // Bills
     Route::get('/bills/{bill}', [BillController::class, 'show'])->name('bills.show');
@@ -163,6 +171,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('dashboard')->name('dashboard.
     Route::get('/reports/sales', [DashboardController::class, 'salesReport'])->name('reports.sales');
     Route::get('/reports/inventory', [DashboardController::class, 'inventoryReport'])->name('reports.inventory');
     Route::get('/reports/analytics', [DashboardController::class, 'analytics'])->name('reports.analytics');
+    
+    // API Routes for Dashboard Data
+    Route::get('/api/sales-analytics', [DashboardController::class, 'getSalesAnalytics'])->name('api.sales-analytics');
+    Route::get('/api/dashboard-stats', [DashboardController::class, 'getDashboardStats'])->name('api.dashboard-stats');
+    Route::get('/api/order-status-analytics', [DashboardController::class, 'getOrderStatusAnalytics'])->name('api.order-status-analytics');
 });
 
 require __DIR__.'/auth.php';

@@ -23,8 +23,31 @@
         </v-btn>
       </div>
 
+      <!-- Show message if no products available -->
+      <v-alert
+        v-if="!hasAvailableProducts"
+        type="info"
+        variant="tonal"
+        class="mb-6"
+      >
+        <template v-slot:prepend>
+          <v-icon>mdi-information</v-icon>
+        </template>
+        <div>
+          <div class="text-h6 font-weight-bold mb-2">All products already have inventory!</div>
+          <p class="mb-3">
+            You have {{ totalCount }} products and all of them already have inventory records. 
+            To manage inventory, please go to the inventory list and edit existing records.
+          </p>
+          <v-btn color="primary" href="/dashboard/inventory">
+            <v-icon left>mdi-view-list</v-icon>
+            View Inventory List
+          </v-btn>
+        </div>
+      </v-alert>
+
       <!-- Inventory Form Component -->
-      <InventoryForm :products="products" />
+      <InventoryForm v-else :products="products" />
     </v-container>
   </DashboardLayout>
 </template>
@@ -38,6 +61,14 @@ defineProps({
   products: {
     type: Array,
     default: () => []
+  },
+  hasAvailableProducts: {
+    type: Boolean,
+    default: false
+  },
+  totalCount: {
+    type: Number,
+    default: 0
   }
 });
 </script>

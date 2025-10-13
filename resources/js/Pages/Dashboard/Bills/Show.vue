@@ -123,7 +123,7 @@
                 <v-col cols="12" md="6">
                   <div class="mb-4">
                     <div class="text-subtitle-2 text-grey-darken-1 mb-1">Order Date</div>
-                    <div class="text-body-1">{{ formatDate(bill.order.order_date) }}</div>
+                    <div class="text-body-1">{{ formatDate(bill.order.created_at) }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" md="6">
