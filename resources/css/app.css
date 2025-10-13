@@ -68,6 +68,10 @@
     --v-theme-on-secondary: #FFFFFF;
 }
 
+.v-theme--dark .v-main {
+    background-color: #121212 !important;
+}
+
 .v-theme--light {
     --v-theme-surface: #FFFFFF;
     --v-theme-background: #FAFAFA;
@@ -75,6 +79,10 @@
     --v-theme-on-background: #000000;
     --v-theme-on-primary: #FFFFFF;
     --v-theme-on-secondary: #000000;
+}
+
+.v-theme--light .v-main {
+    background-color: #FAFAFA !important;
 }
 
 /* Dark Theme Specific Styles */

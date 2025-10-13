@@ -93,9 +93,10 @@
       v-model="drawer"
       permanent
       app
-      color="purple-darken-2"
+      :color="isDark ? 'grey-darken-4' : 'purple-darken-2'"
       width="280"
       class="dashboard-drawer"
+      :class="{ 'dark-sidebar': isDark, 'light-sidebar': !isDark }"
     >
       <!-- Drawer Header -->
       <v-list-item title="Admin Dashboard" subtitle="Food Ordering System"></v-list-item>
@@ -186,10 +187,11 @@
         <div class="pa-4">
           <v-btn
             @click="logout"
-            color="grey-darken-3"
+            :color="isDark ? 'grey-darken-3' : 'purple-darken-3'"
             variant="flat"
             block
-            class="text-white font-weight-medium"
+            class="font-weight-medium"
+            :class="isDark ? 'text-white' : 'text-white'"
             size="large"
           >
             <v-icon left>mdi-logout</v-icon>
@@ -226,7 +228,7 @@
     <NotificationSnackbar />
 
     <!-- Main Content -->
-    <v-main>
+    <v-main :class="{ 'dark-main': isDark, 'light-main': !isDark }">
       <v-container fluid class="pa-4">
         <slot />
       </v-container>
@@ -321,35 +323,82 @@ const isActiveRoute = (routePath) => {
 </script>
 
 <style scoped>
-.dashboard-drawer {
-  background: linear-gradient(180deg, #673AB7 0%, #512DA8 100%);
+/* Light theme sidebar (purple) */
+.light-sidebar {
+  background: linear-gradient(180deg, #673AB7 0%, #512DA8 100%) !important;
 }
 
-.dashboard-drawer .v-list-item {
+.light-sidebar .v-list-item {
   color: white !important;
 }
 
-.dashboard-drawer .v-list-item:hover {
+.light-sidebar .v-list-item:hover {
   background-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-.dashboard-drawer .v-list-item--active {
+.light-sidebar .v-list-item--active {
   background-color: rgba(255, 255, 255, 0.25) !important;
   border-left: 4px solid #FFD700 !important;
   font-weight: 600 !important;
 }
 
-.dashboard-drawer .v-list-item--active .v-icon {
+.light-sidebar .v-list-item--active .v-icon {
   color: #FFD700 !important;
 }
 
-.dashboard-drawer .v-list-item--active .v-list-item-title {
+.light-sidebar .v-list-item--active .v-list-item-title {
   color: #FFD700 !important;
   font-weight: 600 !important;
 }
 
-.dashboard-drawer .v-divider {
+.light-sidebar .v-divider {
   border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Dark theme sidebar (dark grey) */
+.dark-sidebar {
+  background: linear-gradient(180deg, #2C2C2C 0%, #1A1A1A 100%) !important;
+}
+
+.dark-sidebar .v-list-item {
+  color: white !important;
+}
+
+.dark-sidebar .v-list-item:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark-sidebar .v-list-item--active {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  border-left: 4px solid #2196F3 !important;
+  font-weight: 600 !important;
+}
+
+.dark-sidebar .v-list-item--active .v-icon {
+  color: #2196F3 !important;
+}
+
+.dark-sidebar .v-list-item--active .v-list-item-title {
+  color: #2196F3 !important;
+  font-weight: 600 !important;
+}
+
+.dark-sidebar .v-divider {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Main content area themes */
+.light-main {
+  background-color: #FAFAFA !important;
+}
+
+.dark-main {
+  background-color: #121212 !important;
+}
+
+/* Legacy support */
+.dashboard-drawer {
+  transition: background 0.3s ease;
 }
 
 /* Theme transition animations */
