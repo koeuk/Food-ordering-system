@@ -237,9 +237,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed } from 'vue';
 import { usePage, router } from '@inertiajs/vue3';
 import NotificationSnackbar from '@/Components/Global/NotificationSnackbar.vue';
+import { useTheme } from '@/composables/useTheme';
 
 const props = defineProps({
   user: {
@@ -253,8 +254,8 @@ const drawer = ref(true);
 const showSuccessSnackbar = ref(true);
 const showErrorSnackbar = ref(true);
 
-// Theme management
-const isDark = ref(false); // Default to light theme
+// Theme management using composable
+const { isDark, toggleTheme } = useTheme();
 
 const user = computed(() => page.props.auth?.user);
 const flash = computed(() => page.props.flash);
@@ -270,47 +271,6 @@ const getRoleColor = (role) => {
   };
   return colors[role] || 'grey';
 };
-
-// Theme persistence functions
-const loadTheme = () => {
-  const savedTheme = localStorage.getItem('theme');
-  if (savedTheme) {
-    isDark.value = savedTheme === 'dark';
-  } else {
-    // Default to light theme
-    isDark.value = false;
-  }
-  applyTheme();
-};
-
-const saveTheme = () => {
-  localStorage.setItem('theme', isDark.value ? 'dark' : 'light');
-};
-
-const applyTheme = () => {
-  const html = document.documentElement;
-  if (isDark.value) {
-    html.classList.add('dark');
-    html.setAttribute('data-theme', 'dark');
-  } else {
-    html.classList.remove('dark');
-    html.setAttribute('data-theme', 'light');
-  }
-};
-
-const toggleTheme = () => {
-  isDark.value = !isDark.value;
-  applyTheme();
-  saveTheme();
-  
-  // Optional: Show a brief notification
-  console.log(`Theme switched to: ${isDark.value ? 'dark' : 'light'} mode`);
-};
-
-// Initialize theme on component mount
-onMounted(() => {
-  loadTheme();
-});
 
 const logout = () => {
   router.post('/logout');

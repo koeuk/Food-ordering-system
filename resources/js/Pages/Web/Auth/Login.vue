@@ -1,5 +1,18 @@
 <template>
-  <v-app>
+  <v-app :theme="isDark ? 'dark' : 'light'">
+    <v-app-bar app color="primary" dark elevation="0">
+      <v-spacer />
+      <!-- Theme Toggle -->
+      <v-btn
+        icon
+        variant="text"
+        @click="toggleTheme"
+        class="mr-2"
+        :title="isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme'"
+      >
+        <v-icon>{{ isDark ? 'mdi-weather-sunny' : 'mdi-weather-night' }}</v-icon>
+      </v-btn>
+    </v-app-bar>
     <v-main>
       <v-container fluid class="fill-height">
         <v-row align="center" justify="center">
@@ -100,6 +113,10 @@
 
 <script setup>
 import { useForm } from '@inertiajs/vue3';
+import { useTheme } from '@/composables/useTheme';
+
+// Theme management
+const { isDark, toggleTheme } = useTheme();
 
 const form = useForm({
   email: '',

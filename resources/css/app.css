@@ -55,6 +55,18 @@
     }
     body {
         @apply bg-background text-foreground;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    
+    /* Dark theme body styles */
+    body.dark-theme {
+        background-color: #121212 !important;
+        color: #FFFFFF !important;
+    }
+    
+    body.light-theme {
+        background-color: #FAFAFA !important;
+        color: #000000 !important;
     }
 }
 
@@ -210,4 +222,61 @@
 
 .v-theme--dark .v-card.purple {
     background-color: #9C27B0 !important;
+}
+
+/* Dark theme styles using .dark class */
+.dark {
+    background-color: #121212 !important;
+}
+
+.dark .v-app {
+    background-color: #121212 !important;
+}
+
+.dark .v-main {
+    background-color: #121212 !important;
+}
+
+.dark .v-container {
+    background-color: transparent !important;
+}
+
+.dark .bg-grey-lighten-5,
+.dark .bg-grey-lighten-4,
+.dark .bg-grey-lighten-3,
+.dark .bg-grey-lighten-2,
+.dark .bg-grey-lighten-1 {
+    background-color: #1E1E1E !important;
+}
+
+.dark .text-grey-darken-1,
+.dark .text-grey-darken-2,
+.dark .text-grey-darken-3 {
+    color: #CCCCCC !important;
+}
+
+.dark .text-black {
+    color: #FFFFFF !important;
+}
+
+.dark .text-grey {
+    color: #B0B0B0 !important;
+}
+
+.dark .text-h4,
+.dark .text-h6 {
+    color: #FFFFFF !important;
+}
+
+.dark .v-card {
+    background-color: #2C2C2C !important;
+    color: #FFFFFF !important;
+}
+
+.dark .v-parallax {
+    background-color: #1E1E1E !important;
+}
+
+.dark .v-parallax__content {
+    background-color: rgba(30, 30, 30, 0.8) !important;
 }

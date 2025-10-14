@@ -4,23 +4,28 @@
 
     <v-container>
       <!-- Header -->
-      <div class="text-center mb-8">
-        <v-btn
-          color="grey"
-          variant="outlined"
-          class="mb-4"
-          href="/blog"
-        >
-          <v-icon left>mdi-arrow-left</v-icon>
-          Back to Blog
-        </v-btn>
+      <div class="mb-8">
+        <!-- Back Button - Left Aligned -->
+        <div class="mb-4">
+          <v-btn
+            color="grey"
+            variant="outlined"
+            href="/blog"
+          >
+            <v-icon left>mdi-arrow-left</v-icon>
+            Back to Blog
+          </v-btn>
+        </div>
         
-        <h1 class="text-h2 font-weight-bold text-grey-darken-3 mb-4">
-          Our Vision
-        </h1>
-        <p class="text-h6 text-grey-darken-1 max-width-600 mx-auto">
-          Discover our vision for the future of food delivery and how we're revolutionizing the industry to serve you better.
-        </p>
+        <!-- Title and Description - Center Aligned -->
+        <div class="text-center">
+          <h1 class="text-h2 font-weight-bold text-grey-darken-3 mb-4">
+            Our Vision
+          </h1>
+          <p class="text-h6 text-grey-darken-1 max-width-600 mx-auto">
+            Discover our vision for the future of food delivery and how we're revolutionizing the industry to serve you better.
+          </p>
+        </div>
       </div>
 
       <!-- Main Content -->

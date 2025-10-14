@@ -30,7 +30,7 @@
         <v-chip-group
           v-model="selectedCategory"
           mandatory
-          selected-class="text-primary"
+          selected-class="text-white"
           class="category-chips"
         >
           <v-chip
@@ -40,6 +40,8 @@
             :prepend-icon="getCategoryIcon(category.name)"
             size="large"
             class="category-chip"
+            :color="selectedCategory === category.id ? 'primary' : 'grey-darken-3'"
+            :variant="selectedCategory === category.id ? 'flat' : 'outlined'"
           >
             {{ category.name }}
           </v-chip>
@@ -374,6 +376,53 @@ onMounted(() => {
 
 .category-chip {
   margin: 4px;
+}
+
+/* Dark theme category chip styles */
+.dark .category-chip {
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.dark .category-chip:not(.v-chip--selected) {
+  background-color: #424242 !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.dark .category-chip:not(.v-chip--selected) .v-icon {
+  color: #FFFFFF !important;
+}
+
+.dark .category-chip.v-chip--selected {
+  background-color: #1976D2 !important;
+  color: #FFFFFF !important;
+}
+
+.dark .category-chip.v-chip--selected .v-icon {
+  color: #FFFFFF !important;
+}
+
+/* General dark theme text consistency */
+.dark .text-h4,
+.dark .text-h6 {
+  color: #FFFFFF !important;
+}
+
+.dark .text-grey-darken-1 {
+  color: #CCCCCC !important;
+}
+
+.dark .v-card {
+  background-color: #2C2C2C !important;
+  color: #FFFFFF !important;
+}
+
+.dark .product-title {
+  color: #FFFFFF !important;
+}
+
+.dark .product-description {
+  color: #CCCCCC !important;
 }
 
 /* Responsive adjustments */

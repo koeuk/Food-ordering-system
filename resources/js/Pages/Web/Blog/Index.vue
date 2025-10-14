@@ -6,7 +6,7 @@
       <!-- Header Section -->
       <div class="text-center mb-12">
         <h1 class="text-h2 font-weight-bold text-grey-darken-3 mb-4">
-          Our Blog
+          Our Information
         </h1>
         <p class="text-h6 text-grey-darken-1 max-width-600 mx-auto">
           Discover stories, insights, and updates from our food ordering system. 

@@ -17,10 +17,11 @@
         icon
         variant="text"
         @click="toggleTheme"
-        class="mr-2"
+        class="mr-2 theme-toggle-btn"
         :title="isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme'"
+        size="large"
       >
-        <v-icon>{{ isDark ? 'mdi-weather-sunny' : 'mdi-weather-night' }}</v-icon>
+        <v-icon size="24">{{ isDark ? 'mdi-weather-sunny' : 'mdi-weather-night' }}</v-icon>
       </v-btn>
 
       <!-- Desktop Navigation -->
@@ -130,6 +131,15 @@
             Food Ordering System
           </v-list-item-title>
         </v-list-item>
+        
+        <!-- Theme Toggle in Mobile Menu -->
+        <v-list-item @click="toggleTheme">
+          <template v-slot:prepend>
+            <v-icon>{{ isDark ? 'mdi-weather-sunny' : 'mdi-weather-night' }}</v-icon>
+          </template>
+          <v-list-item-title>{{ isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme' }}</v-list-item-title>
+        </v-list-item>
+        
         <v-divider />
 
         <v-list-item href="/web/products">
@@ -246,9 +256,10 @@
 </template>
 
 <script setup>
-  import { ref, computed, onMounted } from 'vue';
+  import { ref, computed } from 'vue';
   import { Link, usePage } from '@inertiajs/vue3';
   import { router } from '@inertiajs/vue3';
+  import { useTheme } from '@/composables/useTheme';
 
   const props = defineProps({
     user: {
@@ -262,8 +273,8 @@ const drawer = ref(false);
 const showSuccessSnackbar = ref(true);
 const showErrorSnackbar = ref(true);
 
-// Theme management
-const isDark = ref(false); // Default to light theme
+// Theme management using composable
+const { isDark, toggleTheme } = useTheme();
 
 const user = computed(() => page.props.auth?.user);
 const flash = computed(() => page.props.flash);
@@ -271,47 +282,6 @@ const flash = computed(() => page.props.flash);
   const capitalizeRole = (role) => {
     return role.charAt(0).toUpperCase() + role.slice(1);
   };
-
-  // Theme persistence functions
-  const loadTheme = () => {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      isDark.value = savedTheme === 'dark';
-    } else {
-      // Default to light theme
-      isDark.value = false;
-    }
-    applyTheme();
-  };
-
-  const saveTheme = () => {
-    localStorage.setItem('theme', isDark.value ? 'dark' : 'light');
-  };
-
-  const applyTheme = () => {
-    const html = document.documentElement;
-    if (isDark.value) {
-      html.classList.add('dark');
-      html.setAttribute('data-theme', 'dark');
-    } else {
-      html.classList.remove('dark');
-      html.setAttribute('data-theme', 'light');
-    }
-  };
-
-  const toggleTheme = () => {
-    isDark.value = !isDark.value;
-    applyTheme();
-    saveTheme();
-    
-    // Optional: Show a brief notification
-    console.log(`Theme switched to: ${isDark.value ? 'dark' : 'light'} mode`);
-  };
-
-  // Initialize theme on component mount
-  onMounted(() => {
-    loadTheme();
-  });
 
   const logout = () => {
     router.post('/logout', {}, {
@@ -322,3 +292,20 @@ const flash = computed(() => page.props.flash);
     });
   };
 </script>
+
+<style scoped>
+.theme-toggle-btn {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  transition: all 0.3s ease !important;
+}
+
+.theme-toggle-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  transform: scale(1.1) !important;
+}
+
+.theme-toggle-btn .v-icon {
+  color: white !important;
+}
+</style>
