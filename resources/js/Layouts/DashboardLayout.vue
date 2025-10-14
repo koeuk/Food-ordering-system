@@ -93,7 +93,7 @@
       v-model="drawer"
       permanent
       app
-      :color="isDark ? 'grey-darken-4' : 'purple-darken-2'"
+      :color="isDark ? 'grey-darken-4' : 'grey'"
       width="280"
       class="dashboard-drawer"
       :class="{ 'dark-sidebar': isDark, 'light-sidebar': !isDark }"
@@ -187,7 +187,7 @@
         <div class="pa-4">
           <v-btn
             @click="logout"
-            :color="isDark ? 'grey-darken-3' : 'purple-darken-3'"
+            :color="isDark ? 'grey-darken-4' : 'grey-darken-4'"
             variant="flat"
             block
             class="font-weight-medium"
@@ -323,9 +323,9 @@ const isActiveRoute = (routePath) => {
 </script>
 
 <style scoped>
-/* Light theme sidebar (purple) */
+/* Light theme sidebar (gray-green) */
 .light-sidebar {
-  background: linear-gradient(180deg, #673AB7 0%, #512DA8 100%) !important;
+  background: linear-gradient(180deg, #737B79 0%, #5A615F 100%) !important;
 }
 
 .light-sidebar .v-list-item {
@@ -355,9 +355,9 @@ const isActiveRoute = (routePath) => {
   border-color: rgba(255, 255, 255, 0.2) !important;
 }
 
-/* Dark theme sidebar (dark grey) */
+/* Dark theme sidebar (darker gray-green) */
 .dark-sidebar {
-  background: linear-gradient(180deg, #2C2C2C 0%, #1A1A1A 100%) !important;
+  background: linear-gradient(180deg, #4A504E 0%, #3A3F3D 100%) !important;
 }
 
 .dark-sidebar .v-list-item {

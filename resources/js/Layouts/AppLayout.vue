@@ -31,8 +31,8 @@
         </v-btn>
         
         <v-btn text dark href="/blog" class="mx-2">
-          <v-icon left>mdi-newspaper</v-icon>
-          Blog
+          <v-icon left>mdi-information</v-icon>
+          About Us
         </v-btn>
 
         <template v-if="user">
@@ -140,9 +140,9 @@
         </v-list-item>
         <v-list-item href="/blog">
           <template v-slot:prepend>
-            <v-icon>mdi-newspaper</v-icon>
+            <v-icon>mdi-information</v-icon>
           </template>
-          <v-list-item-title>Blog</v-list-item-title>
+          <v-list-item-title>About Us</v-list-item-title>
         </v-list-item>
         <v-list-item href="/web/cart">
           <template v-slot:prepend>

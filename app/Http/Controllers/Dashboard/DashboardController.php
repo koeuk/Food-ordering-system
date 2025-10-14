@@ -70,10 +70,16 @@ class DashboardController extends Controller
             ->latest()
             ->get();
 
-        // Top selling products
-        $topProducts = Product::withCount('orderItems')
-            ->orderBy('order_items_count', 'desc')
-            ->take(5)
+        // Top selling products with category information
+        $topProducts = Product::with(['category', 'inventory'])
+            ->withCount(['orderItems as total_sales' => function ($query) {
+                $query->whereHas('order', function ($q) {
+                    $q->where('status', 'delivered');
+                });
+            }])
+            ->where('is_available', true)
+            ->orderBy('total_sales', 'desc')
+            ->take(10)
             ->get();
 
         return Inertia::render('Dashboard/Admin', [
@@ -247,15 +253,17 @@ class DashboardController extends Controller
                 ->get();
         }
 
-        // Top selling products
-        $topProducts = Product::withCount(['orderItems as total_quantity' => function ($query) use ($startDate) {
+        // Top selling products with category information
+        $topProducts = Product::with(['category', 'inventory'])
+            ->withCount(['orderItems as order_items_count' => function ($query) use ($startDate) {
                 $query->whereHas('order', function ($q) use ($startDate) {
                     $q->where('created_at', '>=', $startDate)
                       ->where('status', 'delivered');
                 });
             }])
-            ->orderBy('total_quantity', 'desc')
-            ->take(10)
+            ->where('is_available', true)
+            ->orderBy('order_items_count', 'desc')
+            ->take(15)
             ->get();
 
         // Sales by category

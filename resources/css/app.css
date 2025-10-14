@@ -169,3 +169,45 @@
 .v-theme--light .text-grey-darken-2 {
     color: #333333 !important;
 }
+
+/* Force colored backgrounds for statistics cards in all themes */
+.v-card.success {
+    background-color: #4CAF50 !important;
+}
+
+.v-card.primary {
+    background-color: #2196F3 !important;
+}
+
+.v-card.info {
+    background-color: #00BCD4 !important;
+}
+
+.v-card.warning {
+    background-color: #FF9800 !important;
+}
+
+.v-card.purple {
+    background-color: #9C27B0 !important;
+}
+
+/* Override dark theme specifically for colored cards */
+.v-theme--dark .v-card.success {
+    background-color: #4CAF50 !important;
+}
+
+.v-theme--dark .v-card.primary {
+    background-color: #2196F3 !important;
+}
+
+.v-theme--dark .v-card.info {
+    background-color: #00BCD4 !important;
+}
+
+.v-theme--dark .v-card.warning {
+    background-color: #FF9800 !important;
+}
+
+.v-theme--dark .v-card.purple {
+    background-color: #9C27B0 !important;
+}

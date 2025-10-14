@@ -90,6 +90,11 @@ Route::prefix('blog')->name('blog.')->group(function () {
     Route::get('/policy', [\App\Http\Controllers\Web\BlogController::class, 'policy'])->name('policy');
 });
 
+// Public API Routes (no authentication required)
+Route::prefix('api/public')->name('api.public.')->group(function () {
+    Route::get('/products/featured', [\App\Http\Controllers\Web\ProductController::class, 'getFeaturedProducts'])->name('products.featured');
+});
+
 // Authenticated Customer Routes
 Route::middleware(['auth'])->group(function () {
     // Profile

@@ -83,4 +83,42 @@ class ProductController extends Controller
             'related_products' => $relatedProducts
         ]);
     }
+
+    /**
+     * Get featured products for homepage display
+     */
+    public function getFeaturedProducts()
+    {
+        // Get popular products with category information based on sales data
+        $featuredProducts = Product::with(['category', 'inventory'])
+            ->where('is_available', true)
+            ->withCount(['orderItems as order_count' => function ($query) {
+                $query->whereHas('order', function ($q) {
+                    $q->where('status', 'delivered')
+                      ->where('created_at', '>=', now()->subMonths(6));
+                });
+            }])
+            ->orderBy('order_count', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->limit(24)
+            ->get();
+
+        // If no products with sales, get recent available products
+        if ($featuredProducts->count() === 0) {
+            $featuredProducts = Product::with(['category', 'inventory'])
+                ->where('is_available', true)
+                ->orderBy('created_at', 'desc')
+                ->limit(12)
+                ->get()
+                ->map(function ($product) {
+                    $product->order_count = 0;
+                    return $product;
+                });
+        }
+
+        return response()->json([
+            'products' => $featuredProducts,
+            'total_count' => $featuredProducts->count()
+        ]);
+    }
 }

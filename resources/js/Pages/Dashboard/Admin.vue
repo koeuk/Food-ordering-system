@@ -24,14 +24,14 @@
           >
             <div class="d-flex align-center">
               <div class="flex-grow-1">
-                <div class="text-h6 font-weight-bold text-white mb-1">
+                <div class="text-h6 font-weight-bold mb-1" :style="isDark ? 'color: white !important; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);' : 'color: black !important; text-shadow: 1px 1px 2px rgba(255,255,255,0.5);'">
                   {{ stat.value }}
                 </div>
-                <div class="text-subtitle-2 text-white">
+                <div class="text-subtitle-2" :style="isDark ? 'color: white !important; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);' : 'color: black !important; text-shadow: 1px 1px 2px rgba(255,255,255,0.5);'">
                   {{ stat.title }}
                 </div>
               </div>
-              <v-icon size="48" color="white" class="ml-4">
+              <v-icon size="48" :color="isDark ? 'white' : 'black'" class="ml-4">
                 {{ stat.icon }}
               </v-icon>
             </div>
@@ -136,6 +136,13 @@
               </div>
             </v-card-text>
           </v-card>
+        </v-col>
+      </v-row>
+
+      <!-- Top Products Section -->
+      <v-row class="mb-8">
+        <v-col cols="12">
+          <TopProducts :top-products="topProducts" />
         </v-col>
       </v-row>
 
@@ -291,8 +298,8 @@
                   </template>
                 </v-list-item>
               </v-list>
-              <div v-else class="text-center py-8 text-grey-darken-1">
-                <v-icon size="48" color="success">mdi-check-circle</v-icon>
+              <div v-else class="text-center py-8">
+                <v-icon size="48" >mdi-check-circle</v-icon>
                 <p class="mt-4">All items in stock</p>
               </div>
             </v-card-text>
@@ -308,6 +315,7 @@ import { computed, ref, onMounted } from 'vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 import SalesChart from '@/Components/Charts/SalesChart.vue';
+import TopProducts from '@/Components/Dashboard/TopProducts.vue';
 import axios from 'axios';
 
 const props = defineProps({
@@ -324,7 +332,62 @@ const props = defineProps({
   lowStockItems: {
     type: Array,
     default: () => []
+  },
+  topProducts: {
+    type: Array,
+    default: () => []
   }
+});
+
+// Theme detection - more robust
+const isDark = ref(false);
+
+const loadTheme = () => {
+  const savedTheme = localStorage.getItem('theme');
+  const htmlElement = document.documentElement;
+  
+  if (savedTheme) {
+    isDark.value = savedTheme === 'dark';
+  } else if (htmlElement.classList.contains('dark')) {
+    isDark.value = true;
+  } else {
+    isDark.value = false; // Default to light theme
+  }
+};
+
+// Theme-aware text color - force the right color
+const statsTextColor = computed(() => {
+  return isDark.value ? 'text-white' : 'text-black';
+});
+
+// Listen for theme changes - multiple methods
+const setupThemeListener = () => {
+  // Listen for storage changes
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'theme') {
+      loadTheme();
+    }
+  });
+  
+  // Listen for DOM changes (when theme toggle is clicked)
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+        loadTheme();
+      }
+    });
+  });
+  
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['class']
+  });
+};
+
+onMounted(() => {
+  loadTheme();
+  setupThemeListener();
+  fetchSalesData();
 });
 
 // Reactive data for sales chart
@@ -402,10 +465,7 @@ const fetchSalesData = async () => {
   }
 };
 
-// Fetch data on component mount
-onMounted(() => {
-  fetchSalesData();
-});
+// Fetch data on component mount (moved to main onMounted above)
 
 const statsCards = computed(() => [
   {
@@ -418,7 +478,7 @@ const statsCards = computed(() => [
     title: 'Orders Today',
     value: props.stats?.orders_today || 0,
     icon: 'mdi-shopping',
-    color: 'primary'
+
   },
   {
     title: 'Active Products',
@@ -593,3 +653,133 @@ const restockItem = (itemId) => {
   router.visit(route('dashboard.inventory.index'));
 };
 </script>
+
+<style scoped>
+/* Force colored backgrounds on statistics cards - override dark theme */
+.v-card.success {
+  background-color: #4CAF50 !important;
+}
+
+.v-card.primary {
+  background-color: #2196F3 !important;
+}
+
+.v-card.info {
+  background-color: #00BCD4 !important;
+}
+
+.v-card.warning {
+  background-color: #FF9800 !important;
+}
+
+.v-card.purple {
+  background-color: #9C27B0 !important;
+}
+
+/* Override dark theme for statistics cards */
+.v-theme--dark .v-card.success {
+  background-color: #4CAF50 !important;
+}
+
+.v-theme--dark .v-card.primary {
+  background-color: #2196F3 !important;
+}
+
+.v-theme--dark .v-card.info {
+  background-color: #00BCD4 !important;
+}
+
+.v-theme--dark .v-card.warning {
+  background-color: #FF9800 !important;
+}
+
+.v-theme--dark .v-card.purple {
+  background-color: #9C27B0 !important;
+}
+
+/* Override any other theme overrides */
+.v-theme--light .v-card.success,
+.v-theme--light .v-card.primary,
+.v-theme--light .v-card.info,
+.v-theme--light .v-card.warning,
+.v-theme--light .v-card.purple {
+  background-color: inherit !important;
+}
+
+/* Ensure statistics cards have proper contrast */
+.v-card[class*="bg-"] .text-white {
+  color: white !important;
+}
+
+.v-card[class*="bg-"] .text-black {
+  color: black !important;
+}
+
+/* Force proper text colors on colored cards */
+.v-card.success .text-h6,
+.v-card.primary .text-h6,
+.v-card.info .text-h6,
+.v-card.warning .text-h6,
+.v-card.purple .text-h6 {
+  color: white !important;
+}
+
+.v-card.success .text-subtitle-2,
+.v-card.primary .text-subtitle-2,
+.v-card.info .text-subtitle-2,
+.v-card.warning .text-subtitle-2,
+.v-card.purple .text-subtitle-2 {
+  color: white !important;
+}
+
+/* Dark theme - force white text */
+.v-theme--dark .v-card.success .text-h6,
+.v-theme--dark .v-card.primary .text-h6,
+.v-theme--dark .v-card.info .text-h6,
+.v-theme--dark .v-card.warning .text-h6,
+.v-theme--dark .v-card.purple .text-h6 {
+  color: white !important;
+}
+
+.v-theme--dark .v-card.success .text-subtitle-2,
+.v-theme--dark .v-card.primary .text-subtitle-2,
+.v-theme--dark .v-card.info .text-subtitle-2,
+.v-theme--dark .v-card.warning .text-subtitle-2,
+.v-theme--dark .v-card.purple .text-subtitle-2 {
+  color: white !important;
+}
+
+/* Light theme - force black text */
+.v-theme--light .v-card.success .text-h6,
+.v-theme--light .v-card.primary .text-h6,
+.v-theme--light .v-card.info .text-h6,
+.v-theme--light .v-card.warning .text-h6,
+.v-theme--light .v-card.purple .text-h6 {
+  color: black !important;
+}
+
+.v-theme--light .v-card.success .text-subtitle-2,
+.v-theme--light .v-card.primary .text-subtitle-2,
+.v-theme--light .v-card.info .text-subtitle-2,
+.v-theme--light .v-card.warning .text-subtitle-2,
+.v-theme--light .v-card.purple .text-subtitle-2 {
+  color: black !important;
+}
+
+/* Force icon colors based on theme */
+.v-theme--dark .v-card.success .v-icon,
+.v-theme--dark .v-card.primary .v-icon,
+.v-theme--dark .v-card.info .v-icon,
+.v-theme--dark .v-card.warning .v-icon,
+.v-theme--dark .v-card.purple .v-icon {
+  color: white !important;
+}
+
+.v-theme--light .v-card.success .v-icon,
+.v-theme--light .v-card.primary .v-icon,
+.v-theme--light .v-card.info .v-icon,
+.v-theme--light .v-card.warning .v-icon,
+.v-theme--light .v-card.purple .v-icon {
+  color: black !important;
+}
+</style>

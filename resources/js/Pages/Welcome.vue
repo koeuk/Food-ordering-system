@@ -29,40 +29,11 @@
           </div>
         </v-parallax>
 
-        <!-- Features Section -->
-        <v-container class="py-12">
-          <h2 class="text-h4 font-weight-bold text-center mb-8">
-            Why Choose Our Food Ordering System?
-          </h2>
-          
-          <v-row>
-            <v-col
-              v-for="feature in features"
-              :key="feature.title"
-              cols="12"
-              md="4"
-            >
-              <v-card
-                elevation="2"
-                class="h-100 text-center pa-6"
-              >
-                <v-icon
-                  :color="feature.color"
-                  size="64"
-                  class="mb-4"
-                >
-                  {{ feature.icon }}
-                </v-icon>
-                <h3 class="text-h6 font-weight-bold mb-3">
-                  {{ feature.title }}
-                </h3>
-                <p class="text-grey-darken-1">
-                  {{ feature.description }}
-                </p>
-              </v-card>
-            </v-col>
-          </v-row>
-        </v-container>
+
+        <!-- Featured Products Section -->
+        <div class="bg-grey-lighten-5">
+          <FeaturedProducts />
+        </div>
 
         <!-- CTA Section -->
         <v-container class="py-12 bg-grey-lighten-4">
@@ -100,28 +71,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import FeaturedProducts from '@/Components/Public/FeaturedProducts.vue';
 
-const features = ref([
-  {
-    title: 'Fast Delivery',
-    description: 'Get your food delivered quickly and fresh to your doorstep.',
-    icon: 'mdi-truck-delivery',
-    color: 'success'
-  },
-  {
-    title: 'Quality Food',
-    description: 'We use only the finest ingredients to prepare your meals.',
-    icon: 'mdi-food',
-    color: 'warning'
-  },
-  {
-    title: 'Easy Ordering',
-    description: 'Simple and intuitive interface to place your orders effortlessly.',
-    icon: 'mdi-shopping-cart',
-    color: 'primary'
-  }
-]);
 </script>
