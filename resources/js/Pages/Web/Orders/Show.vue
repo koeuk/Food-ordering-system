@@ -295,7 +295,7 @@
                 block 
                 class="mb-3"
                 v-if="order.bill && order.bill.payment_status !== 'paid'"
-                :href="`/bills/${order.bill.id}`"
+                :href="`/web/payment/${order.bill.uuid}`"
               >
                 <v-icon left>mdi-credit-card</v-icon>
                 Pay Now

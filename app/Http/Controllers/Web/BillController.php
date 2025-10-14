@@ -7,6 +7,7 @@ use App\Models\Bill;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class BillController extends Controller
@@ -17,7 +18,7 @@ class BillController extends Controller
     public function show(Bill $bill)
     {
         // Ensure user can only view their own bills
-        if ($bill->order->customer_id !== Auth::id() && !Auth::user()->isAdmin()) {
+        if ($bill->order->customer_id !== Auth::id() && !Auth::user()->role === 'admin') {
             abort(403);
         }
 
@@ -43,10 +44,27 @@ class BillController extends Controller
             'bank_details' => 'nullable|array',
             'bank_details.bank' => 'nullable|string|max:255',
             'bank_details.accountNumber' => 'nullable|string|regex:/^\d{8,20}$/',
+            'billing_address' => 'nullable|array',
+            'billing_address.firstName' => 'nullable|string|max:255',
+            'billing_address.lastName' => 'nullable|string|max:255',
+            'billing_address.street' => 'nullable|string|max:255',
+            'billing_address.city' => 'nullable|string|max:255',
+            'billing_address.postalCode' => 'nullable|string|max:20',
         ]);
 
+        // Ensure user can only pay their own bills
+        if ($bill->order->customer_id !== Auth::id() && !Auth::user()->role === 'admin') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access'
+            ], 403);
+        }
+
         if ($bill->isPaid()) {
-            return back()->withErrors(['error' => 'Bill is already paid']);
+            return response()->json([
+                'success' => false,
+                'message' => 'Bill is already paid'
+            ], 400);
         }
 
         // Validate card details if payment method is card
@@ -56,7 +74,11 @@ class BillController extends Controller
                 !$validated['card_details']['expiryDate'] || 
                 !$validated['card_details']['cvv'] || 
                 !$validated['card_details']['cardholderName']) {
-                return back()->withErrors(['cardNumber' => 'All card details are required']);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'All card details are required',
+                    'errors' => ['cardNumber' => 'All card details are required']
+                ], 422);
             }
         }
 
@@ -65,7 +87,11 @@ class BillController extends Controller
             if (!$validated['bank_details'] || 
                 !$validated['bank_details']['bank'] || 
                 !$validated['bank_details']['accountNumber']) {
-                return back()->withErrors(['bank' => 'All bank details are required']);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'All bank details are required',
+                    'errors' => ['bank' => 'All bank details are required']
+                ], 422);
             }
         }
 
@@ -73,25 +99,71 @@ class BillController extends Controller
         // For demo purposes, we'll simulate payment processing
         try {
             // Simulate payment processing delay
-            sleep(1);
+            usleep(500000); // 0.5 seconds
             
             // For card payments, you would validate with payment processor
             if ($validated['payment_method'] === 'card') {
                 // Simulate card validation
                 $cardNumber = str_replace(' ', '', $validated['card_details']['cardNumber']);
                 if (!preg_match('/^\d{16}$/', $cardNumber)) {
-                    return back()->withErrors(['cardNumber' => 'Invalid card number']);
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Invalid card number',
+                        'errors' => ['cardNumber' => 'Invalid card number']
+                    ], 422);
+                }
+                
+                // Simulate card validation with expiry date
+                $expiryParts = explode('/', $validated['card_details']['expiryDate']);
+                $month = (int)$expiryParts[0];
+                $year = 2000 + (int)$expiryParts[1];
+                
+                if ($month < 1 || $month > 12) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Invalid expiry date',
+                        'errors' => ['expiryDate' => 'Invalid expiry date']
+                    ], 422);
+                }
+                
+                $expiryDate = \Carbon\Carbon::create($year, $month, 1)->endOfMonth();
+                if ($expiryDate->isPast()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Card has expired',
+                        'errors' => ['expiryDate' => 'Card has expired']
+                    ], 422);
                 }
             }
 
             // Mark bill as paid
             $bill->markAsPaid($validated['payment_method']);
 
-            return redirect()->route('my-orders.show', $bill->order)
-                ->with('success', 'Payment processed successfully! Your order is now confirmed.');
+            // Update order status to confirmed if it was pending
+            if ($bill->order->status === 'pending') {
+                $bill->order->update(['status' => 'confirmed']);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Payment processed successfully! Your order is now confirmed.',
+                'payment_id' => $bill->uuid,
+                'order_id' => $bill->order->uuid,
+                'redirect_url' => route('web.orders.show', $bill->order)
+            ]);
 
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Payment processing failed. Please try again.']);
+            Log::error('Payment processing error: ' . $e->getMessage(), [
+                'bill_id' => $bill->uuid,
+                'user_id' => Auth::id(),
+                'payment_method' => $validated['payment_method']
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Payment processing failed. Please try again.',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
@@ -122,7 +194,7 @@ class BillController extends Controller
     public function download(Bill $bill)
     {
         // Ensure user can only download their own bills
-        if ($bill->order->customer_id !== Auth::id() && !Auth::user()->isAdmin()) {
+        if ($bill->order->customer_id !== Auth::id() && !Auth::user()->role === 'admin') {
             abort(403);
         }
 

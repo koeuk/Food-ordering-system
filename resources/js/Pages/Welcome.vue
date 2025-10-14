@@ -2,32 +2,8 @@
   <AppLayout>
     <Head title="Welcome" />
 
-    <!-- Hero Section -->
-    <v-container fluid class="pa-0">
-        <!-- Hero Banner -->
-        <v-parallax
-          height="500"
-          src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80"
-        >
-          <div class="d-flex flex-column fill-height justify-center align-center text-white">
-            <h1 class="text-h3 font-weight-bold mb-4 text-center">
-              Welcome to Food Ordering System
-            </h1>
-            <h2 class="text-h5 mb-4 text-center">
-              Order delicious food online with ease
-            </h2>
-            <v-btn
-              size="large"
-              color="white"
-              variant="outlined"
-              href="/web/products"
-              class="mt-4"
-            >
-              <v-icon left>mdi-food</v-icon>
-              Browse Menu
-            </v-btn>
-          </div>
-        </v-parallax>
+    <!-- Hero Slider Section -->
+    <HeroSlider />
 
 
         <!-- Featured Products Section -->
@@ -66,7 +42,6 @@
             </v-col>
           </v-row>
         </v-container>
-      </v-container>
   </AppLayout>
 </template>
 
@@ -74,5 +49,6 @@
 import { Head } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import FeaturedProducts from '@/Components/Public/FeaturedProducts.vue';
+import HeroSlider from '@/Components/Public/HeroSlider.vue';
 
 </script>

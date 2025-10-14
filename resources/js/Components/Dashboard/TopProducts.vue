@@ -1,35 +1,35 @@
 <template>
   <v-card elevation="2">
     <v-card-title class="text-h6 font-weight-bold text-grey-darken-3">
-      <v-icon left color="success">mdi-trophy</v-icon>
-      Top Products
+      <v-icon left color="success">{{ isSystemView ? 'mdi-trophy' : 'mdi-account-heart' }}</v-icon>
+      {{ isSystemView ? 'Top Selling Products' : 'Your Favorite Products' }}
       <v-spacer></v-spacer>
       <v-chip color="success" size="small" class="mr-2">
-        <v-icon start>mdi-chart-bar</v-icon>
-        By Sales
+        <v-icon start>mdi-chart-line</v-icon>
+        {{ isSystemView ? 'By Sales' : 'By Your Orders' }}
       </v-chip>
     </v-card-title>
     
     <v-card-text>
       <div v-if="isLoading" class="text-center pa-8">
         <v-progress-circular indeterminate color="primary" class="mb-4"></v-progress-circular>
-        <p class="text-grey-darken-1">Loading top products...</p>
+        <p class="text-grey-darken-1">{{ isSystemView ? 'Loading top products...' : 'Loading your favorite products...' }}</p>
       </div>
       
       <div v-else-if="error" class="text-center pa-8">
         <v-icon size="64" color="error" class="mb-4">mdi-alert-circle</v-icon>
         <p class="text-error mb-4">{{ error }}</p>
-        <v-btn color="primary" @click="fetchTopProducts">Retry</v-btn>
+        <v-btn color="primary" @click="fetchUserOrderHistory">Retry</v-btn>
       </div>
       
       <div v-else>
         <!-- No Products State -->
         <div v-if="categories.length === 0" class="text-center py-8">
-          <v-icon size="64" color="grey-lighten-2">mdi-food-off</v-icon>
-          <p class="text-grey-darken-1 mt-4">No products found</p>
-          <v-btn color="primary" variant="outlined" @click="addProduct">
-            <v-icon start>mdi-plus</v-icon>
-            Add Product
+          <v-icon size="64" color="grey-lighten-2">mdi-shopping-outline</v-icon>
+          <p class="text-grey-darken-1 mt-4">{{ isSystemView ? 'No products have been ordered yet' : 'You haven\'t ordered any products yet' }}</p>
+          <v-btn color="primary" variant="outlined" @click="browseProducts">
+            <v-icon start>mdi-food</v-icon>
+            Browse Products
           </v-btn>
         </div>
         
@@ -63,7 +63,7 @@
                   </h3>
                   <p class="text-body-2 text-grey-darken-1 mb-0">
                     {{ getCategoryProducts(category.id).length }} products • 
-                    {{ getCategorySales(category.id) }} total orders
+                    {{ getCategoryUserOrders(category.id) }} {{ isSystemView ? 'orders' : 'your orders' }}
                   </p>
                 </div>
                 <v-chip color="primary" size="small">
@@ -99,12 +99,12 @@
                       <!-- Sales Badge -->
                       <div class="product-badge">
                         <v-chip
-                          :color="getSalesBadgeColor(product.order_items_count)"
+                          :color="getUserOrderBadgeColor(product.user_order_count)"
                           size="small"
                           class="ma-2"
                         >
-                          <v-icon start>mdi-chart-line</v-icon>
-                          {{ product.order_items_count || 0 }} sales
+                          <v-icon start>mdi-heart</v-icon>
+                          {{ product.user_order_count || 0 }} orders
                         </v-chip>
                       </div>
                       
@@ -166,16 +166,16 @@
                     <v-card-actions class="pa-3 pt-0">
                       <div class="d-flex justify-space-between align-center w-100">
                         <div class="d-flex align-center">
-                          <v-icon size="16" color="info" class="mr-1">mdi-chart-bar</v-icon>
+                          <v-icon size="16" color="info" class="mr-1">mdi-heart</v-icon>
                           <span class="text-caption text-grey-darken-1">
-                            {{ product.order_items_count || 0 }} orders
+                            {{ product.user_order_count || 0 }} {{ isSystemView ? 'orders' : 'your orders' }}
                           </span>
                         </div>
                         
                         <div class="d-flex align-center">
                           <v-icon size="16" color="success" class="mr-1">mdi-currency-usd</v-icon>
                           <span class="text-caption text-grey-darken-1">
-                            ${{ formatPrice((product.price || 0) * (product.order_items_count || 0)) }}
+                            ${{ formatPrice((product.price || 0) * (product.user_order_count || 0)) }}
                           </span>
                         </div>
                       </div>
@@ -204,19 +204,19 @@
             <div class="text-h6 font-weight-bold text-success">
               {{ totalProducts }}
             </div>
-            <div class="text-caption text-grey-darken-1">Total Products</div>
+            <div class="text-caption text-grey-darken-1">Products Ordered</div>
           </div>
           <div>
             <div class="text-h6 font-weight-bold text-primary">
-              {{ totalSales }}
+              {{ totalUserOrders }}
             </div>
-            <div class="text-caption text-grey-darken-1">Total Sales</div>
+            <div class="text-caption text-grey-darken-1">{{ isSystemView ? 'Total Orders' : 'Your Orders' }}</div>
           </div>
           <div>
             <div class="text-h6 font-weight-bold text-info">
-              ${{ formatPrice(totalRevenue) }}
+              ${{ formatPrice(totalUserSpent) }}
             </div>
-            <div class="text-caption text-grey-darken-1">Total Revenue</div>
+            <div class="text-caption text-grey-darken-1">Total Spent</div>
           </div>
         </div>
       </div>
@@ -233,6 +233,10 @@ const props = defineProps({
   topProducts: {
     type: Array,
     default: () => []
+  },
+  isSystemView: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -243,21 +247,16 @@ const products = ref([]);
 const categories = ref([]);
 const activeTab = ref(0);
 
-// Fetch top products data
-const fetchTopProducts = async () => {
+// Fetch user order history data
+const fetchUserOrderHistory = async () => {
   try {
     isLoading.value = true;
     error.value = null;
     
-    const response = await axios.get('/dashboard/api/sales-analytics', {
-      params: {
-        period: 'monthly',
-        months: 12
-      }
-    });
+    const response = await axios.get('/dashboard/api/user-order-history');
     
-    // Get products with category information
-    const productsData = response.data.top_products || props.topProducts || [];
+    // Get products with user order information
+    const productsData = response.data.user_ordered_products || [];
     products.value = productsData;
     
     // Group products by category
@@ -276,9 +275,9 @@ const fetchTopProducts = async () => {
       }
     });
     
-    // Sort products within each category by order count
+    // Sort products within each category by user order count
     categoryMap.forEach(category => {
-      category.products.sort((a, b) => (b.order_items_count || 0) - (a.order_items_count || 0));
+      category.products.sort((a, b) => (b.user_order_count || 0) - (a.user_order_count || 0));
     });
     
     categories.value = Array.from(categoryMap.values());
@@ -289,8 +288,8 @@ const fetchTopProducts = async () => {
     }
     
   } catch (err) {
-    console.error('Error fetching top products:', err);
-    error.value = 'Failed to load top products';
+    console.error('Error fetching user order history:', err);
+    error.value = 'Failed to load your order history';
     
     // Fallback to props data
     if (props.topProducts && props.topProducts.length > 0) {
@@ -330,14 +329,53 @@ const processProductsData = (productsData) => {
   }
 };
 
+// Process system-wide products data (from admin dashboard)
+const processSystemProductsData = (productsData) => {
+  const categoryMap = new Map();
+  productsData.forEach(product => {
+    if (product.category) {
+      const categoryId = product.category.id;
+      if (!categoryMap.has(categoryId)) {
+        categoryMap.set(categoryId, {
+          id: categoryId,
+          name: product.category.name,
+          products: []
+        });
+      }
+      // Add system sales count as user order count for display
+      const productWithSystemData = {
+        ...product,
+        user_order_count: product.total_sales || 0
+      };
+      categoryMap.get(categoryId).products.push(productWithSystemData);
+    }
+  });
+  
+  categoryMap.forEach(category => {
+    category.products.sort((a, b) => (b.total_sales || 0) - (a.total_sales || 0));
+  });
+  
+  categories.value = Array.from(categoryMap.values());
+  
+  if (categories.value.length > 0) {
+    activeTab.value = categories.value[0].id;
+  }
+  
+  // Set products for computed properties
+  products.value = productsData.map(product => ({
+    ...product,
+    user_order_count: product.total_sales || 0
+  }));
+};
+
 // Computed properties
 const totalProducts = computed(() => products.value.length);
-const totalSales = computed(() => 
-  products.value.reduce((sum, product) => sum + (product.order_items_count || 0), 0)
+const totalUserOrders = computed(() => 
+  products.value.reduce((sum, product) => sum + (product.user_order_count || 0), 0)
 );
-const totalRevenue = computed(() => 
+const totalUserSpent = computed(() => 
   products.value.reduce((sum, product) => 
-    sum + ((product.price || 0) * (product.order_items_count || 0)), 0
+    sum + ((product.price || 0) * (product.user_order_count || 0)), 0
   )
 );
 
@@ -347,9 +385,9 @@ const getCategoryProducts = (categoryId) => {
   return category ? category.products : [];
 };
 
-const getCategorySales = (categoryId) => {
+const getCategoryUserOrders = (categoryId) => {
   return getCategoryProducts(categoryId).reduce((sum, product) => 
-    sum + (product.order_items_count || 0), 0
+    sum + (product.user_order_count || 0), 0
   );
 };
 
@@ -385,10 +423,10 @@ const getCategoryIcon = (categoryName) => {
   return icons[categoryName] || 'mdi-food';
 };
 
-const getSalesBadgeColor = (salesCount) => {
-  if (salesCount >= 100) return 'success';
-  if (salesCount >= 50) return 'info';
-  if (salesCount >= 20) return 'warning';
+const getUserOrderBadgeColor = (orderCount) => {
+  if (orderCount >= 10) return 'success';
+  if (orderCount >= 5) return 'info';
+  if (orderCount >= 2) return 'warning';
   return 'grey';
 };
 
@@ -406,6 +444,10 @@ const viewProduct = (product) => {
   router.visit(route('dashboard.products.show', product.uuid));
 };
 
+const browseProducts = () => {
+  router.visit('/web/products');
+};
+
 const addProduct = () => {
   router.visit(route('dashboard.products.create'));
 };
@@ -413,9 +455,11 @@ const addProduct = () => {
 // Lifecycle
 onMounted(() => {
   if (props.topProducts && props.topProducts.length > 0) {
-    processProductsData(props.topProducts);
+    // Use system-wide data (from admin dashboard)
+    processSystemProductsData(props.topProducts);
   } else {
-    fetchTopProducts();
+    // Fetch user-specific data (for user dashboard)
+    fetchUserOrderHistory();
   }
 });
 </script>

@@ -113,7 +113,14 @@
               Top Selling Products
             </v-card-title>
             <v-card-text>
-              <v-list>
+              <div v-if="topProducts.length === 0" class="text-center py-8">
+                <v-icon size="64" color="grey-lighten-2">mdi-trophy-outline</v-icon>
+                <p class="text-grey-darken-1 mt-4">No sales data available</p>
+                <p class="text-caption text-grey-darken-1">
+                  Products will appear here once orders are placed
+                </p>
+              </div>
+              <v-list v-else>
                 <v-list-item
                   v-for="(product, index) in topProducts"
                   :key="product.id"
@@ -129,8 +136,17 @@
                     {{ product.name }}
                   </v-list-item-title>
                   
-                  <v-list-item-subtitle>
-                    {{ product.quantity_sold }} sold • ${{ formatPrice(product.revenue) }}
+                  <v-list-item-subtitle class="d-flex align-center">
+                    <v-chip size="small" color="primary" variant="flat" class="mr-2">
+                      {{ product.quantity_sold }} sold
+                    </v-chip>
+                    <span class="text-success font-weight-bold">
+                      ${{ formatPrice(product.revenue) }} revenue
+                    </span>
+                  </v-list-item-subtitle>
+                  
+                  <v-list-item-subtitle class="text-caption text-grey-darken-1">
+                    Category: {{ product.category }} • Price: ${{ formatPrice(product.price) }}
                   </v-list-item-subtitle>
                 </v-list-item>
               </v-list>
@@ -153,24 +169,24 @@
             class="elevation-0"
           >
             <!-- Date -->
-            <template v-slot:item.date="{ item }">
+            <template #item.date="{ item }">
               <span class="font-weight-medium">{{ formatDate(item.date) }}</span>
             </template>
 
             <!-- Revenue -->
-            <template v-slot:item.revenue="{ item }">
+            <template #item.revenue="{ item }">
               <span class="font-weight-bold text-success">${{ formatPrice(item.revenue) }}</span>
             </template>
 
             <!-- Orders Count -->
-            <template v-slot:item.orders_count="{ item }">
+            <template #item.orders_count="{ item }">
               <v-chip color="primary" size="small" variant="flat">
                 {{ item.orders_count }} orders
               </v-chip>
             </template>
 
             <!-- Average Order Value -->
-            <template v-slot:item.avg_order_value="{ item }">
+            <template #item.avg_order_value="{ item }">
               <span class="font-weight-medium">${{ formatPrice(item.avg_order_value) }}</span>
             </template>
           </v-data-table>
@@ -204,31 +220,36 @@ const loading = ref(false);
 const dateFrom = ref('');
 const dateTo = ref('');
 
+// Make data reactive
+const topProducts = ref(props.topProducts);
+const summary = ref(props.summary);
+const salesData = ref(props.salesData);
+
 const summaryStats = computed(() => [
   {
     title: 'Total Revenue',
-    value: `$${formatPrice(props.summary?.total_revenue || 0)}`,
+    value: `$${formatPrice(summary.value?.total_revenue || 0)}`,
     icon: 'mdi-currency-usd',
     color: 'success',
     change: 12.5
   },
   {
     title: 'Total Orders',
-    value: props.summary?.total_orders || 0,
+    value: summary.value?.total_orders || 0,
     icon: 'mdi-shopping',
     color: 'primary',
     change: 8.3
   },
   {
     title: 'Average Order Value',
-    value: `$${formatPrice(props.summary?.avg_order_value || 0)}`,
+    value: `$${formatPrice(summary.value?.avg_order_value || 0)}`,
     icon: 'mdi-calculator',
     color: 'info',
     change: -2.1
   },
   {
     title: 'Top Product Sales',
-    value: props.summary?.top_product_sales || 0,
+    value: summary.value?.top_product_sales || 0,
     icon: 'mdi-trophy',
     color: 'warning',
     change: 15.7
@@ -262,15 +283,45 @@ const formatDate = (dateString) => {
 
 const applyFilter = () => {
   loading.value = true;
-  // Here you would typically make an API call to filter the data
-  setTimeout(() => {
-    loading.value = false;
-  }, 1000);
+  
+  // Fetch filtered data from the API
+  fetch(`/dashboard/api/reports/sales-analytics?start_date=${dateFrom.value}&end_date=${dateTo.value}`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Update the component data with filtered results
+        topProducts.value = data.data.top_products;
+        summary.value = data.data.sales_summary;
+        salesData.value = data.data.daily_sales;
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching filtered data:', error);
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 };
 
 const exportReport = () => {
   // Export functionality would be implemented here
   console.log('Exporting sales report...');
 };
+
+// Fetch top products data
+const fetchTopProducts = async () => {
+  try {
+    const response = await fetch('/dashboard/api/reports/top-products');
+    const data = await response.json();
+    if (data.success) {
+      topProducts.value = data.data;
+    }
+  } catch (error) {
+    console.error('Error fetching top products:', error);
+  }
+};
+
+// Initialize data on component mount
+fetchTopProducts();
 </script>
 

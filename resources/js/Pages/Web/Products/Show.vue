@@ -93,16 +93,6 @@
                 Add to Cart
               </v-btn>
 
-              <v-btn 
-                color="info" 
-                variant="outlined"
-                size="large"
-                @click="addRandomProduct"
-                class="mb-2"
-              >
-                <v-icon left>mdi-dice-6</v-icon>
-                Add Random Product
-              </v-btn>
 
               <v-btn 
                 color="primary" 
@@ -228,24 +218,6 @@ const addToCart = (product) => {
       alert('Error adding product to cart. Please try again.');
     }
   });
-};
-
-const addRandomProduct = async () => {
-  try {
-    // Fetch a random product
-    const response = await fetch('/web/products/random');
-    const randomProduct = await response.json();
-    
-    if (randomProduct) {
-      console.log('Adding random product to cart:', randomProduct.name);
-      alert(`Random product "${randomProduct.name}" added to cart!`);
-    } else {
-      alert('No products available to add randomly.');
-    }
-  } catch (error) {
-    console.error('Error adding random product:', error);
-    alert('Error adding random product. Please try again.');
-  }
 };
 
 // Load related products (same category, excluding current product)

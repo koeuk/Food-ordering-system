@@ -29,7 +29,7 @@
         <v-card-text>
           <v-data-table :headers="headers" :items="products.data || []" :loading="loading" class="elevation-0">
             <!-- Product Image & Name -->
-            <template v-slot:item.name="{ item }">
+            <template #item.name="{ item }">
               <div class="d-flex align-center py-2">
                 <v-avatar size="40" class="mr-3">
                   <v-img v-if="item.image_url" :src="item.image_url" :alt="item.name" />
@@ -40,27 +40,27 @@
             </template>
 
             <!-- Category -->
-            <template v-slot:item.category="{ item }">
+            <template #item.category="{ item }">
               <v-chip v-if="item.category" color="primary" size="small" variant="outlined">
                 {{ item.category.name }}
               </v-chip>
             </template>
 
             <!-- Price -->
-            <template v-slot:item.price="{ item }">
+            <template #item.price="{ item }">
               <span class="font-weight-bold text-success">${{ formatPrice(item.price) }}</span>
             </template>
 
             <!-- Availability -->
-            <template v-slot:item.is_available="{ item }">
+            <template #item.is_available="{ item }">
               <v-chip :color="item.is_available ? 'success' : 'error'" size="small" variant="flat">
                 {{ item.is_available ? 'Available' : 'Unavailable' }}
               </v-chip>
             </template>
 
             <!-- Actions -->
-            <template v-slot:item.actions="{ item }">
-              <div class="d-flex gap-2">
+            <template #item.actions="{ item }">
+              <div class="d-flex gap-2 justify-end">
                 <!-- View Button -->
                 <v-btn 
                   size="small" 
@@ -116,6 +116,9 @@ import { ref } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 import DeleteDialog from '@/Components/Dashboard/Products/DeleteDialog.vue';
+import { useTheme } from '@/composables/useTheme';
+
+const { isDark, toggleTheme } = useTheme();
 
 const props = defineProps({
   products: {
@@ -172,3 +175,29 @@ const handleProductDeleted = () => {
   productStats.value = { orders_count: 0, total_revenue: 0 };
 };
 </script>
+
+<style scoped>
+/* Dark mode styles for products page */
+.dark .text-grey-darken-3 {
+  color: #FFFFFF !important;
+}
+
+.dark .text-grey-darken-1 {
+  color: #B0B0B0 !important;
+}
+
+/* Card styling for dark mode */
+.dark .v-card {
+  background-color: #1E1E1E !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Table styling for dark mode */
+.dark .v-data-table {
+  background-color: #1E1E1E !important;
+}
+
+.dark .v-data-table .v-data-table__wrapper {
+  background-color: #1E1E1E !important;
+}
+</style>

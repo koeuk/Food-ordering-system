@@ -32,13 +32,106 @@
         </v-btn>
 
         <!-- Notifications -->
-        <v-btn
-          icon
-          variant="text"
-          class="mr-2"
-        >
-          <v-icon>mdi-bell-outline</v-icon>
-        </v-btn>
+        <v-menu offset-y>
+          <template v-slot:activator="{ props }">
+            <v-btn
+              v-bind="props"
+              icon
+              variant="text"
+              class="mr-2"
+              :title="`${newOrdersCount} new orders`"
+            >
+              <v-badge
+                :content="newOrdersCount"
+                :model-value="newOrdersCount > 0"
+                color="error"
+                offset-x="8"
+                offset-y="8"
+              >
+                <v-icon>mdi-bell-outline</v-icon>
+              </v-badge>
+            </v-btn>
+          </template>
+          
+          <v-card min-width="400" max-width="500" elevation="8">
+            <v-card-title class="d-flex align-center">
+              <v-icon left color="purple">mdi-bell-ring</v-icon>
+              New Orders (Last 24 Hours)
+              <v-spacer></v-spacer>
+              <v-chip color="purple" size="small">
+                {{ newOrdersCount }}
+              </v-chip>
+            </v-card-title>
+            
+            <v-divider></v-divider>
+            
+            <v-card-text class="pa-0" style="max-height: 400px; overflow-y: auto;">
+              <div v-if="newOrders.length === 0" class="text-center py-8 text-grey-darken-1">
+                <v-icon size="48" color="grey-lighten-2">mdi-bell-off</v-icon>
+                <p class="mt-4">No new orders</p>
+              </div>
+              
+              <v-list v-else>
+                <v-list-item
+                  v-for="order in newOrders"
+                  :key="order.id"
+                  class="px-4 py-3"
+                  :class="{ 'border-b': order !== newOrders[newOrders.length - 1] }"
+                >
+                  <template v-slot:prepend>
+                    <v-avatar color="purple" size="40">
+                      <v-icon color="white">mdi-shopping</v-icon>
+                    </v-avatar>
+                  </template>
+                  
+                  <v-list-item-title class="font-weight-medium text-h6">
+                    Order #{{ order.order_number }}
+                  </v-list-item-title>
+                  
+                  <v-list-item-subtitle class="mt-1">
+                    {{ order.customer_name || order.customer?.name }} • {{ order.customer_phone || 'No phone' }}
+                  </v-list-item-subtitle>
+                  
+                  <!-- Address -->
+                  <div v-if="order.delivery_address" class="mt-2">
+                    <div class="d-flex align-center text-body-2 text-grey-darken-2">
+                      <v-icon size="16" color="success" class="mr-1">mdi-map-marker</v-icon>
+                      <span class="text-truncate">{{ order.delivery_address }}</span>
+                    </div>
+                  </div>
+                  
+                  <template v-slot:append>
+                    <div class="text-right">
+                      <div class="text-h6 font-weight-bold text-primary mb-1">
+                        ${{ formatPrice(order.total) }}
+                      </div>
+                      <v-chip color="warning" size="small" class="mb-1">
+                        {{ capitalizeStatus(order.status) }}
+                      </v-chip>
+                      <div class="text-caption text-grey-darken-1">
+                        {{ formatDate(order.created_at) }}
+                      </div>
+                    </div>
+                  </template>
+                </v-list-item>
+              </v-list>
+            </v-card-text>
+            
+            <v-divider></v-divider>
+            
+            <v-card-actions v-if="newOrders.length > 0">
+              <v-btn
+                color="primary"
+                variant="text"
+                href="/dashboard/orders"
+                block
+              >
+                <v-icon left>mdi-eye</v-icon>
+                View All Orders
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-menu>
 
         <!-- User Menu -->
         <v-menu offset-y>
@@ -49,7 +142,7 @@
               class="text-capitalize"
             >
               <v-avatar size="32" class="mr-2">
-                <v-img v-if="user?.avatar" :src="user.avatar" />
+                <v-img v-if="user?.profile_image_url" :src="user.profile_image_url" />
                 <v-icon v-else>mdi-account</v-icon>
               </v-avatar>
               {{ user?.name }}
@@ -64,7 +157,7 @@
             </v-btn>
           </template>
           <v-list>
-            <v-list-item href="/profile">
+            <v-list-item href="/dashboard/admin/profile">
               <template v-slot:prepend>
                 <v-icon>mdi-account</v-icon>
               </template>
@@ -172,14 +265,25 @@
       </v-list-item>
       
       <v-list-item 
-        href="/dashboard/reports" 
-        :class="{ 'v-list-item--active': isActiveRoute('/dashboard/reports') }"
+        href="/dashboard/reports/sales" 
+        :class="{ 'v-list-item--active': isActiveRoute('/dashboard/reports/sales') }"
         link
       >
         <template v-slot:prepend>
           <v-icon color="white">mdi-chart-line</v-icon>
         </template>
         <v-list-item-title>Reports</v-list-item-title>
+      </v-list-item>
+      
+      <v-list-item 
+        href="/dashboard/slider-images" 
+        :class="{ 'v-list-item--active': isActiveRoute('/dashboard/slider-images') }"
+        link
+      >
+        <template v-slot:prepend>
+          <v-icon color="white">mdi-image-multiple</v-icon>
+        </template>
+        <v-list-item-title>Slider Images</v-list-item-title>
       </v-list-item>
 
       <!-- Logout Button -->
@@ -246,6 +350,10 @@ const props = defineProps({
   user: {
     type: Object,
     default: null
+  },
+  newOrders: {
+    type: Array,
+    default: () => []
   }
 });
 
@@ -259,6 +367,28 @@ const { isDark, toggleTheme } = useTheme();
 
 const user = computed(() => page.props.auth?.user);
 const flash = computed(() => page.props.flash);
+
+// New orders notification
+const newOrdersCount = computed(() => props.newOrders?.length || 0);
+
+// Utility functions
+const formatPrice = (price) => {
+  const numPrice = typeof price === 'number' ? price : parseFloat(price);
+  return numPrice.toFixed(2);
+};
+
+const formatDate = (dateString) => {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
+
+const capitalizeStatus = (status) => {
+  return status.charAt(0).toUpperCase() + status.slice(1);
+};
 
 const capitalizeRole = (role) => {
   return role ? role.charAt(0).toUpperCase() + role.slice(1) : '';
@@ -385,5 +515,55 @@ const isActiveRoute = (routePath) => {
 /* Theme toggle button hover effect */
 .v-btn--icon:hover {
   transform: scale(1.1);
+}
+
+/* Notification dropdown styling */
+.v-card-text {
+  scrollbar-width: thin;
+  scrollbar-color: #ccc transparent;
+}
+
+.v-card-text::-webkit-scrollbar {
+  width: 6px;
+}
+
+.v-card-text::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.v-card-text::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 3px;
+}
+
+.v-card-text::-webkit-scrollbar-thumb:hover {
+  background-color: #999;
+}
+
+/* Notification badge animation */
+.v-badge .v-badge__badge {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Order item hover effect */
+.v-list-item:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* Border styling for order items */
+.border-b {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
 }
 </style>

@@ -64,7 +64,7 @@
             <template v-slot:item.name="{ item }">
               <div class="d-flex align-center py-2">
                 <v-avatar size="40" color="primary" class="mr-3">
-                  <v-img v-if="item.avatar" :src="item.avatar" />
+                  <v-img v-if="item.profile_image_url" :src="item.profile_image_url" />
                   <span v-else class="text-white">{{ getInitials(item.name) }}</span>
                 </v-avatar>
                 <div>

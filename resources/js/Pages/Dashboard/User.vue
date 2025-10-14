@@ -45,56 +45,98 @@
         </div>
 
         <!-- Recent Orders -->
-        <v-card elevation="2">
-            <v-card-title class="text-h5">
-                Recent Orders
+        <v-card elevation="2" class="recent-orders-table">
+            <v-card-title class="d-flex align-center justify-space-between">
+                <div class="d-flex align-center">
+                    <v-icon left color="primary" size="24">mdi-receipt</v-icon>
+                    Recent Orders
+                </div>
+                <v-chip color="primary" variant="outlined" size="small">
+                    Total: {{ recentOrders.length }} orders
+                </v-chip>
             </v-card-title>
-            <v-card-text>
+            
+            <v-card-text class="pa-0">
                 <template v-if="recentOrders.length > 0">
-                    <v-list>
-                        <v-list-item v-for="order in recentOrders" :key="order.id" class="mb-2"
-                            :class="order.status === 'pending' ? 'bg-yellow-lighten-5' : ''">
-                            <template v-slot:prepend>
-                                <v-icon color="primary">mdi-receipt</v-icon>
-                            </template>
+                    <v-data-table
+                        :headers="tableHeaders"
+                        :items="recentOrders"
+                        :items-per-page="5"
+                        class="orders-table"
+                        hide-default-footer
+                        no-data-text="No orders found"
+                    >
+                        <!-- Order Number Column -->
+                        <template v-slot:item.order_number="{ item }">
+                            <div class="d-flex align-center">
+                                <v-icon color="primary" size="16" class="mr-2">mdi-receipt</v-icon>
+                                <span class="font-weight-medium">{{ item.order_number }}</span>
+                            </div>
+                        </template>
 
-                            <v-list-item-title class="font-weight-bold">
-                                Order #{{ order.order_number }}
-                            </v-list-item-title>
+                        <!-- Customer Column -->
+                        <template v-slot:item.customer_name="{ item }">
+                            <div>
+                                <div class="font-weight-medium">{{ item.customer_name || 'Test Customer' }}</div>
+                                <div class="text-caption text-grey-darken-1">{{ item.customer_phone || 'No phone' }}</div>
+                            </div>
+                        </template>
 
-                            <v-list-item-subtitle>
-                                {{ formatDate(order.created_at) }}
-                            </v-list-item-subtitle>
+                        <!-- Date Column -->
+                        <template v-slot:item.created_at="{ item }">
+                            <div>
+                                <div class="font-weight-medium">{{ formatDate(item.created_at) }}</div>
+                                <div class="text-caption text-grey-darken-1">{{ formatTime(item.created_at) }}</div>
+                            </div>
+                        </template>
 
-                            <template v-slot:append>
-                                <div class="text-right">
-                                    <div class="text-h6 font-weight-bold text-primary">
-                                        ${{ formatPrice(order.total) }}
-                                    </div>
-                                    <div class="mt-2">
-                                        <v-chip :color="getStatusColor(order.status)" size="small" class="mb-2">
-                                            {{ capitalizeStatus(order.status) }}
-                                        </v-chip>
-                                    </div>
-                                    <div class="d-flex gap-2">
-                                        <v-btn size="small" variant="outlined"
-                                            :href="`/my-orders/${order.uuid}`">
-                                            <v-icon left size="small">mdi-eye</v-icon>
-                                            View
-                                        </v-btn>
-                                        <v-btn v-if="order.bill && order.bill.payment_status !== 'paid'" size="small"
-                                            color="primary"
-                                            :href="`/bills/${order.bill.id}`">
-                                            Pay Now
-                                        </v-btn>
-                                    </div>
-                                </div>
-                            </template>
-                        </v-list-item>
-                    </v-list>
+                        <!-- Status Column -->
+                        <template v-slot:item.status="{ item }">
+                            <v-chip 
+                                :color="getStatusColor(item.status)" 
+                                size="small"
+                                :class="getStatusClass(item.status)"
+                                variant="flat"
+                            >
+                                <v-icon left size="12">{{ getStatusIcon(item.status) }}</v-icon>
+                                {{ capitalizeStatus(item.status) }}
+                            </v-chip>
+                        </template>
 
-                    <div class="text-center mt-6">
-                        <v-btn variant="outlined" href="/my-orders">
+                        <!-- Amount Column -->
+                        <template v-slot:item.total="{ item }">
+                            <div class="text-right">
+                                <div class="font-weight-bold text-primary">${{ formatPrice(item.total) }}</div>
+                            </div>
+                        </template>
+
+                        <!-- Actions Column -->
+                        <template v-slot:item.actions="{ item }">
+                            <div class="d-flex gap-1">
+                                <v-btn 
+                                    size="small" 
+                                    variant="outlined"
+                                    color="primary"
+                                    :href="`/my-orders/${item.uuid}`"
+                                    class="action-btn"
+                                >
+                                    <v-icon size="14">mdi-eye</v-icon>
+                                </v-btn>
+                                <v-btn 
+                                    v-if="item.bill && item.bill.payment_status !== 'paid'" 
+                                    size="small"
+                                    color="success"
+                                    :href="`/bills/${item.bill.id}`"
+                                    class="action-btn"
+                                >
+                                    <v-icon size="14">mdi-credit-card</v-icon>
+                                </v-btn>
+                            </div>
+                        </template>
+                    </v-data-table>
+
+                    <div class="text-center pa-4 border-t">
+                        <v-btn variant="outlined" href="/my-orders" class="view-all-btn">
                             View All Orders
                             <v-icon right>mdi-arrow-right</v-icon>
                         </v-btn>
@@ -190,4 +232,166 @@
     const capitalizeStatus = (status) => {
         return status.charAt(0).toUpperCase() + status.slice(1);
     };
+
+    const tableHeaders = [
+        { title: 'Order Number', key: 'order_number', sortable: true },
+        { title: 'Customer', key: 'customer_name', sortable: true },
+        { title: 'Date', key: 'created_at', sortable: true },
+        { title: 'Status', key: 'status', sortable: true },
+        { title: 'Amount', key: 'total', sortable: true },
+        { title: 'Actions', key: 'actions', sortable: false, align: 'center' }
+    ];
+
+    const getStatusClass = (status) => {
+        const classes = {
+            delivered: 'status-delivered',
+            cancelled: 'status-cancelled',
+            preparing: 'status-preparing',
+            pending: 'status-pending',
+            confirmed: 'status-confirmed',
+            ready: 'status-ready'
+        };
+        return classes[status] || 'status-default';
+    };
+
+    const getStatusIcon = (status) => {
+        const icons = {
+            delivered: 'mdi-truck-delivery',
+            cancelled: 'mdi-cancel',
+            preparing: 'mdi-chef-hat',
+            pending: 'mdi-clock',
+            confirmed: 'mdi-check-circle',
+            ready: 'mdi-check'
+        };
+        return icons[status] || 'mdi-help-circle';
+    };
+
+    const formatTime = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
+    };
 </script>
+
+<style scoped>
+/* Recent Orders Table Styling */
+.recent-orders-table {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.orders-table {
+    background: white;
+}
+
+.orders-table :deep(.v-data-table__wrapper) {
+    border-radius: 0;
+}
+
+.orders-table :deep(.v-data-table-header) {
+    background: #f8f9fa;
+}
+
+.orders-table :deep(.v-data-table-header__content) {
+    font-weight: 600;
+    color: #495057;
+    font-size: 13px;
+}
+
+.orders-table :deep(.v-data-table__td) {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.orders-table :deep(.v-data-table__tr:hover) {
+    background: #f8f9fa;
+}
+
+/* Status Chip Styling */
+.status-pending {
+    background-color: #fff3cd !important;
+    color: #856404 !important;
+}
+
+.status-confirmed {
+    background-color: #d1ecf1 !important;
+    color: #0c5460 !important;
+}
+
+.status-preparing {
+    background-color: #cce5ff !important;
+    color: #004085 !important;
+}
+
+.status-ready {
+    background-color: #e2e3f1 !important;
+    color: #383d41 !important;
+}
+
+.status-delivered {
+    background-color: #d4edda !important;
+    color: #155724 !important;
+}
+
+.status-cancelled {
+    background-color: #f8d7da !important;
+    color: #721c24 !important;
+}
+
+/* Action Buttons */
+.action-btn {
+    min-width: 32px;
+    height: 32px;
+    border-radius: 6px;
+}
+
+.action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* View All Button */
+.view-all-btn {
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 13px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .orders-table :deep(.v-data-table__td) {
+        padding: 8px 12px;
+    }
+    
+    .orders-table :deep(.v-data-table-header__content) {
+        font-size: 12px;
+    }
+    
+    .action-btn {
+        min-width: 28px;
+        height: 28px;
+    }
+}
+
+/* Dark Mode Support */
+.dark .orders-table :deep(.v-data-table-header) {
+    background: #2d2d2d;
+}
+
+.dark .orders-table :deep(.v-data-table-header__content) {
+    color: #e0e0e0;
+}
+
+.dark .orders-table :deep(.v-data-table__td) {
+    border-bottom-color: #333333;
+}
+
+.dark .orders-table :deep(.v-data-table__tr:hover) {
+    background: #333333;
+}
+</style>

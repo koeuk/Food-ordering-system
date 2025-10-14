@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Dashboard;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
@@ -26,6 +27,11 @@ class UserController extends Controller
             })
             ->orderBy('name')
             ->paginate(15);
+
+        // Append profile_image_url to each user
+        $users->getCollection()->transform(function ($user) {
+            return $user->append('profile_image_url');
+        });
 
         return Inertia::render('Users/Index', [
             'users' => $users,
@@ -73,7 +79,7 @@ class UserController extends Controller
         }]);
 
         return Inertia::render('Users/Show', [
-            'user' => $user,
+            'user' => $user->append('profile_image_url'),
         ]);
     }
 
@@ -83,7 +89,7 @@ class UserController extends Controller
     public function edit(User $user)
     {
         return Inertia::render('Users/Edit', [
-            'user' => $user,
+            'user' => $user->append('profile_image_url'),
         ]);
     }
 
@@ -116,7 +122,7 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         // Prevent deletion of the current user
-        if ($user->id === auth()->id()) {
+        if ($user->id === Auth::id()) {
             return redirect()->route('manager.users.index')
                 ->with('error', 'You cannot delete your own account.');
         }

@@ -173,7 +173,8 @@ class OrderController extends Controller
                 'message' => 'Order placed successfully!',
                 'order_id' => $order->id,
                 'order_number' => $order->order_number,
-                'redirect_url' => route('my-orders.show', $order)
+                'redirect_url' => route('web.orders.show', $order),
+                'payment_url' => route('web.payment.show', $bill)
             ]);
 
         } catch (\Exception $e) {

@@ -328,6 +328,44 @@ class DashboardController extends Controller
     }
 
     /**
+     * Get user order history for favorite products
+     */
+    public function getUserOrderHistory(Request $request)
+    {
+        $user = Auth::user();
+        
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        // Get products that the user has ordered, with order count
+        $userOrderedProducts = Product::with(['category', 'inventory'])
+            ->whereHas('orderItems.order', function ($query) use ($user) {
+                $query->where('customer_id', $user->id)
+                      ->where('status', 'delivered');
+            })
+            ->withCount(['orderItems as user_order_count' => function ($query) use ($user) {
+                $query->whereHas('order', function ($q) use ($user) {
+                    $q->where('customer_id', $user->id)
+                      ->where('status', 'delivered');
+                });
+            }])
+            ->where('is_available', true)
+            ->orderBy('user_order_count', 'desc')
+            ->take(20)
+            ->get();
+
+        return response()->json([
+            'user_ordered_products' => $userOrderedProducts,
+            'total_products_ordered' => $userOrderedProducts->count(),
+            'total_user_orders' => $userOrderedProducts->sum('user_order_count'),
+            'total_user_spent' => $userOrderedProducts->sum(function ($product) {
+                return $product->price * $product->user_order_count;
+            }),
+        ]);
+    }
+
+    /**
      * Calculate average processing time between statuses
      */
     private function getAverageProcessingTime($fromStatus, $toStatus)

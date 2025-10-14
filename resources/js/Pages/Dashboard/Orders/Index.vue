@@ -89,12 +89,12 @@
             class="elevation-0"
           >
             <!-- Order Number -->
-            <template v-slot:item.order_number="{ item }">
+            <template #item.order_number="{ item }">
               <span class="font-weight-bold">#{{ item.order_number }}</span>
             </template>
 
             <!-- Customer -->
-            <template v-slot:item.customer="{ item }">
+            <template #item.customer="{ item }">
               <div>
                 <div class="font-weight-medium">{{ item.customer?.name || 'N/A' }}</div>
                 <div class="text-caption text-grey">{{ item.customer?.email || '' }}</div>
@@ -102,22 +102,22 @@
             </template>
 
             <!-- Total -->
-            <template v-slot:item.total="{ item }">
+            <template #item.total="{ item }">
               <span class="font-weight-bold text-success">${{ formatPrice(item.total) }}</span>
             </template>
 
             <!-- Status -->
-            <template v-slot:item.status="{ item }">
+            <template #item.status="{ item }">
               <OrderStatusChip :status="item.status" />
             </template>
 
             <!-- Date -->
-            <template v-slot:item.created_at="{ item }">
+            <template #item.created_at="{ item }">
               {{ formatDate(item.created_at) }}
             </template>
 
             <!-- Actions -->
-            <template v-slot:item.actions="{ item }">
+            <template #item.actions="{ item }">
               <div class="d-flex gap-2">
                 <v-btn
                   size="small"
@@ -220,6 +220,9 @@ import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 import OrderStatusChip from '@/Components/Dashboard/OrderStatusChip.vue';
 import DeleteDialog from '@/Components/Dashboard/Orders/DeleteDialog.vue';
 import StatusChangeDialog from '@/Components/Dashboard/Orders/StatusChangeDialog.vue';
+import { useTheme } from '@/composables/useTheme';
+
+const { isDark, toggleTheme } = useTheme();
 
 const props = defineProps({
   orders: {
@@ -331,6 +334,39 @@ const handleOrderDeleted = () => {
 
 .cursor-pointer:hover {
   transform: translateY(-2px);
+}
+
+/* Dark mode styles for orders page */
+.dark .text-grey-darken-3 {
+  color: #FFFFFF !important;
+}
+
+.dark .text-grey-darken-1 {
+  color: #B0B0B0 !important;
+}
+
+.dark .text-grey {
+  color: #9E9E9E !important;
+}
+
+/* Card styling for dark mode */
+.dark .v-card {
+  background-color: #1E1E1E !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Table styling for dark mode */
+.dark .v-data-table {
+  background-color: #1E1E1E !important;
+}
+
+.dark .v-data-table .v-data-table__wrapper {
+  background-color: #1E1E1E !important;
+}
+
+/* Dark mode hover effects */
+.dark .cursor-pointer:hover {
+  background-color: #2C2C2C !important;
 }
 </style>
 

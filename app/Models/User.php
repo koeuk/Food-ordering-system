@@ -25,6 +25,9 @@ class User extends Authenticatable
         'role', // Keep for backward compatibility
         'phone',
         'address',
+        'profile_image',
+        'email_verified_at',
+        'last_login_at',
     ];
 
     /**
@@ -46,8 +49,20 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'last_login_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the profile image URL
+     */
+    public function getProfileImageUrlAttribute()
+    {
+        if ($this->profile_image) {
+            return asset('storage/' . $this->profile_image);
+        }
+        return null;
     }
 
     /**
