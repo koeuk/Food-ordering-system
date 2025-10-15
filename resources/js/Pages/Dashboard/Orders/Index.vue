@@ -22,7 +22,12 @@
       <!-- Filter Cards -->
       <v-row class="mb-6">
         <v-col cols="12" sm="6" md="3">
-          <v-card elevation="2" @click="filterByStatus('all')" class="cursor-pointer">
+          <v-card 
+            elevation="2" 
+            @click="filterByStatus('all')" 
+            class="cursor-pointer"
+            :class="{ 'active-filter': statusFilter === 'all' }"
+          >
             <v-card-text>
               <div class="d-flex align-center justify-space-between">
                 <div>
@@ -35,7 +40,12 @@
           </v-card>
         </v-col>
         <v-col cols="12" sm="6" md="3">
-          <v-card elevation="2" @click="filterByStatus('pending')" class="cursor-pointer">
+          <v-card 
+            elevation="2" 
+            @click="filterByStatus('pending')" 
+            class="cursor-pointer"
+            :class="{ 'active-filter': statusFilter === 'pending' }"
+          >
             <v-card-text>
               <div class="d-flex align-center justify-space-between">
                 <div>
@@ -48,7 +58,12 @@
           </v-card>
         </v-col>
         <v-col cols="12" sm="6" md="3">
-          <v-card elevation="2" @click="filterByStatus('preparing')" class="cursor-pointer">
+          <v-card 
+            elevation="2" 
+            @click="filterByStatus('preparing')" 
+            class="cursor-pointer"
+            :class="{ 'active-filter': statusFilter === 'preparing' }"
+          >
             <v-card-text>
               <div class="d-flex align-center justify-space-between">
                 <div>
@@ -61,7 +76,12 @@
           </v-card>
         </v-col>
         <v-col cols="12" sm="6" md="3">
-          <v-card elevation="2" @click="filterByStatus('delivered')" class="cursor-pointer">
+          <v-card 
+            elevation="2" 
+            @click="filterByStatus('delivered')" 
+            class="cursor-pointer"
+            :class="{ 'active-filter': statusFilter === 'delivered' }"
+          >
             <v-card-text>
               <div class="d-flex align-center justify-space-between">
                 <div>
@@ -137,7 +157,7 @@
                   <v-icon size="small">mdi-map-marker</v-icon>
                 </v-btn>
                 <v-menu>
-                  <template v-slot:activator="{ props }">
+                  <template #activator="{ props }">
                     <v-btn
                       size="small"
                       color="primary"
@@ -149,38 +169,38 @@
                   </template>
                   <v-list>
                     <v-list-item @click="openStatusDialog(item, 'confirm')">
-                      <template v-slot:prepend>
+                      <template #prepend>
                         <v-icon color="info">mdi-check</v-icon>
                       </template>
                       <v-list-item-title>Confirm Order</v-list-item-title>
                     </v-list-item>
                     <v-list-item @click="openStatusDialog(item, 'preparing')">
-                      <template v-slot:prepend>
+                      <template #prepend>
                         <v-icon color="info">mdi-chef-hat</v-icon>
                       </template>
                       <v-list-item-title>Mark as Preparing</v-list-item-title>
                     </v-list-item>
                     <v-list-item @click="openStatusDialog(item, 'ready')">
-                      <template v-slot:prepend>
+                      <template #prepend>
                         <v-icon color="success">mdi-check-circle</v-icon>
                       </template>
                       <v-list-item-title>Mark as Ready</v-list-item-title>
                     </v-list-item>
                     <v-list-item @click="openStatusDialog(item, 'delivered')">
-                      <template v-slot:prepend>
+                      <template #prepend>
                         <v-icon color="success">mdi-truck-delivery</v-icon>
                       </template>
                       <v-list-item-title>Mark as Delivered</v-list-item-title>
                     </v-list-item>
                     <v-divider />
                     <v-list-item @click="openStatusDialog(item, 'cancel')">
-                      <template v-slot:prepend>
+                      <template #prepend>
                         <v-icon color="warning">mdi-cancel</v-icon>
                       </template>
                       <v-list-item-title class="text-warning">Cancel Order</v-list-item-title>
                     </v-list-item>
                     <v-list-item @click="openDeleteDialog(item)">
-                      <template v-slot:prepend>
+                      <template #prepend>
                         <v-icon color="error">mdi-delete</v-icon>
                       </template>
                       <v-list-item-title class="text-error">Delete Order</v-list-item-title>
@@ -232,11 +252,15 @@ const props = defineProps({
   stats: {
     type: Object,
     default: () => ({})
+  },
+  filters: {
+    type: Object,
+    default: () => ({})
   }
 });
 
 const loading = ref(false);
-const statusFilter = ref('all');
+const statusFilter = ref(props.filters.status || 'all');
 
 // Delete dialog state
 const deleteDialog = ref(false);
@@ -257,11 +281,7 @@ const headers = [
 ];
 
 const filteredOrders = computed(() => {
-  const ordersData = props.orders.data || [];
-  if (statusFilter.value === 'all') {
-    return ordersData;
-  }
-  return ordersData.filter(order => order.status === statusFilter.value);
+  return props.orders.data || [];
 });
 
 const formatPrice = (price) => {
@@ -281,6 +301,14 @@ const formatDate = (dateString) => {
 
 const filterByStatus = (status) => {
   statusFilter.value = status;
+  // Make a server request to fetch filtered orders
+  router.get(route('dashboard.orders.index'), {
+    status: status === 'all' ? null : status
+  }, {
+    preserveState: true,
+    preserveScroll: true,
+    only: ['orders']
+  });
 };
 
 // Open status change dialog
@@ -334,6 +362,16 @@ const handleOrderDeleted = () => {
 
 .cursor-pointer:hover {
   transform: translateY(-2px);
+}
+
+.active-filter {
+  border: 2px solid #1976d2 !important;
+  background-color: #e3f2fd !important;
+}
+
+.dark .active-filter {
+  border: 2px solid #64b5f6 !important;
+  background-color: #1a237e !important;
 }
 
 /* Dark mode styles for orders page */

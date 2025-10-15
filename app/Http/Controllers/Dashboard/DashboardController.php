@@ -15,34 +15,6 @@ use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
-    /**
-     * User Dashboard
-     */
-    public function userDashboard()
-    {
-        $user = Auth::user();
-
-        $recentOrders = $user->orders()
-            ->with(['items.product', 'bill'])
-            ->latest()
-            ->take(5)
-            ->get();
-
-        $stats = [
-            'total_orders' => $user->orders()->count(),
-            'pending_orders' => $user->orders()->where('status', 'pending')->count(),
-            'completed_orders' => $user->orders()->where('status', 'delivered')->count(),
-            'total_spent' => $user->orders()->where('status', 'delivered')->sum('total'),
-            'total_paid' => $user->orders()->whereHas('bill', function($query) {
-                $query->where('payment_status', 'paid');
-            })->sum('total'),
-        ];
-
-        return Inertia::render('Dashboard/User', [
-            'recentOrders' => $recentOrders,
-            'stats' => $stats,
-        ]);
-    }
 
     /**
      * Admin Dashboard

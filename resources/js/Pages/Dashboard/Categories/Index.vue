@@ -51,7 +51,7 @@
 
             <!-- Actions -->
             <template v-slot:item.actions="{ item }">
-              <div class="d-flex gap-2">
+              <div class="d-flex gap-2 justify-end">
                 <v-btn
                   size="small"
                   color="info"

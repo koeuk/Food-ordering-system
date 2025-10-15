@@ -51,11 +51,10 @@ Route::middleware(['auth'])->group(function () {
         if ($user && $user->role === 'admin') {
             return redirect()->route('dashboard.admin');
         } else {
-            return redirect()->route('dashboard.user');
+            return redirect()->route('my-orders.index');
         }
     })->name('dashboard');
 
-    Route::get('/dashboard/user', [DashboardController::class, 'userDashboard'])->name('dashboard.user');
     Route::get('/dashboard/admin', [DashboardController::class, 'adminDashboard'])->name('dashboard.admin');
 });
 
