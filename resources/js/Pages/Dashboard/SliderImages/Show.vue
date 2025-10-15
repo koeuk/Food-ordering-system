@@ -10,14 +10,14 @@
       <div class="d-flex gap-2">
         <v-btn
           color="primary"
-          :to="{ name: 'dashboard.slider-images.edit', params: { slider_image: sliderImage.id } }"
+          :href="`/dashboard/slider-images/${sliderImage.id}/edit`"
         >
           <v-icon left>mdi-pencil</v-icon>
           Edit
         </v-btn>
         <v-btn
           variant="outlined"
-          :to="{ name: 'dashboard.slider-images.index' }"
+          href="/dashboard/slider-images"
         >
           <v-icon left>mdi-arrow-left</v-icon>
           Back to List

@@ -10,6 +10,7 @@ use App\Models\Bill;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class OrderController extends Controller
@@ -33,6 +34,9 @@ class OrderController extends Controller
             'pending_orders' => $orders->where('status', 'pending')->count(),
             'completed_orders' => $orders->where('status', 'delivered')->count(),
             'total_spent' => $orders->sum('total'),
+            'total_paid' => $orders->filter(function($order) {
+                return $order->bill && $order->bill->payment_status === 'paid';
+            })->sum('total'),
         ];
 
         return Inertia::render('Web/Orders/Index', [
@@ -67,7 +71,7 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         // Debug: Log incoming request data
-        \Log::info('Order submission request data:', $request->all());
+        Log::info('Order submission request data:', $request->all());
         
         $validated = $request->validate([
             'items' => 'required|array|min:1',
@@ -83,7 +87,7 @@ class OrderController extends Controller
             'total_amount' => 'required|numeric|min:0',
         ]);
 
-        \Log::info('Validated order data:', $validated);
+        Log::info('Validated order data:', $validated);
 
         DB::beginTransaction();
 
@@ -151,7 +155,7 @@ class OrderController extends Controller
             }
 
             // Create bill
-            Bill::create([
+            $bill = Bill::create([
                 'order_id' => $order->id,
                 'bill_number' => Bill::generateBillNumber(),
                 'amount' => $total,
@@ -192,7 +196,7 @@ class OrderController extends Controller
     public function show(Order $order)
     {
         // Ensure user can only view their own orders
-        if ($order->customer_id !== Auth::id() && !Auth::user()->isAdmin()) {
+        if ($order->customer_id !== Auth::id() && Auth::user()->role !== 'admin') {
             abort(403);
         }
 

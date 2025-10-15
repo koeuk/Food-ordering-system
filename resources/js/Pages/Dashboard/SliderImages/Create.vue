@@ -20,7 +20,7 @@
       </div>
       <v-btn
         variant="outlined"
-        :to="{ name: 'dashboard.slider-images.index' }"
+        href="/dashboard/slider-images"
       >
         <v-icon left>mdi-arrow-left</v-icon>
         Back to List
@@ -35,25 +35,51 @@
             <v-col cols="12" md="6">
               <v-text-field
                 v-model="form.title"
-                label="Title *"
+                label="Title"
                 variant="outlined"
                 :error-messages="form.errors.title"
-                required
-                hint="Main heading displayed on the slider"
+                hint="Main heading displayed on the slider (optional)"
                 persistent-hint
               />
             </v-col>
             
             <v-col cols="12" md="6">
+              <v-file-input
+                v-model="form.image"
+                label="Upload Image"
+                variant="outlined"
+                :error-messages="form.errors.image"
+                accept="image/*"
+                hint="Upload an image file (JPG, PNG, GIF)"
+                persistent-hint
+                prepend-icon="mdi-camera"
+                @change="handleImageUpload"
+              />
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col cols="12" md="6">
               <v-text-field
                 v-model="form.image_url"
-                label="Image URL *"
+                label="Image URL (Alternative)"
                 variant="outlined"
                 :error-messages="form.errors.image_url"
-                required
-                hint="URL of the background image"
+                hint="Or provide a URL to an existing image"
                 persistent-hint
               />
+            </v-col>
+            
+            <v-col cols="12" md="6">
+              <div v-if="imagePreview" class="image-preview">
+                <h4 class="text-subtitle-2 mb-2">Image Preview:</h4>
+                <v-img
+                  :src="imagePreview"
+                  max-height="150"
+                  max-width="200"
+                  class="rounded"
+                />
+              </div>
             </v-col>
           </v-row>
 
@@ -169,7 +195,7 @@
               <div class="d-flex justify-end gap-2">
                 <v-btn
                   variant="outlined"
-                  :to="{ name: 'dashboard.slider-images.index' }"
+                  href="/dashboard/slider-images"
                   :disabled="form.processing"
                 >
                   Cancel
@@ -178,7 +204,7 @@
                   type="submit"
                   color="primary"
                   :loading="form.processing"
-                  :disabled="!form.title || !form.image_url"
+                  :disabled="!form.image && !form.image_url"
                 >
                   <v-icon left>mdi-content-save</v-icon>
                   Create Slider Image
@@ -193,14 +219,17 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import { Head, useForm, usePage } from '@inertiajs/vue3';
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 
 const page = usePage();
+const imagePreview = ref('');
 
 const form = useForm({
   title: '',
   description: '',
+  image: null,
   image_url: '',
   button_text: '',
   button_url: '',
@@ -208,8 +237,45 @@ const form = useForm({
   is_active: true
 });
 
+const handleImageUpload = (file) => {
+  if (file && file.length > 0) {
+    const selectedFile = file[0];
+    form.image = selectedFile;
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      imagePreview.value = e.target.result;
+    };
+    reader.readAsDataURL(selectedFile);
+    
+    // Clear URL field when file is selected
+    form.image_url = '';
+  } else {
+    form.image = null;
+    imagePreview.value = '';
+  }
+};
+
 const submit = () => {
+  // Prepare form data for file upload
+  const formData = new FormData();
+  formData.append('title', form.title);
+  formData.append('description', form.description);
+  formData.append('button_text', form.button_text);
+  formData.append('button_url', form.button_url);
+  formData.append('order', form.order);
+  formData.append('is_active', form.is_active ? 1 : 0);
+  
+  if (form.image) {
+    formData.append('image', form.image);
+  } else if (form.image_url) {
+    formData.append('image_url', form.image_url);
+  }
+
   form.post(route('dashboard.slider-images.store'), {
+    data: formData,
+    forceFormData: true,
     onSuccess: () => {
       // Success message will be handled by Laravel redirect
     },
@@ -226,6 +292,24 @@ const submit = () => {
   border-radius: 8px;
   overflow: hidden;
   background: #f5f5f5;
+}
+
+.image-preview {
+  border: 2px dashed #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  background: #fafafa;
+}
+
+.image-preview h4 {
+  color: #424242;
+  margin-bottom: 8px;
+}
+
+.image-preview .v-img {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .preview-image {

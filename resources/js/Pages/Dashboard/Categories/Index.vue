@@ -4,22 +4,24 @@
 
     <v-container>
       <div class="d-flex justify-space-between align-center mb-6">
-                <div>
+        <div>
           <h1 class="text-h4 font-weight-bold text-grey-darken-3 mb-2">
             Categories
           </h1>
           <p class="text-subtitle-1 text-grey-darken-1">
             Manage product categories
-                    </p>
-                </div>
-        <v-btn
-          color="primary"
-          href="/dashboard/categories/create"
-        >
-          <v-icon left>mdi-plus</v-icon>
-          Add Category
-        </v-btn>
-            </div>
+          </p>
+        </div>
+        <div class="d-flex justify-end">
+          <v-btn
+            color="primary"
+            href="/dashboard/categories/create"
+          >
+            <v-icon left>mdi-plus</v-icon>
+            Add Category
+          </v-btn>
+        </div>
+      </div>
 
       <v-card elevation="2">
         <v-card-title class="text-h6 font-weight-bold text-grey-darken-3">

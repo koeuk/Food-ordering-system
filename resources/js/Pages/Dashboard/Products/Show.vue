@@ -148,44 +148,6 @@
             </v-card-text>
           </v-card>
 
-          <!-- Quick Actions -->
-          <v-card elevation="2" class="mt-4">
-            <v-card-title class="text-h6 font-weight-bold text-grey-darken-3">
-              <v-icon left color="primary">mdi-lightning-bolt</v-icon>
-              Quick Actions
-            </v-card-title>
-            <v-card-text>
-              <v-btn
-                color="primary"
-                variant="outlined"
-                block
-                class="mb-2"
-                :to="{ name: 'dashboard.products.edit', params: { product: product.id } }"
-              >
-                <v-icon left>mdi-pencil</v-icon>
-                Edit Product
-              </v-btn>
-              <v-btn
-                color="warning"
-                variant="outlined"
-                block
-                class="mb-2"
-                @click="toggleAvailability"
-              >
-                <v-icon left>{{ product.is_available ? 'mdi-eye-off' : 'mdi-eye' }}</v-icon>
-                {{ product.is_available ? 'Mark Unavailable' : 'Mark Available' }}
-              </v-btn>
-              <v-btn
-                color="error"
-                variant="outlined"
-                block
-                @click="deleteProduct"
-              >
-                <v-icon left>mdi-delete</v-icon>
-                Delete Product
-              </v-btn>
-            </v-card-text>
-          </v-card>
         </v-col>
       </v-row>
     </v-container>

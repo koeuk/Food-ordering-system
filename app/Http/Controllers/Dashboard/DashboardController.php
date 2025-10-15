@@ -33,6 +33,9 @@ class DashboardController extends Controller
             'pending_orders' => $user->orders()->where('status', 'pending')->count(),
             'completed_orders' => $user->orders()->where('status', 'delivered')->count(),
             'total_spent' => $user->orders()->where('status', 'delivered')->sum('total'),
+            'total_paid' => $user->orders()->whereHas('bill', function($query) {
+                $query->where('payment_status', 'paid');
+            })->sum('total'),
         ];
 
         return Inertia::render('Dashboard/User', [

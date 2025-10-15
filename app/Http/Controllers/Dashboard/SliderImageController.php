@@ -35,18 +35,29 @@ class SliderImageController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'image_url' => 'required|url',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image_url' => 'nullable|url',
             'button_text' => 'nullable|string|max:255',
             'button_url' => 'nullable|url',
             'order' => 'nullable|integer|min:0',
             'is_active' => 'boolean'
         ]);
 
-        SliderImage::create($request->all());
+        $data = $request->only(['title', 'description', 'button_text', 'button_url', 'order', 'is_active']);
 
-        return redirect()->route('dashboard.dashboard.slider-images.index')
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('slider-images', 'public');
+            $data['image_url'] = asset('storage/' . $imagePath);
+        } elseif ($request->filled('image_url')) {
+            $data['image_url'] = $request->image_url;
+        }
+
+        SliderImage::create($data);
+
+        return redirect()->route('dashboard.slider-images.index')
             ->with('success', 'Slider image created successfully.');
     }
 
@@ -76,16 +87,27 @@ class SliderImageController extends Controller
     public function update(Request $request, SliderImage $sliderImage)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'image_url' => 'required|url',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image_url' => 'nullable|url',
             'button_text' => 'nullable|string|max:255',
             'button_url' => 'nullable|url',
             'order' => 'nullable|integer|min:0',
             'is_active' => 'boolean'
         ]);
 
-        $sliderImage->update($request->all());
+        $data = $request->only(['title', 'description', 'button_text', 'button_url', 'order', 'is_active']);
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('slider-images', 'public');
+            $data['image_url'] = asset('storage/' . $imagePath);
+        } elseif ($request->filled('image_url')) {
+            $data['image_url'] = $request->image_url;
+        }
+
+        $sliderImage->update($data);
 
         return redirect()->route('dashboard.slider-images.index')
             ->with('success', 'Slider image updated successfully.');

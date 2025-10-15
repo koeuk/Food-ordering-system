@@ -183,8 +183,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('dashboard')->name('dashboard.
     Route::get('/api/reports/top-products', [SalesReportsController::class, 'getTopProductsApi'])->name('api.reports.top-products');
     Route::get('/api/reports/sales-analytics', [SalesReportsController::class, 'getSalesAnalytics'])->name('api.reports.sales-analytics');
     
-    // Slider Images Management (temporarily disabled due to timeout issue)
-    // Route::resource('slider-images', SliderImageController::class);
+    // Slider Images Management
+    Route::resource('slider-images', SliderImageController::class);
     Route::post('/roles/{role}/toggle-status', [RoleController::class, 'toggleStatus'])->name('roles.toggle-status');
     Route::post('/roles/{role}/assign-user', [RoleController::class, 'assignToUser'])->name('roles.assign-user');
     Route::post('/roles/{role}/remove-user', [RoleController::class, 'removeFromUser'])->name('roles.remove-user');

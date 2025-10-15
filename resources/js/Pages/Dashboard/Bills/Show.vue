@@ -191,60 +191,8 @@
           </v-card>
         </v-col>
 
-        <!-- Quick Actions -->
-        <v-col cols="12" lg="4">
-          <!-- Payment Actions -->
-          <v-card elevation="2" class="mb-4">
-            <v-card-title class="text-h6 font-weight-bold text-grey-darken-3">
-              <v-icon left color="primary">mdi-lightning-bolt</v-icon>
-              Payment Actions
-            </v-card-title>
-            <v-card-text>
-              <v-btn
-                v-if="bill.payment_status !== 'paid'"
-                color="success"
-                variant="outlined"
-                block
-                class="mb-2"
-                @click="markAsPaid"
-              >
-                <v-icon left>mdi-check</v-icon>
-                Mark as Paid
-              </v-btn>
-              <v-btn
-                v-if="bill.payment_status === 'paid'"
-                color="warning"
-                variant="outlined"
-                block
-                class="mb-2"
-                @click="markAsPending"
-              >
-                <v-icon left>mdi-clock-outline</v-icon>
-                Mark as Pending
-              </v-btn>
-              <v-btn
-                color="info"
-                variant="outlined"
-                block
-                class="mb-2"
-                @click="downloadBill"
-              >
-                <v-icon left>mdi-download</v-icon>
-                Download Bill
-              </v-btn>
-              <v-btn
-                color="primary"
-                variant="outlined"
-                block
-                :href="`/dashboard/bills/${bill.uuid}/edit`"
-              >
-                <v-icon left>mdi-pencil</v-icon>
-                Edit Bill
-              </v-btn>
-            </v-card-text>
-          </v-card>
-
-          <!-- Payment Status Timeline -->
+        <!-- Payment Status Timeline -->
+        <v-col cols="12" lg="8">
           <v-card elevation="2">
             <v-card-title class="text-h6 font-weight-bold text-grey-darken-3">
               <v-icon left color="info">mdi-timeline</v-icon>

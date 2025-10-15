@@ -17,11 +17,11 @@
         <v-btn 
           color="grey" 
           variant="outlined"
-          href="/dashboard/user"
+          href="/my-orders"
           class="mb-2"
         >
           <v-icon left>mdi-arrow-left</v-icon>
-          Back to Dashboard
+          Back to My Orders
         </v-btn>
       </div>
     </div>

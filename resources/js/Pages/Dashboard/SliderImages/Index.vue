@@ -21,7 +21,7 @@
       <v-btn
         color="primary"
         size="large"
-        :to="{ name: 'dashboard.slider-images.create' }"
+        href="/dashboard/slider-images/create"
       >
         <v-icon left>mdi-plus</v-icon>
         Add Slider Image
@@ -95,7 +95,7 @@
               icon
               size="small"
               variant="text"
-              :to="{ name: 'dashboard.slider-images.show', params: { slider_image: item.id } }"
+              :href="`/dashboard/slider-images/${item.id}`"
               color="info"
             >
               <v-icon>mdi-eye</v-icon>
@@ -105,7 +105,7 @@
               icon
               size="small"
               variant="text"
-              :to="{ name: 'dashboard.slider-images.edit', params: { slider_image: item.id } }"
+              :href="`/dashboard/slider-images/${item.id}/edit`"
               color="primary"
             >
               <v-icon>mdi-pencil</v-icon>
@@ -130,7 +130,7 @@
             <p class="text-grey-darken-1 mt-4">No slider images found</p>
             <v-btn
               color="primary"
-              :to="{ name: 'dashboard.slider-images.create' }"
+              href="/dashboard/slider-images/create"
               class="mt-2"
             >
               <v-icon left>mdi-plus</v-icon>

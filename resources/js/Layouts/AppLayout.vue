@@ -96,11 +96,11 @@
                 <v-list-item-title>My Account</v-list-item-title>
               </v-list-item>
               <v-divider />
-              <v-list-item href="/dashboard">
+              <v-list-item href="/my-orders">
                 <template v-slot:prepend>
-                  <v-icon>mdi-home</v-icon>
+                  <v-icon>mdi-shopping</v-icon>
                 </template>
-                <v-list-item-title>Dashboard</v-list-item-title>
+                <v-list-item-title>My Orders</v-list-item-title>
               </v-list-item>
               <v-list-item href="/profile">
                 <v-list-item-title>Profile</v-list-item-title>
@@ -203,11 +203,11 @@
           </template>
 
           <v-divider />
-          <v-list-item href="/dashboard">
+          <v-list-item href="/my-orders">
             <template v-slot:prepend>
-              <v-icon>mdi-home</v-icon>
+              <v-icon>mdi-shopping</v-icon>
             </template>
-            <v-list-item-title>Dashboard</v-list-item-title>
+            <v-list-item-title>My Orders</v-list-item-title>
           </v-list-item>
           <v-list-item href="/profile">
             <v-list-item-title>Profile</v-list-item-title>
