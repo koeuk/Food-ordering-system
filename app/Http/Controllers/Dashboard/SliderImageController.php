@@ -34,31 +34,27 @@ class SliderImageController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'title' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'image_url' => 'nullable|url',
-            'button_text' => 'nullable|string|max:255',
-            'button_url' => 'nullable|url',
-            'order' => 'nullable|integer|min:0',
-            'is_active' => 'boolean'
-        ]);
-
         $data = $request->only(['title', 'description', 'button_text', 'button_url', 'order', 'is_active']);
 
-        // Handle image upload
+        // Handle image upload if provided
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('slider-images', 'public');
-            $data['image_url'] = asset('storage/' . $imagePath);
+            try {
+                $imagePath = $request->file('image')->store('slider-images', 'public');
+                $data['image_url'] = asset('storage/' . $imagePath);
+            } catch (\Exception $e) {
+                return back()->withErrors(['image' => 'Failed to upload image. Please try again.']);
+            }
         } elseif ($request->filled('image_url')) {
             $data['image_url'] = $request->image_url;
         }
 
-        SliderImage::create($data);
-
-        return redirect()->route('dashboard.slider-images.index')
-            ->with('success', 'Slider image created successfully.');
+        try {
+            SliderImage::create($data);
+            return redirect()->route('dashboard.slider-images.index')
+                ->with('success', 'Slider image created successfully.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['general' => 'Failed to create slider image. Please try again.']);
+        }
     }
 
     /**
@@ -86,31 +82,27 @@ class SliderImageController extends Controller
      */
     public function update(Request $request, SliderImage $sliderImage)
     {
-        $request->validate([
-            'title' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'image_url' => 'nullable|url',
-            'button_text' => 'nullable|string|max:255',
-            'button_url' => 'nullable|url',
-            'order' => 'nullable|integer|min:0',
-            'is_active' => 'boolean'
-        ]);
-
         $data = $request->only(['title', 'description', 'button_text', 'button_url', 'order', 'is_active']);
 
-        // Handle image upload
+        // Handle image upload if provided
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('slider-images', 'public');
-            $data['image_url'] = asset('storage/' . $imagePath);
+            try {
+                $imagePath = $request->file('image')->store('slider-images', 'public');
+                $data['image_url'] = asset('storage/' . $imagePath);
+            } catch (\Exception $e) {
+                return back()->withErrors(['image' => 'Failed to upload image. Please try again.']);
+            }
         } elseif ($request->filled('image_url')) {
             $data['image_url'] = $request->image_url;
         }
 
-        $sliderImage->update($data);
-
-        return redirect()->route('dashboard.slider-images.index')
-            ->with('success', 'Slider image updated successfully.');
+        try {
+            $sliderImage->update($data);
+            return redirect()->route('dashboard.slider-images.index')
+                ->with('success', 'Slider image updated successfully.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['general' => 'Failed to update slider image. Please try again.']);
+        }
     }
 
     /**

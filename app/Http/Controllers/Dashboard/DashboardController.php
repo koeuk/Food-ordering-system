@@ -45,7 +45,7 @@ class DashboardController extends Controller
             ->latest()
             ->get();
 
-        // Top selling products with category information
+        // Top selling products with category information - only products that have been ordered
         $topProducts = Product::with(['category', 'inventory'])
             ->withCount(['orderItems as total_sales' => function ($query) {
                 $query->whereHas('order', function ($q) {
@@ -53,6 +53,7 @@ class DashboardController extends Controller
                 });
             }])
             ->where('is_available', true)
+            ->having('total_sales', '>', 0) // Only show products with orders
             ->orderBy('total_sales', 'desc')
             ->take(10)
             ->get();
@@ -228,7 +229,7 @@ class DashboardController extends Controller
                 ->get();
         }
 
-        // Top selling products with category information
+        // Top selling products with category information - only products that have been ordered
         $topProducts = Product::with(['category', 'inventory'])
             ->withCount(['orderItems as order_items_count' => function ($query) use ($startDate) {
                 $query->whereHas('order', function ($q) use ($startDate) {
@@ -237,6 +238,7 @@ class DashboardController extends Controller
                 });
             }])
             ->where('is_available', true)
+            ->having('order_items_count', '>', 0) // Only show products with orders
             ->orderBy('order_items_count', 'desc')
             ->take(15)
             ->get();

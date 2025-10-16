@@ -235,15 +235,6 @@
                       >
                         <v-icon size="14">mdi-eye</v-icon>
                       </v-btn>
-                      <v-btn 
-                        v-if="item.status === 'pending'" 
-                        size="small"
-                        color="success"
-                        @click="updateOrderStatus(item, 'confirmed')"
-                        class="action-btn"
-                      >
-                        <v-icon size="14">mdi-check</v-icon>
-                      </v-btn>
                     </div>
                   </template>
                 </v-data-table>

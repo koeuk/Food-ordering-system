@@ -15,8 +15,8 @@ class RoleSeeder extends Seeder
         $roles = [
             [
                 'name' => 'admin',
-                'display_name' => 'Administrator',
-                'description' => 'Full system access and management capabilities',
+                'display_name' => 'អ្នកគ្រប់គ្រង',
+                'description' => 'មានសិទ្ធិគ្រប់គ្រងប្រព័ន្ធទាំងមូល',
                 'permissions' => [
                     'users.view',
                     'users.create',
@@ -55,9 +55,9 @@ class RoleSeeder extends Seeder
                 'sort_order' => 1,
             ],
             [
-                'name' => 'user',
-                'display_name' => 'User',
-                'description' => 'Can order food and manage their own orders',
+                'name' => 'customer',
+                'display_name' => 'អតិថិជន',
+                'description' => 'អាចបញ្ជាទិញម្ហូប និងគ្រប់គ្រងការបញ្ជាទិញរបស់ខ្លួន',
                 'permissions' => [
                     'orders.view',
                     'orders.create',

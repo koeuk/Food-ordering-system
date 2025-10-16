@@ -13,87 +13,96 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Demo accounts
+        // Admin account
         User::create([
-            'name' => 'Admin User',
-            'email' => 'admin@test.com',
-            'password' => Hash::make('password'),
+            'name' => 'អ្នកគ្រប់គ្រង',
+            'email' => 'admin@gmail.com',
+            'password' => Hash::make('12345678'),
             'role' => 'admin',
-            'phone' => '+1-555-0100',
-            'address' => '100 Admin Street, New York, NY 10000',
+            'phone' => '+855-12-345-678',
+            'address' => 'ផ្ទះលេខ ១២៣, ផ្លូវមហាវិថីព្រះមុនីវង្ស, រាជធានីភ្នំពេញ',
+        ]);
+
+        // Customer accounts
+        User::create([
+            'name' => 'សុខា មេត្តា',
+            'email' => 'sokha@gmail.com',
+            'password' => Hash::make('12345678'),
+            'role' => 'customer',
+            'phone' => '+855-12-345-679',
+            'address' => 'ផ្ទះលេខ ៤៥៦, ផ្លូវជាតិលេខ ១, ខណ្ឌចំការមន, រាជធានីភ្នំពេញ',
         ]);
 
         User::create([
-            'name' => 'John Customer',
-            'email' => 'user@test.com',
-            'password' => Hash::make('password'),
-            'role' => 'user',
-            'phone' => '+1-555-0101',
-            'address' => '123 Main Street, New York, NY 10001',
-        ]);
-
-        // Additional users
-        User::create([
-            'name' => 'Alice Johnson',
-            'email' => 'alice@example.com',
-            'password' => Hash::make('password'),
-            'role' => 'user',
-            'phone' => '+1-555-0104',
-            'address' => '321 Oak Street, Los Angeles, CA 90210',
+            'name' => 'វិចិត្រ សុខុម',
+            'email' => 'vicheat@gmail.com',
+            'password' => Hash::make('12345678'),
+            'role' => 'customer',
+            'phone' => '+855-12-345-680',
+            'address' => 'ផ្ទះលេខ ៧៨៩, ផ្លូវជាតិលេខ ២, ខណ្ឌដូនពេញ, រាជធានីភ្នំពេញ',
         ]);
 
         User::create([
-            'name' => 'Bob Wilson',
-            'email' => 'bob@example.com',
-            'password' => Hash::make('password'),
-            'role' => 'user',
-            'phone' => '+1-555-0105',
-            'address' => '654 Pine Avenue, Chicago, IL 60601',
+            'name' => 'រតនា សុខា',
+            'email' => 'ratana@gmail.com',
+            'password' => Hash::make('12345678'),
+            'role' => 'customer',
+            'phone' => '+855-12-345-681',
+            'address' => 'ផ្ទះលេខ ១២៣, ផ្លូវជាតិលេខ ៣, ខណ្ឌពោធិ៍សែនជ័យ, រាជធានីភ្នំពេញ',
         ]);
 
         User::create([
-            'name' => 'Carol Davis',
-            'email' => 'carol@example.com',
-            'password' => Hash::make('password'),
-            'role' => 'user',
-            'phone' => '+1-555-0106',
-            'address' => '987 Elm Drive, Houston, TX 77001',
+            'name' => 'ចាន់ថា សុខុម',
+            'email' => 'chantha@gmail.com',
+            'password' => Hash::make('12345678'),
+            'role' => 'customer',
+            'phone' => '+855-12-345-682',
+            'address' => 'ផ្ទះលេខ ២៣៤, ផ្លូវជាតិលេខ ៤, ខណ្ឌព្រែកព្នៅ, រាជធានីភ្នំពេញ',
         ]);
 
         User::create([
-            'name' => 'David Brown',
-            'email' => 'david@example.com',
-            'password' => Hash::make('password'),
-            'role' => 'user',
-            'phone' => '+1-555-0107',
-            'address' => '147 Maple Lane, Phoenix, AZ 85001',
+            'name' => 'សុខុម រតនា',
+            'email' => 'sokhom@gmail.com',
+            'password' => Hash::make('12345678'),
+            'role' => 'customer',
+            'phone' => '+855-12-345-683',
+            'address' => 'ផ្ទះលេខ ៣៤៥, ផ្លូវជាតិលេខ ៥, ខណ្ឌព្រែកព្នៅ, រាជធានីភ្នំពេញ',
         ]);
 
         User::create([
-            'name' => 'Emma Garcia',
-            'email' => 'emma@example.com',
-            'password' => Hash::make('password'),
-            'role' => 'user',
-            'phone' => '+1-555-0108',
-            'address' => '258 Cedar Road, Philadelphia, PA 19101',
+            'name' => 'មេត្តា វិចិត្រ',
+            'email' => 'metta@gmail.com',
+            'password' => Hash::make('12345678'),
+            'role' => 'customer',
+            'phone' => '+855-12-345-684',
+            'address' => 'ផ្ទះលេខ ៤៥៦, ផ្លូវជាតិលេខ ៦, ខណ្ឌព្រែកព្នៅ, រាជធានីភ្នំពេញ',
         ]);
 
         User::create([
-            'name' => 'Frank Miller',
-            'email' => 'frank@example.com',
-            'password' => Hash::make('password'),
-            'role' => 'user',
-            'phone' => '+1-555-0109',
-            'address' => '369 Birch Street, San Antonio, TX 78201',
+            'name' => 'សុខា ចាន់ថា',
+            'email' => 'sokha2@gmail.com',
+            'password' => Hash::make('12345678'),
+            'role' => 'customer',
+            'phone' => '+855-12-345-685',
+            'address' => 'ផ្ទះលេខ ៥៦៧, ផ្លូវជាតិលេខ ៧, ខណ្ឌព្រែកព្នៅ, រាជធានីភ្នំពេញ',
         ]);
 
         User::create([
-            'name' => 'Grace Lee',
-            'email' => 'grace@example.com',
-            'password' => Hash::make('password'),
-            'role' => 'user',
-            'phone' => '+1-555-0110',
-            'address' => '741 Spruce Avenue, San Diego, CA 92101',
+            'name' => 'រតនា មេត្តា',
+            'email' => 'ratana2@gmail.com',
+            'password' => Hash::make('12345678'),
+            'role' => 'customer',
+            'phone' => '+855-12-345-686',
+            'address' => 'ផ្ទះលេខ ៦៧៨, ផ្លូវជាតិលេខ ៨, ខណ្ឌព្រែកព្នៅ, រាជធានីភ្នំពេញ',
+        ]);
+
+        User::create([
+            'name' => 'វិចិត្រ ចាន់ថា',
+            'email' => 'vicheat2@gmail.com',
+            'password' => Hash::make('12345678'),
+            'role' => 'customer',
+            'phone' => '+855-12-345-687',
+            'address' => 'ផ្ទះលេខ ៧៨៩, ផ្លូវជាតិលេខ ៩, ខណ្ឌព្រែកព្នៅ, រាជធានីភ្នំពេញ',
         ]);
     }
 }

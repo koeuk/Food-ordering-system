@@ -14,44 +14,24 @@ class CategorySeeder extends Seeder
     {
         $categories = [
             [
-                'name' => 'Appetizers',
-                'description' => 'Start your meal with our delicious appetizers and small plates.',
+                'name' => 'ម្ហូបជាតិ',
+                'description' => 'ម្ហូបខ្មែរបុរាណដែលឆ្ងាញ់ពិសារ បង្កើតឡើងដោយគ្រឿងផ្សំធម្មជាតិ',
             ],
             [
-                'name' => 'Main Course',
-                'description' => 'Hearty main dishes perfect for lunch and dinner.',
+                'name' => 'ម្ហូបសមុទ្រ',
+                'description' => 'ម្ហូបត្រី និងសត្វសមុទ្រស្រស់ៗ បានមកពីសមុទ្រកម្ពុជា',
             ],
             [
-                'name' => 'Desserts',
-                'description' => 'Sweet treats to end your meal on a perfect note.',
+                'name' => 'ម្ហូបគោ',
+                'description' => 'ម្ហូបគោឆ្ងាញ់ៗ ដែលចម្អិនដោយបច្ចេកទេសពិសេស',
             ],
             [
-                'name' => 'Beverages',
-                'description' => 'Refreshing drinks, coffee, tea, and specialty beverages.',
+                'name' => 'ម្ហូបជ្រូក',
+                'description' => 'ម្ហូបជ្រូកឆ្ងាញ់ និងពេញចិត្ត បានចម្អិនដោយគ្រឿងផ្សំពិសេស',
             ],
             [
-                'name' => 'Salads',
-                'description' => 'Fresh and healthy salad options with premium ingredients.',
-            ],
-            [
-                'name' => 'Pizza',
-                'description' => 'Authentic Italian-style pizzas with fresh toppings.',
-            ],
-            [
-                'name' => 'Pasta',
-                'description' => 'Classic Italian pasta dishes with homemade sauces.',
-            ],
-            [
-                'name' => 'Sandwiches',
-                'description' => 'Delicious sandwiches and wraps for a quick meal.',
-            ],
-            [
-                'name' => 'Soups',
-                'description' => 'Warm and comforting soups made with fresh ingredients.',
-            ],
-            [
-                'name' => 'Specials',
-                'description' => 'Chef\'s special dishes and seasonal menu items.',
+                'name' => 'ម្ហូបបាយ',
+                'description' => 'បាយឆ្ងាញ់ៗ និងម្ហូបបាយពិសេស ដែលធ្វើឡើងដោយគ្រឿងផ្សំធម្មជាតិ',
             ],
         ];
 

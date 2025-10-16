@@ -13,9 +13,9 @@ class OrderSeeder extends Seeder
      */
     public function run(): void
     {
-        $customers = User::where('role', 'user')->get();
+        $customers = User::where('role', 'customer')->get();
         
-        for ($i = 1; $i <= 10; $i++) {
+        for ($i = 1; $i <= 5; $i++) {
             $customer = $customers->random();
             $subtotal = rand(1500, 5000) / 100; // $15.00 to $50.00
             $tax = $subtotal * 0.1; // 10% tax
@@ -32,7 +32,7 @@ class OrderSeeder extends Seeder
                 'tax' => $tax,
                 'total' => $total,
                 'delivery_address' => $customer->address,
-                'notes' => $i % 3 === 0 ? 'Please deliver to the back door.' : null,
+                'notes' => $i % 3 === 0 ? 'សូមដឹកជញ្ជូនទៅទ្វារខាងក្រោយ។' : null,
                 'confirmed_at' => $status !== 'pending' ? now()->subHours(rand(1, 24)) : null,
                 'delivered_at' => $status === 'delivered' ? now()->subHours(rand(1, 48)) : null,
             ]);

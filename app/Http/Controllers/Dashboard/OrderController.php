@@ -90,12 +90,15 @@ class OrderController extends Controller
             'status' => 'required|in:pending,confirmed,preparing,ready,delivered,cancelled',
         ]);
 
-        $order->update(['status' => $validated['status']]);
+        // If changing to confirmed from pending, use the confirm method to update inventory
+        if ($validated['status'] === 'confirmed' && $order->status === 'pending') {
+            $order->confirm();
+        } else {
+            $order->update(['status' => $validated['status']]);
+        }
 
         if ($validated['status'] === 'delivered') {
             $order->markAsDelivered();
-        } elseif ($validated['status'] === 'confirmed' && $order->status === 'pending') {
-            $order->confirm();
         }
 
         return redirect()->route('dashboard.orders.index')

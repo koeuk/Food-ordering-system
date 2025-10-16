@@ -16,83 +16,93 @@ class ProductSeeder extends Seeder
         $categories = Category::all();
         
         $products = [
-            // Appetizers
+            // ម្ហូបជាតិ
             [
-                'name' => 'Buffalo Wings',
-                'description' => 'Crispy chicken wings tossed in our signature buffalo sauce, served with celery and blue cheese dip.',
-                'price' => 12.99,
-                'category_id' => $categories->where('name', 'Appetizers')->first()->id,
+                'name' => 'អាមុក',
+                'description' => 'ម្ហូបខ្មែរបុរាណឆ្ងាញ់ ចម្អិនដោយគ្រឿងផ្សំធម្មជាតិ និងប្រកបដោយរសជាតិពិសេស',
+                'price' => 8.50,
+                'image' => 'https://images.unsplash.com/photo-1551218808-94e220e084d2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+                'category_id' => $categories->where('name', 'ម្ហូបជាតិ')->first()->id,
                 'is_available' => true,
             ],
             [
-                'name' => 'Mozzarella Sticks',
-                'description' => 'Golden fried mozzarella cheese sticks served with marinara sauce.',
-                'price' => 8.99,
-                'category_id' => $categories->where('name', 'Appetizers')->first()->id,
-                'is_available' => true,
-            ],
-            
-            // Main Course
-            [
-                'name' => 'Grilled Salmon',
-                'description' => 'Fresh Atlantic salmon grilled to perfection, served with seasonal vegetables and rice.',
-                'price' => 24.99,
-                'category_id' => $categories->where('name', 'Main Course')->first()->id,
-                'is_available' => true,
-            ],
-            [
-                'name' => 'Beef Tenderloin',
-                'description' => 'Premium beef tenderloin cooked to your preference, served with mashed potatoes and asparagus.',
-                'price' => 32.99,
-                'category_id' => $categories->where('name', 'Main Course')->first()->id,
+                'name' => 'បាយឆា',
+                'description' => 'បាយឆាឆ្ងាញ់ បានចម្អិនដោយគ្រឿងផ្សំពិសេស និងបន្លែស្រស់ៗ',
+                'price' => 6.50,
+                'image' => 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+                'category_id' => $categories->where('name', 'ម្ហូបជាតិ')->first()->id,
                 'is_available' => true,
             ],
             
-            // Pizza
+            // ម្ហូបសមុទ្រ
             [
-                'name' => 'Margherita Pizza',
-                'description' => 'Classic Italian pizza with fresh mozzarella, tomato sauce, and basil.',
-                'price' => 16.99,
-                'category_id' => $categories->where('name', 'Pizza')->first()->id,
+                'name' => 'ត្រីអាំង',
+                'description' => 'ត្រីស្រស់អាំងឆ្ងាញ់ បានមកពីសមុទ្រកម្ពុជា ចម្អិនដោយបច្ចេកទេសពិសេស',
+                'price' => 12.00,
+                'image' => 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+                'category_id' => $categories->where('name', 'ម្ហូបសមុទ្រ')->first()->id,
                 'is_available' => true,
             ],
             [
-                'name' => 'Pepperoni Pizza',
-                'description' => 'Traditional pizza topped with spicy pepperoni and mozzarella cheese.',
-                'price' => 18.99,
-                'category_id' => $categories->where('name', 'Pizza')->first()->id,
-                'is_available' => true,
-            ],
-            
-            // Desserts
-            [
-                'name' => 'Chocolate Lava Cake',
-                'description' => 'Warm chocolate cake with a molten chocolate center, served with vanilla ice cream.',
-                'price' => 9.99,
-                'category_id' => $categories->where('name', 'Desserts')->first()->id,
-                'is_available' => true,
-            ],
-            [
-                'name' => 'Tiramisu',
-                'description' => 'Classic Italian dessert with layers of coffee-soaked ladyfingers and mascarpone.',
-                'price' => 8.99,
-                'category_id' => $categories->where('name', 'Desserts')->first()->id,
+                'name' => 'ត្រីចម្អិន',
+                'description' => 'ត្រីចម្អិនឆ្ងាញ់ បានចម្អិនដោយគ្រឿងផ្សំខ្មែរបុរាណ',
+                'price' => 10.50,
+                'image' => 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+                'category_id' => $categories->where('name', 'ម្ហូបសមុទ្រ')->first()->id,
                 'is_available' => true,
             ],
             
-            // Beverages
+            // ម្ហូបគោ
             [
-                'name' => 'Fresh Orange Juice',
-                'description' => 'Freshly squeezed orange juice served chilled.',
-                'price' => 4.99,
-                'category_id' => $categories->where('name', 'Beverages')->first()->id,
+                'name' => 'សាច់គោឆា',
+                'description' => 'សាច់គោឆាឆ្ងាញ់ បានចម្អិនដោយបន្លែស្រស់ៗ និងគ្រឿងផ្សំពិសេស',
+                'price' => 15.00,
+                'image' => 'https://images.unsplash.com/photo-1558030006-450675393462?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+                'category_id' => $categories->where('name', 'ម្ហូបគោ')->first()->id,
                 'is_available' => true,
             ],
             [
-                'name' => 'Craft Beer',
-                'description' => 'Selection of local craft beers on tap.',
-                'price' => 6.99,
-                'category_id' => $categories->where('name', 'Beverages')->first()->id,
+                'name' => 'សាច់គោអាំង',
+                'description' => 'សាច់គោអាំងឆ្ងាញ់ បានចម្អិនដោយបច្ចេកទេសពិសេស',
+                'price' => 18.50,
+                'image' => 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+                'category_id' => $categories->where('name', 'ម្ហូបគោ')->first()->id,
+                'is_available' => true,
+            ],
+            
+            // ម្ហូបជ្រូក
+            [
+                'name' => 'សាច់ជ្រូកឆា',
+                'description' => 'សាច់ជ្រូកឆាឆ្ងាញ់ បានចម្អិនដោយបន្លែស្រស់ៗ និងគ្រឿងផ្សំពិសេស',
+                'price' => 12.50,
+                'image' => 'https://images.unsplash.com/photo-1565299507177-b0ac667e28a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+                'category_id' => $categories->where('name', 'ម្ហូបជ្រូក')->first()->id,
+                'is_available' => true,
+            ],
+            [
+                'name' => 'សាច់ជ្រូកអាំង',
+                'description' => 'សាច់ជ្រូកអាំងឆ្ងាញ់ បានចម្អិនដោយបច្ចេកទេសពិសេស',
+                'price' => 14.00,
+                'image' => 'https://images.unsplash.com/photo-1571091718767-18b5b1457add?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+                'category_id' => $categories->where('name', 'ម្ហូបជ្រូក')->first()->id,
+                'is_available' => true,
+            ],
+            
+            // ម្ហូបបាយ
+            [
+                'name' => 'បាយការ៉េ',
+                'description' => 'បាយការ៉េឆ្ងាញ់ បានចម្អិនដោយគ្រឿងផ្សំពិសេស និងបន្លែស្រស់ៗ',
+                'price' => 7.50,
+                'image' => 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+                'category_id' => $categories->where('name', 'ម្ហូបបាយ')->first()->id,
+                'is_available' => true,
+            ],
+            [
+                'name' => 'បាយឆាការ៉េ',
+                'description' => 'បាយឆាការ៉េឆ្ងាញ់ បានចម្អិនដោយបច្ចេកទេសពិសេស',
+                'price' => 8.00,
+                'image' => 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+                'category_id' => $categories->where('name', 'ម្ហូបបាយ')->first()->id,
                 'is_available' => true,
             ],
         ];

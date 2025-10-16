@@ -304,7 +304,11 @@ const fetchUserOrderHistory = async () => {
 // Process products data for fallback
 const processProductsData = (productsData) => {
   const categoryMap = new Map();
-  productsData.forEach(product => {
+  
+  // Filter out products with 0 orders
+  const filteredProducts = productsData.filter(product => (product.order_items_count || 0) > 0);
+  
+  filteredProducts.forEach(product => {
     if (product.category) {
       const categoryId = product.category.id;
       if (!categoryMap.has(categoryId)) {
@@ -332,7 +336,11 @@ const processProductsData = (productsData) => {
 // Process system-wide products data (from admin dashboard)
 const processSystemProductsData = (productsData) => {
   const categoryMap = new Map();
-  productsData.forEach(product => {
+  
+  // Filter out products with 0 orders
+  const filteredProducts = productsData.filter(product => (product.total_sales || 0) > 0);
+  
+  filteredProducts.forEach(product => {
     if (product.category) {
       const categoryId = product.category.id;
       if (!categoryMap.has(categoryId)) {
@@ -362,7 +370,7 @@ const processSystemProductsData = (productsData) => {
   }
   
   // Set products for computed properties
-  products.value = productsData.map(product => ({
+  products.value = filteredProducts.map(product => ({
     ...product,
     user_order_count: product.total_sales || 0
   }));

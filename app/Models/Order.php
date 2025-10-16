@@ -92,6 +92,18 @@ class Order extends Model
      */
     public function confirm()
     {
+        // Update inventory quantities
+        foreach ($this->items as $item) {
+            $inventory = $item->product->inventory;
+            if ($inventory) {
+                $oldQuantity = $inventory->quantity;
+                $inventory->decreaseQuantity($item->quantity);
+                
+                // Log inventory update
+                \Log::info("Inventory updated for order {$this->order_number}: {$item->product->name} - {$oldQuantity} -> {$inventory->quantity} units (decreased by {$item->quantity})");
+            }
+        }
+
         $this->status = 'confirmed';
         $this->confirmed_at = now();
         return $this->save();
@@ -117,5 +129,38 @@ class Order extends Model
             return $this->save();
         }
         return false;
+    }
+
+    /**
+     * Cancel confirmed order and restore inventory
+     */
+    public function cancelConfirmed()
+    {
+        if ($this->status === 'confirmed') {
+            // Restore inventory
+            $this->restoreInventory();
+            $this->status = 'cancelled';
+            return $this->save();
+        }
+        return false;
+    }
+
+    /**
+     * Restore inventory when order is cancelled (if it was confirmed)
+     */
+    public function restoreInventory()
+    {
+        if ($this->confirmed_at) {
+            foreach ($this->items as $item) {
+                $inventory = $item->product->inventory;
+                if ($inventory) {
+                    $oldQuantity = $inventory->quantity;
+                    $inventory->increaseQuantity($item->quantity);
+                    
+                    // Log inventory restoration
+                    \Log::info("Inventory restored for cancelled order {$this->order_number}: {$item->product->name} - {$oldQuantity} -> {$inventory->quantity} units (increased by {$item->quantity})");
+                }
+            }
+        }
     }
 }

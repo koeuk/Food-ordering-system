@@ -34,6 +34,7 @@ class DatabaseSeeder extends Seeder
             BillSeeder::class,
             InventoryOrderSeeder::class,
             InventoryOrderItemSeeder::class,
+            SliderImageSeeder::class,
         ]);
     }
 }
