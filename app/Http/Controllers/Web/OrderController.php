@@ -7,6 +7,9 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Bill;
+use App\Models\Cart;
+use App\Models\Category;
+use App\Models\Inventory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -57,7 +60,7 @@ class OrderController extends Controller
             })
             ->get();
 
-        $categories = \App\Models\Category::all();
+        $categories = Category::all();
 
         return Inertia::render('Orders/Create', [
             'products' => $products,
@@ -100,7 +103,7 @@ class OrderController extends Controller
                 $product = Product::findOrFail($item['product_id']);
                 
                 // Find or create inventory for this product
-                $inventory = \App\Models\Inventory::firstOrCreate(
+                $inventory = Inventory::firstOrCreate(
                     ['product_id' => $product->id],
                     [
                         'quantity' => 100, // Default stock
@@ -166,7 +169,7 @@ class OrderController extends Controller
 
             // Clear the cart after successful order
             if (Auth::check()) {
-                $cart = \App\Models\Cart::where('user_id', Auth::id())->first();
+                $cart = Cart::where('user_id', Auth::id())->first();
                 if ($cart) {
                     $cart->items()->delete();
                 }
