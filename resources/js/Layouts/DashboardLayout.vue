@@ -142,86 +142,112 @@
         </v-app-bar>
 
         <!-- Colored Navigation Drawer -->
-        <v-navigation-drawer v-model="drawer" permanent app :color="isDark ? 'grey-darken-4' : 'grey'" width="280"
+        <v-navigation-drawer v-model="drawer" permanent app :color="isDark ? 'grey-darken-4' : 'grey'" width="260"
             class="dashboard-drawer" :class="{ 'dark-sidebar': isDark, 'light-sidebar': !isDark }">
+
             <!-- Drawer Header -->
-            <v-list-item title="Admin Dashboard" subtitle="Food Ordering System"></v-list-item>
-            <v-divider></v-divider>
+            <div class="drawer-header pa-4 d-flex align-center gap-3">
+                <div class="drawer-logo">
+                    <v-icon size="22" color="white">mdi-silverware-fork-knife</v-icon>
+                </div>
+                <div>
+                    <div class="drawer-brand">FoodAdmin</div>
+                    <div class="drawer-tagline">Management Panel</div>
+                </div>
+            </div>
+            <v-divider class="drawer-divider mb-2"></v-divider>
 
-            <!-- Navigation Items -->
-            <v-list-item href="/dashboard/admin" :class="{ 'v-list-item--active': isActiveRoute('/dashboard/admin') }"
-                link>
-                <template v-slot:prepend>
-                    <v-icon color="white">mdi-view-dashboard</v-icon>
-                </template>
-                <v-list-item-title>Dashboard</v-list-item-title>
-            </v-list-item>
+            <!-- Navigation -->
+            <v-list nav density="compact" class="px-2">
+                <v-list-item
+                    href="/dashboard/admin"
+                    :active="isActiveRoute('/dashboard/admin') && !isActiveRoute('/dashboard/admin/')"
+                    rounded="lg"
+                    class="nav-item mb-1"
+                >
+                    <template v-slot:prepend>
+                        <v-icon>mdi-view-dashboard-outline</v-icon>
+                    </template>
+                    <v-list-item-title>Overview</v-list-item-title>
+                </v-list-item>
 
+                <div class="nav-section-label px-2 mt-3 mb-1">Catalogue</div>
 
-            <!-- Dashboard Section -->
-            <v-list-item href="/dashboard/products"
-                :class="{ 'v-list-item--active': isActiveRoute('/dashboard/products') }" link>
-                <template v-slot:prepend>
-                    <v-icon color="white">mdi-food</v-icon>
-                </template>
-                <v-list-item-title>Products</v-list-item-title>
-            </v-list-item>
+                <v-list-item
+                    href="/dashboard/products"
+                    :active="isActiveRoute('/dashboard/products')"
+                    rounded="lg"
+                    class="nav-item mb-1"
+                >
+                    <template v-slot:prepend>
+                        <v-icon>mdi-food-outline</v-icon>
+                    </template>
+                    <v-list-item-title>Products</v-list-item-title>
+                </v-list-item>
 
-            <v-list-item href="/dashboard/categories"
-                :class="{ 'v-list-item--active': isActiveRoute('/dashboard/categories') }" link>
-                <template v-slot:prepend>
-                    <v-icon color="white">mdi-tag</v-icon>
-                </template>
-                <v-list-item-title>Categories</v-list-item-title>
-            </v-list-item>
+                <v-list-item
+                    href="/dashboard/categories"
+                    :active="isActiveRoute('/dashboard/categories')"
+                    rounded="lg"
+                    class="nav-item mb-1"
+                >
+                    <template v-slot:prepend>
+                        <v-icon>mdi-tag-outline</v-icon>
+                    </template>
+                    <v-list-item-title>Categories</v-list-item-title>
+                </v-list-item>
 
-            <v-list-item href="/dashboard/inventory"
-                :class="{ 'v-list-item--active': isActiveRoute('/dashboard/inventory') }" link>
-                <template v-slot:prepend>
-                    <v-icon color="white">mdi-package-variant</v-icon>
-                </template>
-                <v-list-item-title>Inventory</v-list-item-title>
-            </v-list-item>
+                <div class="nav-section-label px-2 mt-3 mb-1">Operations</div>
 
-            <v-list-item href="/dashboard/orders" :class="{ 'v-list-item--active': isActiveRoute('/dashboard/orders') }"
-                link>
-                <template v-slot:prepend>
-                    <v-icon color="white">mdi-clipboard-list</v-icon>
-                </template>
-                <v-list-item-title>Orders</v-list-item-title>
-            </v-list-item>
+                <v-list-item
+                    href="/dashboard/orders"
+                    :active="isActiveRoute('/dashboard/orders')"
+                    rounded="lg"
+                    class="nav-item mb-1"
+                >
+                    <template v-slot:prepend>
+                        <v-icon>mdi-clipboard-list-outline</v-icon>
+                    </template>
+                    <v-list-item-title>Orders</v-list-item-title>
+                    <template v-slot:append v-if="newOrdersCount > 0">
+                        <v-chip size="x-small" color="error" class="nav-badge">{{ newOrdersCount }}</v-chip>
+                    </template>
+                </v-list-item>
 
-            <!-- <v-list-item href="/dashboard/suppliers" -->
-                <!-- :class="{ 'v-list-item--active': isActiveRoute('/dashboard/suppliers') }" link> -->
-                <!-- <template v-slot:prepend> -->
-                    <!-- <v-icon color="white">mdi-truck-delivery</v-icon> -->
-                <!-- </template> -->
-                <!-- <v-list-item-title>Suppliers</v-list-item-title> -->
-            <!-- </v-list-item> -->
+                <v-list-item
+                    href="/dashboard/inventory"
+                    :active="isActiveRoute('/dashboard/inventory')"
+                    rounded="lg"
+                    class="nav-item mb-1"
+                >
+                    <template v-slot:prepend>
+                        <v-icon>mdi-package-variant-closed</v-icon>
+                    </template>
+                    <v-list-item-title>Inventory</v-list-item-title>
+                </v-list-item>
 
-            <!-- <v-list-item href="/dashboard/reports/sales" -->
-                <!-- :class="{ 'v-list-item--active': isActiveRoute('/dashboard/reports/sales') }" link> -->
-                <!-- <template v-slot:prepend> -->
-                    <!-- <v-icon color="white">mdi-chart-line</v-icon> -->
-                <!-- </template> -->
-                <!-- <v-list-item-title>Reports</v-list-item-title> -->
-            <!-- </v-list-item> -->
+                <div class="nav-section-label px-2 mt-3 mb-1">Content</div>
 
-            <v-list-item href="/dashboard/slider-images"
-                :class="{ 'v-list-item--active': isActiveRoute('/dashboard/slider-images') }" link>
-                <template v-slot:prepend>
-                    <v-icon color="white">mdi-image-multiple</v-icon>
-                </template>
-                <v-list-item-title>Slider Images</v-list-item-title>
-            </v-list-item>
+                <v-list-item
+                    href="/dashboard/slider-images"
+                    :active="isActiveRoute('/dashboard/slider-images')"
+                    rounded="lg"
+                    class="nav-item mb-1"
+                >
+                    <template v-slot:prepend>
+                        <v-icon>mdi-image-multiple-outline</v-icon>
+                    </template>
+                    <v-list-item-title>Slider Images</v-list-item-title>
+                </v-list-item>
+            </v-list>
 
             <!-- Logout Button -->
             <template v-slot:append>
-                <div class="pa-4">
-                    <v-btn @click="logout" :color="isDark ? 'grey-darken-4' : 'grey-darken-4'" variant="flat" block
-                        class="font-weight-medium" :class="isDark ? 'text-white' : 'text-white'" size="large">
-                        <v-icon left>mdi-logout</v-icon>
-                        LOGOUT
+                <v-divider class="drawer-divider mb-3"></v-divider>
+                <div class="px-4 pb-4">
+                    <v-btn @click="logout" variant="tonal" block class="logout-btn" size="large">
+                        <v-icon start>mdi-logout</v-icon>
+                        Sign Out
                     </v-btn>
                 </div>
             </template>
@@ -323,68 +349,107 @@
 </script>
 
 <style scoped>
-/* Light theme sidebar (gray-green) */
+/* Sidebar themes */
 .light-sidebar {
-    background: linear-gradient(180deg, #737B79 0%, #5A615F 100%) !important;
+    background: linear-gradient(180deg, #2C3E50 0%, #1a252f 100%) !important;
 }
 
-.light-sidebar .v-list-item {
-    color: white !important;
-}
-
-.light-sidebar .v-list-item:hover {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-}
-
-.light-sidebar .v-list-item--active {
-    background-color: rgba(255, 255, 255, 0.25) !important;
-    border-left: 4px solid #FFD700 !important;
-    font-weight: 600 !important;
-}
-
-.light-sidebar .v-list-item--active .v-icon {
-    color: #FFD700 !important;
-}
-
-.light-sidebar .v-list-item--active .v-list-item-title {
-    color: #FFD700 !important;
-    font-weight: 600 !important;
-}
-
-.light-sidebar .v-divider {
-    border-color: rgba(255, 255, 255, 0.2) !important;
-}
-
-/* Dark theme sidebar (darker gray-green) */
 .dark-sidebar {
-    background: linear-gradient(180deg, #4A504E 0%, #3A3F3D 100%) !important;
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%) !important;
 }
 
-.dark-sidebar .v-list-item {
+/* Drawer header */
+.drawer-header {
+    padding-top: 20px !important;
+    padding-bottom: 16px !important;
+}
+
+.drawer-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.drawer-brand {
+    font-size: 15px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: 0.3px;
+    line-height: 1.2;
+}
+
+.drawer-tagline {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 0.3px;
+}
+
+.drawer-divider {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Nav section labels */
+.nav-section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.35);
+}
+
+/* Nav items */
+.nav-item {
+    color: rgba(255, 255, 255, 0.75) !important;
+    transition: background 0.2s ease, color 0.2s ease !important;
+}
+
+.nav-item :deep(.v-icon) {
+    color: rgba(255, 255, 255, 0.6) !important;
+    transition: color 0.2s ease !important;
+}
+
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
     color: white !important;
 }
 
-.dark-sidebar .v-list-item:hover {
-    background-color: rgba(255, 255, 255, 0.1) !important;
+.nav-item:hover :deep(.v-icon) {
+    color: white !important;
 }
 
-.dark-sidebar .v-list-item--active {
-    background-color: rgba(255, 255, 255, 0.15) !important;
-    border-left: 4px solid #2196F3 !important;
+.nav-item.v-list-item--active {
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: white !important;
+}
+
+.nav-item.v-list-item--active :deep(.v-icon) {
+    color: #82CFFF !important;
+}
+
+.nav-item.v-list-item--active :deep(.v-list-item-title) {
     font-weight: 600 !important;
 }
 
-.dark-sidebar .v-list-item--active .v-icon {
-    color: #2196F3 !important;
+.nav-badge {
+    font-size: 10px !important;
 }
 
-.dark-sidebar .v-list-item--active .v-list-item-title {
-    color: #2196F3 !important;
-    font-weight: 600 !important;
+/* Logout button */
+.logout-btn {
+    color: rgba(255, 255, 255, 0.8) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    background: rgba(255, 255, 255, 0.07) !important;
 }
 
-.dark-sidebar .v-divider {
-    border-color: rgba(255, 255, 255, 0.2) !important;
+.logout-btn:hover {
+    background: rgba(239, 83, 80, 0.25) !important;
+    color: #EF9A9A !important;
+    border-color: rgba(239, 83, 80, 0.4) !important;
 }
 
 /* Main content area themes */

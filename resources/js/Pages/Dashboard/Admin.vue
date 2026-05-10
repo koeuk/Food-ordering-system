@@ -4,62 +4,40 @@
 
     <v-container>
       <!-- Header -->
-      <div class="mb-8">
-        <h1 class="text-h4 font-weight-bold text-grey-darken-3 mb-2">
-          Admin Dashboard
-        </h1>
-        <p class="text-subtitle-1 text-grey-darken-1">
-          Welcome back, {{ user?.name }}! Here's your business overview.
-        </p>
+      <div class="dashboard-header mb-8 d-flex align-center justify-space-between flex-wrap gap-3">
+        <div>
+          <p class="text-caption text-grey-darken-1 mb-1 text-uppercase font-weight-medium" style="letter-spacing:0.08em">
+            {{ greeting }}, {{ user?.name }}
+          </p>
+          <h1 class="text-h4 font-weight-bold mb-1" style="letter-spacing:-0.5px">
+            Dashboard Overview
+          </h1>
+          <p class="text-body-2 text-grey-darken-1">
+            <v-icon size="14" class="mr-1">mdi-calendar-outline</v-icon>{{ todayFormatted }}
+          </p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+          <v-btn color="primary" variant="tonal" size="small" href="/dashboard/orders">
+            <v-icon start size="16">mdi-clipboard-list-outline</v-icon>
+            View Orders
+          </v-btn>
+          <v-btn color="success" variant="tonal" size="small" href="/dashboard/products/create">
+            <v-icon start size="16">mdi-plus</v-icon>
+            Add Product
+          </v-btn>
+        </div>
       </div>
 
       <!-- Statistics Cards -->
       <v-row class="mb-8">
         <v-col cols="12" sm="6" md="3" v-for="(stat, index) in statsCards" :key="index">
-          <v-card 
-            class="pa-6 rounded-lg stats-card" 
-            :class="stat.cardClass"
-            elevation="3"
-            variant="flat"
-          >
-            <div class="d-flex flex-column">
-              <!-- Icon and Title -->
-              <div class="d-flex align-center mb-3">
-                <v-icon 
-                  :color="stat.iconColor" 
-                  size="24" 
-                  class="mr-3"
-                >
-                  {{ stat.icon }}
-                </v-icon>
-                <div class="text-subtitle-2 text-grey-darken-1 font-weight-medium">
-                  {{ stat.title }}
-                </div>
-              </div>
-              
-              <!-- Main Value -->
-              <div class="text-h4 font-weight-bold mb-3" :class="stat.valueColor">
-                {{ stat.value }}
-              </div>
-              
-              <!-- Performance Indicator -->
-              <div class="d-flex align-center" v-if="stat.change">
-                <v-icon 
-                  size="16" 
-                  :color="stat.changeType === 'increase' ? 'success' : 'error'"
-                  class="mr-1"
-                >
-                  {{ stat.changeType === 'increase' ? 'mdi-trending-up' : 'mdi-trending-down' }}
-              </v-icon>
-                <span 
-                  class="text-caption font-weight-medium"
-                  :class="stat.changeType === 'increase' ? 'text-success' : 'text-error'"
-                >
-                  {{ stat.change }} from last month
-                </span>
-              </div>
-            </div>
-          </v-card>
+          <StatsCard
+            :title="stat.title"
+            :value="stat.value"
+            :subtitle="stat.change ? `${stat.change} from last month` : stat.subtitle"
+            :icon="stat.icon"
+            :variant="stat.variant"
+          />
         </v-col>
       </v-row>
 
@@ -121,23 +99,19 @@
               <!-- Summary Stats -->
               <div class="mt-4">
                 <v-divider class="mb-3"></v-divider>
-                <div class="d-flex justify-space-between align-center text-center">
-                  <div>
-                    <div class="text-h6 font-weight-bold text-primary">
-                      {{ totalOrders }}
+                <div class="d-flex justify-space-between">
+                  <div class="order-stat-item text-center">
+                    <div class="text-h6 font-weight-bold">{{ totalOrders }}</div>
+                    <div class="text-caption text-grey-darken-1">Total</div>
                   </div>
-                    <div class="text-caption text-grey-darken-1">Total Orders</div>
-                </div>
-                  <div>
-                    <div class="text-h6 font-weight-bold text-success">
-                      {{ completedOrders }}
-                    </div>
-                    <div class="text-caption text-grey-darken-1">Completed</div>
+                  <v-divider vertical class="mx-2"></v-divider>
+                  <div class="order-stat-item text-center">
+                    <div class="text-h6 font-weight-bold text-success">{{ completedOrders }}</div>
+                    <div class="text-caption text-grey-darken-1">Delivered</div>
                   </div>
-                  <div>
-                    <div class="text-h6 font-weight-bold text-warning">
-                      {{ pendingOrders }}
-                    </div>
+                  <v-divider vertical class="mx-2"></v-divider>
+                  <div class="order-stat-item text-center">
+                    <div class="text-h6 font-weight-bold text-warning">{{ pendingOrders }}</div>
                     <div class="text-caption text-grey-darken-1">Pending</div>
                   </div>
                 </div>
@@ -301,8 +275,9 @@
                 </v-list-item>
               </v-list>
               <div v-else class="text-center py-8">
-                <v-icon size="48" >mdi-check-circle</v-icon>
-                <p class="mt-4">All items in stock</p>
+                <v-icon size="52" color="success">mdi-check-circle-outline</v-icon>
+                <p class="text-subtitle-2 font-weight-medium mt-3 mb-1">All stocked up</p>
+                <p class="text-caption text-grey-darken-1">No items below minimum stock</p>
               </div>
             </v-card-text>
           </v-card>
@@ -319,10 +294,22 @@ import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 import SalesChart from '@/Components/Charts/SalesChart.vue';
 import OrderStatusChart from '@/Components/Charts/OrderStatusChart.vue';
 import TopProducts from '@/Components/Dashboard/TopProducts.vue';
+import StatsCard from '@/Components/Dashboard/StatsCard.vue';
 import { useTheme } from '@/composables/useTheme';
 import axios from 'axios';
 
 const { isDark, toggleTheme } = useTheme();
+
+const greeting = computed(() => {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Good morning';
+  if (hour < 17) return 'Good afternoon';
+  return 'Good evening';
+});
+
+const todayFormatted = computed(() =>
+  new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+);
 
 const props = defineProps({
   user: Object,
@@ -430,40 +417,32 @@ const statsCards = computed(() => [
     title: 'Total Revenue',
     value: `$${formatPrice(props.stats?.total_revenue || 0)}`,
     icon: 'mdi-currency-usd',
-    iconColor: 'success',
-    valueColor: 'text-success',
-    cardClass: 'revenue-card',
-    change: '4.2%',
+    variant: 'revenue',
+    change: '+4.2%',
     changeType: 'increase'
   },
   {
     title: 'Orders Today',
     value: props.stats?.orders_today || 0,
     icon: 'mdi-clipboard-list',
-    iconColor: 'info',
-    valueColor: 'text-info',
-    cardClass: 'orders-card',
-    change: '1.7%',
+    variant: 'orders',
+    change: '+1.7%',
     changeType: 'increase'
   },
   {
     title: 'Active Products',
     value: props.stats?.active_products || 0,
     icon: 'mdi-package-variant',
-    iconColor: 'primary',
-    valueColor: 'text-primary',
-    cardClass: 'products-card',
-    change: '2.9%',
+    variant: 'products',
+    change: '-2.9%',
     changeType: 'decrease'
   },
   {
     title: 'Low Stock Items',
     value: props.stats?.low_stock_count || 0,
     icon: 'mdi-alert-triangle',
-    iconColor: 'warning',
-    valueColor: 'text-warning',
-    cardClass: 'stock-card',
-    change: '0.9%',
+    variant: 'stock',
+    change: '+0.9%',
     changeType: 'increase'
   }
 ]);
@@ -682,6 +661,12 @@ const getStatusClass = (status) => {
 </script>
 
 <style scoped>
+/* Order stat items */
+.order-stat-item {
+  flex: 1;
+  padding: 4px 0;
+}
+
 /* Statistics Cards Styling */
 .stats-card {
   transition: all 0.3s ease;
