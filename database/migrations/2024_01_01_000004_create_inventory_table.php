@@ -14,6 +14,10 @@ return new class extends Migration
             $table->foreignId('product_id')->unique()->constrained()->onDelete('cascade');
             $table->integer('quantity')->default(0);
             $table->integer('minimum_stock')->default(10);
+            $table->string('unit')->nullable();
+            $table->string('location')->nullable();
+            $table->date('expiry_date')->nullable();
+            $table->text('notes')->nullable();
             $table->timestamp('last_restocked_at')->nullable();
             $table->timestamps();
 
