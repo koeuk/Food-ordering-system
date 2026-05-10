@@ -408,6 +408,12 @@
     transition: background 0.2s ease, color 0.2s ease !important;
 }
 
+.nav-item :deep(.v-list-item-title) {
+    color: rgba(255, 255, 255, 0.75) !important;
+    font-size: 13.5px !important;
+    letter-spacing: 0.01em;
+}
+
 .nav-item :deep(.v-icon) {
     color: rgba(255, 255, 255, 0.6) !important;
     transition: color 0.2s ease !important;
@@ -415,6 +421,10 @@
 
 .nav-item:hover {
     background: rgba(255, 255, 255, 0.08) !important;
+    color: white !important;
+}
+
+.nav-item:hover :deep(.v-list-item-title) {
     color: white !important;
 }
 
@@ -432,6 +442,7 @@
 }
 
 .nav-item.v-list-item--active :deep(.v-list-item-title) {
+    color: white !important;
     font-weight: 600 !important;
 }
 

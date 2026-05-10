@@ -73,6 +73,35 @@ const addToCart = () => emit('add-to-cart', props.product);
 </script>
 
 <style scoped>
+:global(.v-theme--dark) .fc {
+  --ink: #F0EDE8;
+  --muted: #9A9490;
+  --surface: #1A1F2E;
+  --border: rgba(255, 255, 255, 0.08);
+  --shadow: rgba(0, 0, 0, 0.3);
+  --shadow-hover: rgba(201, 98, 47, 0.22);
+}
+
+:global(.v-theme--dark) .fc__badge--cat {
+  background: rgba(26, 31, 46, 0.88);
+  color: #F0EDE8;
+}
+
+:global(.v-theme--dark) .fc__rating {
+  background: rgba(26, 31, 46, 0.92);
+  color: #F0EDE8;
+}
+
+:global(.v-theme--dark) .fc__btn {
+  background: #F0EDE8;
+  color: #1C1917;
+}
+
+:global(.v-theme--dark) .fc__btn:hover:not(:disabled) {
+  background: #C9622F;
+  color: #FFFCF9;
+}
+
 .fc {
   --accent: #C9622F;
   --accent-light: #f0e6df;

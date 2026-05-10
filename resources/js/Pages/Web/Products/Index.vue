@@ -2,6 +2,8 @@
   <AppLayout>
     <Head title="Our Menu" />
 
+    <v-container class="py-8">
+
     <!-- Header -->
     <div class="d-flex justify-space-between align-center mb-6">
       <div>
@@ -134,6 +136,8 @@
         @update:model-value="handlePageChange"
       />
     </div>
+
+    </v-container>
   </AppLayout>
 </template>
 

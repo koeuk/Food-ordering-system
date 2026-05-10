@@ -2,6 +2,8 @@
   <AppLayout>
     <Head :title="`${product.name} - Our Menu`" />
 
+    <v-container class="py-8">
+
     <!-- Back Button -->
     <div class="mb-4">
       <v-btn 
@@ -138,12 +140,12 @@
         <v-col v-for="relatedProduct in relatedProducts" :key="relatedProduct.id" cols="12" sm="6" md="4">
           <v-card elevation="2" hover class="h-100">
             <div class="product-image-container">
-              <v-img 
-                v-if="relatedProduct.image" 
-                :src="`/storage/${relatedProduct.image}`" 
-                :alt="relatedProduct.name" 
+              <v-img
+                v-if="relatedProduct.image"
+                :src="`/storage/${relatedProduct.image}`"
+                :alt="relatedProduct.name"
                 height="200"
-                cover 
+                cover
               />
               <div v-else class="d-flex align-center justify-center" style="height: 200px; background-color: #f5f5f5;">
                 <v-icon size="64" color="grey">mdi-food</v-icon>
@@ -161,8 +163,8 @@
                 <span class="text-h6 font-weight-bold text-primary">
                   ${{ relatedProduct.price }}
                 </span>
-                <v-btn 
-                  color="primary" 
+                <v-btn
+                  color="primary"
                   variant="outlined"
                   size="small"
                   :href="`/web/products/${relatedProduct.uuid}`"
@@ -175,6 +177,8 @@
         </v-col>
       </v-row>
     </div>
+
+    </v-container>
   </AppLayout>
 </template>
 

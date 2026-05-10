@@ -2,7 +2,7 @@
   <AppLayout>
     <Head title="Blog - Food Ordering System" />
 
-    <v-container>
+    <v-container class="py-8">
       <!-- Header Section -->
       <div class="text-center mb-12">
         <h1 class="text-h2 font-weight-bold text-grey-darken-3 mb-4">

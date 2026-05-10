@@ -1,124 +1,71 @@
 <template>
   <v-app :theme="isDark ? 'dark' : 'light'">
     <!-- Navigation -->
-    <v-app-bar app color="primary" dark elevation="1">
-      <v-app-bar-nav-icon @click="drawer = !drawer" class="d-lg-none" />
+    <v-app-bar app :color="isDark ? '#111110' : 'white'" elevation="0" class="app-navbar" height="64">
+      <v-app-bar-nav-icon @click="drawer = !drawer" class="d-lg-none" :color="isDark ? 'white' : '#1C1917'" />
 
-      <v-toolbar-title class="text-h6 font-weight-bold">
-        <Link href="/" class="text-decoration-none text-white">
-        Food Ordering System
+      <v-toolbar-title class="font-weight-bold">
+        <Link href="/" class="text-decoration-none nav-brand d-flex align-center gap-2">
+          <div class="nav-brand-icon">
+            <v-icon size="18" color="white">mdi-silverware-fork-knife</v-icon>
+          </div>
+          <span class="nav-brand-text">FoodOrder</span>
         </Link>
       </v-toolbar-title>
 
       <v-spacer />
 
-      <!-- Theme Toggle -->
-      <v-btn
-        icon
-        variant="text"
-        @click="toggleTheme"
-        class="mr-2 theme-toggle-btn"
-        :title="isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme'"
-        size="large"
-      >
-        <v-icon size="24">{{ isDark ? 'mdi-weather-sunny' : 'mdi-weather-night' }}</v-icon>
-      </v-btn>
-
       <!-- Desktop Navigation -->
-      <div class="d-none d-lg-flex align-center">
-        <v-btn text dark href="/web/products" class="mx-2">
-          <v-icon left>mdi-food</v-icon>
-          Menu
-        </v-btn>
-        
-        <v-btn text dark href="/blog" class="mx-2">
-          <v-icon left>mdi-information</v-icon>
-          About Us
-        </v-btn>
-
-        <template v-if="user">
-          <!-- Admin Menu -->
-          <template v-if="user.role === 'admin'">
-            <v-btn text dark :to="{ name: 'admin.products.index' }" class="mx-2">
-              <v-icon left>mdi-food</v-icon>
-              Products
-            </v-btn>
-            <v-btn text dark :to="{ name: 'categories.index' }" class="mx-2">
-              <v-icon left>mdi-tag</v-icon>
-              Categories
-            </v-btn>
-            <v-btn text dark :to="{ name: 'inventory.index' }" class="mx-2">
-              <v-icon left>mdi-package-variant</v-icon>
-              Inventory
-            </v-btn>
-            <v-btn text dark :to="{ name: 'roles.index' }" class="mx-2">
-              <v-icon left>mdi-shield-account</v-icon>
-              Roles
-            </v-btn>
-            <v-btn text dark :to="{ name: 'user-roles.index' }" class="mx-2">
-              <v-icon left>mdi-account-cog</v-icon>
-              User Roles
-            </v-btn>
-            <v-btn text dark :to="{ name: 'admin.reports.sales' }" class="mx-2">
-              <v-icon left>mdi-chart-line</v-icon>
-              Reports
-            </v-btn>
-          </template>
-        </template>
+      <div class="d-none d-lg-flex align-center gap-1 mr-2">
+        <a href="/web/products" class="nav-link">Menu</a>
+        <a href="/blog" class="nav-link">About Us</a>
       </div>
 
-      <!-- Cart and User Menu -->
-      <div class="d-none d-sm-flex align-center ml-4">
-        <!-- Cart Button -->
-        <v-btn 
-          text 
-          dark 
-          href="/web/cart"
-          class="mx-2"
-        >
-          <v-icon left>mdi-cart</v-icon>
-          Cart
+      <!-- Right Actions -->
+      <div class="d-none d-sm-flex align-center gap-2 mr-2">
+        <!-- Theme Toggle -->
+        <v-btn icon variant="text" @click="toggleTheme" size="small" class="nav-icon-btn">
+          <v-icon size="20">{{ isDark ? 'mdi-weather-sunny' : 'mdi-weather-night' }}</v-icon>
         </v-btn>
+
+        <!-- Cart -->
+        <a href="/web/cart" class="nav-cart-btn">
+          <v-icon size="18">mdi-cart-outline</v-icon>
+          Cart
+        </a>
 
         <template v-if="user">
           <v-menu offset-y>
             <template v-slot:activator="{ props }">
-              <v-btn v-bind="props" variant="text" dark class="text-capitalize">
+              <button v-bind="props" class="nav-user-btn">
+                <v-icon size="16">mdi-account-circle-outline</v-icon>
                 {{ user.name }}
-                <v-chip small color="white" text-color="primary" class="ml-2">
+                <v-chip size="x-small" :color="user.role === 'admin' ? 'primary' : 'success'" class="ml-1">
                   {{ capitalizeRole(user.role) }}
                 </v-chip>
-                <v-icon right>mdi-chevron-down</v-icon>
-              </v-btn>
+                <v-icon size="16">mdi-chevron-down</v-icon>
+              </button>
             </template>
-            <v-list>
-              <v-list-item>
-                <v-list-item-title>My Account</v-list-item-title>
-              </v-list-item>
-              <v-divider />
+            <v-list elevation="3" rounded="lg" min-width="180">
               <v-list-item href="/my-orders">
-                <template v-slot:prepend>
-                  <v-icon>mdi-shopping</v-icon>
-                </template>
+                <template v-slot:prepend><v-icon size="18">mdi-shopping-outline</v-icon></template>
                 <v-list-item-title>My Orders</v-list-item-title>
               </v-list-item>
               <v-list-item href="/profile">
+                <template v-slot:prepend><v-icon size="18">mdi-account-outline</v-icon></template>
                 <v-list-item-title>Profile</v-list-item-title>
               </v-list-item>
               <v-divider />
               <v-list-item @click="logout">
-                <v-list-item-title>Logout</v-list-item-title>
+                <template v-slot:prepend><v-icon size="18" color="error">mdi-logout</v-icon></template>
+                <v-list-item-title class="text-error">Logout</v-list-item-title>
               </v-list-item>
             </v-list>
           </v-menu>
         </template>
         <template v-else>
-          <v-btn variant="text" dark href="/login" class="mx-1">
-            Login
-          </v-btn>
-          <v-btn variant="outlined" dark href="/register" class="mx-1">
-            Register
-          </v-btn>
+          <a href="/login" class="nav-link">Login</a>
+          <a href="/register" class="nav-register-btn">Register</a>
         </template>
       </div>
     </v-app-bar>
@@ -241,9 +188,7 @@
 
     <!-- Main Content -->
     <v-main>
-      <v-container fluid class="pa-4">
-        <slot />
-      </v-container>
+      <slot />
     </v-main>
 
     <!-- Footer -->
@@ -294,18 +239,131 @@ const flash = computed(() => page.props.flash);
 </script>
 
 <style scoped>
-.theme-toggle-btn {
-  background-color: rgba(255, 255, 255, 0.1) !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  transition: all 0.3s ease !important;
+/* Navbar border */
+.app-navbar {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07) !important;
 }
 
-.theme-toggle-btn:hover {
-  background-color: rgba(255, 255, 255, 0.2) !important;
-  transform: scale(1.1) !important;
+/* Brand */
+.nav-brand {
+  color: #1C1917;
+  text-decoration: none;
 }
 
-.theme-toggle-btn .v-icon {
-  color: white !important;
+.nav-brand-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #C9622F, #e07a4a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.nav-brand-text {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1C1917;
+  letter-spacing: -0.3px;
+}
+
+.v-theme--dark .nav-brand-text {
+  color: #F5F0EB;
+}
+
+/* Nav links */
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #57534E;
+  text-decoration: none;
+  transition: background 0.18s ease, color 0.18s ease;
+  font-family: inherit;
+}
+
+.nav-link:hover {
+  background: rgba(28, 25, 23, 0.06);
+  color: #1C1917;
+}
+
+.v-theme--dark .nav-link { color: #A8A29E; }
+.v-theme--dark .nav-link:hover { background: rgba(255,255,255,0.08); color: #F5F0EB; }
+
+/* Icon button */
+.nav-icon-btn {
+  color: #57534E !important;
+}
+.v-theme--dark .nav-icon-btn { color: #A8A29E !important; }
+
+/* Cart button */
+.nav-cart-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: 40px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1C1917;
+  background: #F5F0EB;
+  text-decoration: none;
+  transition: background 0.18s ease;
+  font-family: inherit;
+}
+
+.nav-cart-btn:hover {
+  background: #EDE8E3;
+}
+
+.v-theme--dark .nav-cart-btn { background: rgba(255,255,255,0.08); color: #F5F0EB; }
+.v-theme--dark .nav-cart-btn:hover { background: rgba(255,255,255,0.12); }
+
+/* User button */
+.nav-user-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 40px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #1C1917;
+  background: transparent;
+  border: 1.5px solid #EDE8E3;
+  cursor: pointer;
+  transition: border-color 0.18s ease;
+  font-family: inherit;
+}
+
+.nav-user-btn:hover {
+  border-color: #C9622F;
+}
+
+.v-theme--dark .nav-user-btn { color: #F5F0EB; border-color: rgba(255,255,255,0.15); }
+.v-theme--dark .nav-user-btn:hover { border-color: #C9622F; }
+
+/* Register button */
+.nav-register-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 20px;
+  border-radius: 40px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: white;
+  background: #C9622F;
+  text-decoration: none;
+  transition: background 0.18s ease, box-shadow 0.18s ease;
+  font-family: inherit;
+}
+
+.nav-register-btn:hover {
+  background: #b8521f;
+  box-shadow: 0 4px 14px rgba(201, 98, 47, 0.4);
 }
 </style>

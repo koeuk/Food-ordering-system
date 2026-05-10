@@ -2,7 +2,7 @@
   <AppLayout>
     <Head title="About Us - Food Ordering System" />
 
-    <v-container>
+    <v-container class="py-8">
       <!-- Header -->
       <div class="mb-8">
         <!-- Back Button - Left Aligned -->

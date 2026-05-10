@@ -79,6 +79,22 @@ const removeItem = () => emit('remove', props.item.id);
 </script>
 
 <style scoped>
+:global(.v-theme--dark) .ci {
+  --ink: #F0EDE8;
+  --muted: #9A9490;
+  --surface: #1A1F2E;
+  --border: rgba(255, 255, 255, 0.08);
+}
+
+:global(.v-theme--dark) .ci__stepper {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+:global(.v-theme--dark) .ci__step-btn:hover:not(:disabled) {
+  background: #F0EDE8;
+  color: #1C1917;
+}
+
 .ci {
   --accent: #C9622F;
   --ink: #1C1917;

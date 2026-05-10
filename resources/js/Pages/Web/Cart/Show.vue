@@ -2,6 +2,8 @@
   <AppLayout>
     <Head title="Shopping Cart" />
 
+    <v-container class="py-8">
+
     <!-- Header -->
     <div class="d-flex justify-space-between align-center mb-6">
       <div>
@@ -233,8 +235,10 @@
       </v-card>
     </div>
 
+    </v-container>
+
     <!-- Order Confirmation Dialog -->
-    <OrderConfirmationDialog 
+    <OrderConfirmationDialog
       v-model="showOrderDialog" 
       :cart="cart"
       @order-confirmed="handleOrderConfirmed"

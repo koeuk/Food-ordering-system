@@ -2,7 +2,7 @@
   <AppLayout>
     <Head title="Profile" />
 
-    <v-container>
+    <v-container class="py-8">
       <!-- Header -->
       <div class="d-flex justify-space-between align-center mb-6">
         <div>

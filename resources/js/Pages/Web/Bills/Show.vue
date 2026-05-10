@@ -2,7 +2,7 @@
   <AppLayout>
     <Head :title="`Payment - Bill #${bill.bill_number}`" />
     
-    <v-container>
+    <v-container class="py-8">
       <!-- Back Button -->
       <v-btn 
         color="grey" 

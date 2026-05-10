@@ -2,7 +2,7 @@
   <AppLayout>
     <Head title="Profile" />
     
-    <v-container>
+    <v-container class="py-8">
       <div class="d-flex justify-space-between align-center mb-6">
         <div>
           <h1 class="text-h3 font-weight-bold text-grey-darken-3 mb-2">

@@ -32,6 +32,19 @@ defineProps({
 </script>
 
 <style scoped>
+:global(.v-theme--dark) .sc {
+  --c-bg: #1A1F2E;
+  --c-border: rgba(255, 255, 255, 0.08);
+  --c-ink: #F0EDE8;
+  --c-muted: #9A9490;
+}
+
+:global(.v-theme--dark) .sc--revenue { --c-accent-glow: rgba(74,124,89,0.18); }
+:global(.v-theme--dark) .sc--orders  { --c-accent-glow: rgba(42,110,187,0.18); }
+:global(.v-theme--dark) .sc--products{ --c-accent-glow: rgba(124,77,170,0.18); }
+:global(.v-theme--dark) .sc--stock   { --c-accent-glow: rgba(201,98,47,0.18); }
+:global(.v-theme--dark) .sc--default { --c-accent-glow: rgba(201,98,47,0.18); }
+
 .sc {
   --c-bg: #FFFCF9;
   --c-border: #EDE8E3;

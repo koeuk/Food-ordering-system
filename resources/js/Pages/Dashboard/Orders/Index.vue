@@ -21,77 +21,22 @@
 
       <!-- Filter Cards -->
       <v-row class="mb-6">
-        <v-col cols="12" sm="6" md="3">
-          <v-card 
-            elevation="2" 
-            @click="filterByStatus('all')" 
-            class="cursor-pointer"
-            :class="{ 'active-filter': statusFilter === 'all' }"
+        <v-col cols="12" sm="6" md="3" v-for="fc in filterCards" :key="fc.status">
+          <div
+            class="ofc"
+            :class="{ 'ofc--active': statusFilter === fc.status, [`ofc--${fc.colorKey}`]: true }"
+            @click="filterByStatus(fc.status)"
           >
-            <v-card-text>
-              <div class="d-flex align-center justify-space-between">
-                <div>
-                  <div class="text-h6 font-weight-bold">{{ (stats && stats.total) || 0 }}</div>
-                  <div class="text-caption">All Orders</div>
-                </div>
-                <v-icon size="40" color="primary">mdi-clipboard-list</v-icon>
+            <div class="ofc__glow"></div>
+            <div class="ofc__top">
+              <span class="ofc__label">{{ fc.label }}</span>
+              <div class="ofc__icon-wrap">
+                <v-icon size="17">{{ fc.icon }}</v-icon>
               </div>
-            </v-card-text>
-          </v-card>
-        </v-col>
-        <v-col cols="12" sm="6" md="3">
-          <v-card 
-            elevation="2" 
-            @click="filterByStatus('pending')" 
-            class="cursor-pointer"
-            :class="{ 'active-filter': statusFilter === 'pending' }"
-          >
-            <v-card-text>
-              <div class="d-flex align-center justify-space-between">
-                <div>
-                  <div class="text-h6 font-weight-bold">{{ (stats && stats.pending) || 0 }}</div>
-                  <div class="text-caption">Pending</div>
-                </div>
-                <v-icon size="40" color="warning">mdi-clock-outline</v-icon>
-              </div>
-            </v-card-text>
-          </v-card>
-        </v-col>
-        <v-col cols="12" sm="6" md="3">
-          <v-card 
-            elevation="2" 
-            @click="filterByStatus('preparing')" 
-            class="cursor-pointer"
-            :class="{ 'active-filter': statusFilter === 'preparing' }"
-          >
-            <v-card-text>
-              <div class="d-flex align-center justify-space-between">
-                <div>
-                  <div class="text-h6 font-weight-bold">{{ (stats && stats.preparing) || 0 }}</div>
-                  <div class="text-caption">Preparing</div>
-                </div>
-                <v-icon size="40" color="info">mdi-chef-hat</v-icon>
-              </div>
-            </v-card-text>
-          </v-card>
-        </v-col>
-        <v-col cols="12" sm="6" md="3">
-          <v-card 
-            elevation="2" 
-            @click="filterByStatus('delivered')" 
-            class="cursor-pointer"
-            :class="{ 'active-filter': statusFilter === 'delivered' }"
-          >
-            <v-card-text>
-              <div class="d-flex align-center justify-space-between">
-                <div>
-                  <div class="text-h6 font-weight-bold">{{ (stats && stats.delivered) || 0 }}</div>
-                  <div class="text-caption">Delivered</div>
-                </div>
-                <v-icon size="40" color="success">mdi-check-circle</v-icon>
-              </div>
-            </v-card-text>
-          </v-card>
+            </div>
+            <div class="ofc__value">{{ fc.count }}</div>
+            <div class="ofc__bar-track"><div class="ofc__bar-fill"></div></div>
+          </div>
         </v-col>
       </v-row>
 
@@ -284,6 +229,13 @@ const filteredOrders = computed(() => {
   return props.orders.data || [];
 });
 
+const filterCards = computed(() => [
+  { status: 'all',       label: 'All Orders', icon: 'mdi-clipboard-list',   colorKey: 'blue',   count: (props.stats && props.stats.total)     || 0 },
+  { status: 'pending',   label: 'Pending',    icon: 'mdi-clock-outline',     colorKey: 'amber',  count: (props.stats && props.stats.pending)   || 0 },
+  { status: 'preparing', label: 'Preparing',  icon: 'mdi-chef-hat',          colorKey: 'sky',    count: (props.stats && props.stats.preparing) || 0 },
+  { status: 'delivered', label: 'Delivered',  icon: 'mdi-check-circle',      colorKey: 'green',  count: (props.stats && props.stats.delivered) || 0 },
+]);
+
 const formatPrice = (price) => {
   const numPrice = typeof price === 'number' ? price : parseFloat(price);
   return numPrice.toFixed(2);
@@ -355,24 +307,125 @@ const handleOrderDeleted = () => {
 </script>
 
 <style scoped>
-.cursor-pointer {
+/* Dark mode overrides */
+:global(.v-theme--dark) .ofc {
+  --c-surface: #1A1F2E;
+  --c-border: rgba(255, 255, 255, 0.08);
+  --c-ink: #F0EDE8;
+  --c-muted: #9A9490;
+}
+
+/* Order filter cards */
+.ofc {
+  --c-accent: #2A6EBB;
+  --c-glow: rgba(42, 110, 187, 0.1);
+  --c-bar: #2A6EBB;
+  --c-surface: #FFFCF9;
+  --c-border: #EDE8E3;
+  --c-ink: #1C1917;
+  --c-muted: #78716C;
+
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--c-surface);
+  border: 1.5px solid var(--c-border);
+  border-radius: 18px;
+  padding: 20px 22px 0;
+  position: relative;
+  overflow: hidden;
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: transform 0.26s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.26s ease,
+              border-color 0.22s ease;
+  box-shadow: 0 2px 10px rgba(28, 25, 23, 0.06);
 }
 
-.cursor-pointer:hover {
-  transform: translateY(-2px);
+.ofc:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 32px rgba(28, 25, 23, 0.1);
 }
 
-.active-filter {
-  border: 2px solid #1976d2 !important;
-  background-color: #e3f2fd !important;
+.ofc--active {
+  border-color: var(--c-accent) !important;
+  box-shadow: 0 0 0 3px var(--c-glow), 0 8px 24px rgba(28, 25, 23, 0.1) !important;
 }
 
-.dark .active-filter {
-  border: 2px solid #64b5f6 !important;
-  background-color: #1a237e !important;
+/* Color variants */
+.ofc--blue  { --c-accent: #2A6EBB; --c-glow: rgba(42,110,187,0.12);  --c-bar: #2A6EBB; }
+.ofc--amber { --c-accent: #C07D10; --c-glow: rgba(192,125,16,0.12);  --c-bar: #C07D10; }
+.ofc--sky   { --c-accent: #1A85A0; --c-glow: rgba(26,133,160,0.12);  --c-bar: #1A85A0; }
+.ofc--green { --c-accent: #4A7C59; --c-glow: rgba(74,124,89,0.12);   --c-bar: #4A7C59; }
+
+.ofc__glow {
+  position: absolute;
+  top: -28px; right: -28px;
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  background: var(--c-glow);
+  filter: blur(22px);
+  pointer-events: none;
 }
+
+.ofc__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.ofc__label {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--c-muted);
+}
+
+.ofc__icon-wrap {
+  width: 32px; height: 32px;
+  border-radius: 9px;
+  background: var(--c-glow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(0,0,0,0.06);
+}
+
+.ofc__icon-wrap :deep(.v-icon) {
+  color: var(--c-accent) !important;
+}
+
+.ofc__value {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--c-ink);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin-bottom: 16px;
+}
+
+.ofc__bar-track {
+  height: 3px;
+  background: var(--c-border);
+  margin: 0 -22px;
+}
+
+.ofc__bar-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--c-accent);
+  border-radius: 0 2px 2px 0;
+  animation: ofc-bar 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: 0.15s;
+}
+
+.ofc--active .ofc__bar-fill {
+  animation: ofc-bar-active 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: 0.15s;
+}
+
+@keyframes ofc-bar { from { width: 0% } to { width: 55% } }
+@keyframes ofc-bar-active { from { width: 0% } to { width: 100% } }
 
 /* Dark mode styles for orders page */
 .dark .text-grey-darken-3 {

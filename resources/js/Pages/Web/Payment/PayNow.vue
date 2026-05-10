@@ -2,6 +2,8 @@
   <AppLayout>
     <Head title="Pay Now - Secure Payment" />
 
+    <v-container class="py-8">
+
     <!-- Header -->
     <div class="d-flex justify-space-between align-center mb-6">
       <div>
@@ -476,6 +478,8 @@
         </v-card>
       </v-col>
     </v-row>
+
+    </v-container>
 
     <!-- Payment Processing Dialog -->
     <v-dialog v-model="showProcessingDialog" max-width="400" persistent>
